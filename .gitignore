@@ -1,0 +1,13 @@
+node_modules/
+.next/
+dist/
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# Never commit credentials. .env.example is the template and is safe to commit.
+.env
+.env.*
+!.env.example
+
+# Persistent SQLite store — never commit your local rates/gaps DB
+data/

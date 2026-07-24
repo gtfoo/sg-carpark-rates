@@ -1,0 +1,42 @@
+{
+  "name": "carpark-sg",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "check-onemap": "tsx scripts/checkOnemap.ts",
+    "validate": "tsx scripts/validate.ts",
+    "rates-coverage": "tsx scripts/ratesCoverage.ts",
+    "rates": "tsx scripts/rates.ts",
+    "import-lta": "tsx scripts/importLta.ts",
+    "import-ura": "tsx scripts/importUra.ts",
+    "lookup": "tsx scripts/lookup.ts",
+    "demo": "tsx scripts/demo.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^3.0.99",
+    "@types/leaflet": "^1.9.21",
+    "ai": "^6.0.234",
+    "better-sqlite3": "^12.11.1",
+    "leaflet": "^1.9.4",
+    "next": "16.2.10",
+    "proj4": "^2.19.10",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-leaflet": "^5.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/proj4": "^2.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.0",
+    "typescript": "^5"
+  }
+}
