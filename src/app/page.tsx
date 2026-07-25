@@ -60,15 +60,17 @@ export default function Home() {
     void doSearch(query);
   }
 
-  async function doSearch(term: string, opts: { autoLookup?: boolean } = {}) {
-    const autoLookup = opts.autoLookup ?? true;
+  // `keepLookup` is set only when re-running the search right after a web
+  // lookup, so the "found"/"not found" banner survives the refresh. A web
+  // lookup is never triggered automatically anymore — it's user-initiated.
+  async function doSearch(term: string, opts: { keepLookup?: boolean } = {}) {
     if (!term.trim()) return;
 
     setLastTerm(term);
     setLoading(true);
     setError(null);
     setData(null);
-    if (autoLookup) setLookup(null);
+    if (!opts.keepLookup) setLookup(null);
 
     try {
       const startParam =
@@ -80,13 +82,7 @@ export default function Home() {
       if (!res.ok) {
         setError(body.error ?? "Something went wrong.");
       } else {
-        const sr = body as SearchResponse;
-        setData(sr);
-        // No rate for the destination's own parking, and the server can do a
-        // web lookup? Go find it. Guarded so the refresh-after-found doesn't loop.
-        if (autoLookup && sr.llmEnabled && !sr.destinationRateFound) {
-          void runLookup(sr.destination, term);
-        }
+        setData(body as SearchResponse);
       }
     } catch {
       setError("Network error — are you online?");
@@ -115,8 +111,8 @@ export default function Home() {
       const body = await res.json();
       if (res.ok && body.found) {
         setLookup({ state: "found", name });
-        // Re-run the search (without re-triggering lookup) so the new rate shows.
-        await doSearch(term, { autoLookup: false });
+        // Re-run the search so the new rate shows, keeping the "found" banner.
+        await doSearch(term, { keepLookup: true });
         setTimeout(() => setLookup(null), 5000);
       } else if (body.status === "error") {
         setLookup({ state: "error", name, reason: body.reason });
@@ -239,9 +235,13 @@ export default function Home() {
       {data && (
         <Results
           data={data}
+          lookupBusy={lookup?.state === "searching"}
+          onWebLookup={() =>
+            void runLookup(data.destination, lastTerm || data.destination.name)
+          }
           onRateSaved={() => {
             setLookup(null);
-            void doSearch(lastTerm || data.destination.name, { autoLookup: false });
+            void doSearch(lastTerm || data.destination.name);
           }}
         />
       )}
@@ -320,9 +320,13 @@ function LookupBanner({
 
 function Results({
   data,
+  lookupBusy,
+  onWebLookup,
   onRateSaved,
 }: {
   data: SearchResponse;
+  lookupBusy: boolean;
+  onWebLookup: () => void;
   onRateSaved: () => void;
 }) {
   // Pin numbers must be derived from the mappable subset only, in the same
@@ -349,6 +353,16 @@ function Results({
         </p>
       </div>
 
+      {!data.destinationRateFound && (
+        <NoRatePrompt
+          destination={data.destination}
+          llmEnabled={data.llmEnabled}
+          lookupBusy={lookupBusy}
+          onWebLookup={onWebLookup}
+          onSaved={onRateSaved}
+        />
+      )}
+
       <CarparkMap data={data} />
 
       <ul className="flex flex-col gap-3">
@@ -363,7 +377,11 @@ function Results({
         ))}
       </ul>
 
-      <ManualRateForm destination={data.destination} onSaved={onRateSaved} />
+      {/* When the destination already has a rate, keep an entry point to
+          correct or update it. The no-rate case shows its own prompt above. */}
+      {data.destinationRateFound && (
+        <ManualRateForm destination={data.destination} onSaved={onRateSaved} />
+      )}
 
       <details className="mt-4 text-xs" style={{ color: "var(--muted)" }}>
         <summary className="cursor-pointer">How accurate is this?</summary>
@@ -377,12 +395,66 @@ function Results({
   );
 }
 
-function ManualRateForm({
+/**
+ * Shown when the searched destination has no parking rate of its own. Explains
+ * that the nearby carparks below are what we have, and offers the two ways to
+ * fill the gap: add a rate by hand, or search the public web for it. The web
+ * search is only ever started from here (or the per-card button) — never
+ * automatically.
+ */
+function NoRatePrompt({
   destination,
+  llmEnabled,
+  lookupBusy,
+  onWebLookup,
   onSaved,
 }: {
   destination: SearchResponse["destination"];
+  llmEnabled: boolean;
+  lookupBusy: boolean;
+  onWebLookup: () => void;
   onSaved: () => void;
+}) {
+  return (
+    <div
+      className="mb-4 rounded-xl border p-4"
+      style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+    >
+      <p className="text-sm font-medium">
+        No rates for {destination.name} yet
+      </p>
+      <p className="mt-1 text-xs" style={{ color: "var(--muted)" }}>
+        We don&apos;t have parking rates for this exact location. The nearby
+        carparks and their rates are listed below — or fill the gap here:
+      </p>
+
+      <div className="mt-3 flex flex-col gap-2">
+        {llmEnabled && (
+          <button
+            type="button"
+            onClick={onWebLookup}
+            disabled={lookupBusy}
+            className="w-full rounded-xl px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
+            style={{ background: "var(--accent)", color: "#fff" }}
+          >
+            {lookupBusy ? "Searching the web…" : "🔎 Search the web for its rate"}
+          </button>
+        )}
+        <ManualRateForm destination={destination} onSaved={onSaved} noMargin />
+      </div>
+    </div>
+  );
+}
+
+function ManualRateForm({
+  destination,
+  onSaved,
+  noMargin = false,
+}: {
+  destination: SearchResponse["destination"];
+  onSaved: () => void;
+  /** Drop the top margin when embedded in the no-rate prompt's button stack. */
+  noMargin?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [displayName, setDisplayName] = useState(destination.name);
@@ -452,7 +524,7 @@ function ManualRateForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-4 w-full rounded-xl border border-dashed py-2.5 text-sm font-medium"
+        className={`w-full rounded-xl border border-dashed py-2.5 text-sm font-medium ${noMargin ? "" : "mt-4"}`}
         style={{ borderColor: "var(--border)", color: "var(--accent)" }}
       >
         ＋ Add a rate for {destination.name}
@@ -463,7 +535,7 @@ function ManualRateForm({
   return (
     <form
       onSubmit={submit}
-      className="mt-4 rounded-xl border p-4"
+      className={`rounded-xl border p-4 ${noMargin ? "" : "mt-4"}`}
       style={{ background: "var(--surface)", borderColor: "var(--border)" }}
     >
       <p className="mb-3 text-sm font-medium">Add a rate for {destination.name}</p>
@@ -671,9 +743,9 @@ function CarparkCard({
 
       <p className="mt-1 flex items-center gap-1.5 text-[10px]" style={{ color: "var(--muted)" }}>
         <span>{feeSourceLabel(r.feeSource, r.feeVerifiedAt)}</span>
-        {r.feeSourceUrl && (
+        {browsableSourceUrl(r.feeSourceUrl) && (
           <a
-            href={r.feeSourceUrl}
+            href={browsableSourceUrl(r.feeSourceUrl)!}
             target="_blank"
             rel="noreferrer"
             className="underline underline-offset-2"
@@ -731,13 +803,25 @@ function rateIsFromLiveApi(r: CarparkResult): boolean {
   if (r.feeSource === "hdb-schedule") return true;
   // URA rates are imported as "operator-site"; tell them apart from the LTA
   // OneMotoring scrape (also "operator-site") by their Data Service source URL.
-  if (
-    r.feeSource === "operator-site" &&
-    r.feeSourceUrl?.includes("uraDataService")
-  ) {
+  if (r.feeSource === "operator-site" && isUraApiUrl(r.feeSourceUrl)) {
     return true;
   }
   return false;
+}
+
+/** True for URA's Data Service endpoint — an API, not a human-viewable page. */
+function isUraApiUrl(url: string | null): boolean {
+  return Boolean(url && url.includes("uraDataService"));
+}
+
+/**
+ * The URL to link "source" to, or null to show no link. URA's Data Service
+ * endpoint returns a JSON API error in a browser rather than a rate page, so
+ * it's shown as a plain label with no link.
+ */
+function browsableSourceUrl(url: string | null): string | null {
+  if (!url || isUraApiUrl(url)) return null;
+  return url;
 }
 
 /**
