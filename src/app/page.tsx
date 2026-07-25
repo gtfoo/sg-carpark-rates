@@ -659,7 +659,7 @@ function CarparkCard({
         )}
       </div>
 
-      {freeRatio === null && llmEnabled && (
+      {llmEnabled && !rateIsFromLiveApi(r) && (
         <CardWebLookup r={r} onLookedUp={onLookedUp} />
       )}
 
@@ -721,10 +721,31 @@ function CarparkCard({
 }
 
 /**
- * Per-carpark "search the web for its rate" button. Shown only on cards with no
- * live lot data (the commercial / operator carparks, where a fresh public-rate
- * lookup is most useful). Forces a real search — a saved AI/operator rate is
- * refreshed, a hand-entered manual rate is left untouched by the server.
+ * True when the card's RATE comes straight from an official live API — HDB's
+ * current rate schedule (data.gov.sg) or URA's Car Park Details API. Those are
+ * already authoritative, so no web re-lookup button is offered for them. Every
+ * other source (stale LTA dataset, scraped operator pages, manual, AI) can be
+ * refreshed from the web.
+ */
+function rateIsFromLiveApi(r: CarparkResult): boolean {
+  if (r.feeSource === "hdb-schedule") return true;
+  // URA rates are imported as "operator-site"; tell them apart from the LTA
+  // OneMotoring scrape (also "operator-site") by their Data Service source URL.
+  if (
+    r.feeSource === "operator-site" &&
+    r.feeSourceUrl?.includes("uraDataService")
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Per-carpark "search the web for its rate" button. Shown on cards whose rate
+ * is NOT from a live official API (see rateIsFromLiveApi) — i.e. stale dataset,
+ * scraped, manual or AI rates, where a fresh public-rate lookup is useful.
+ * Forces a real search — a saved AI/operator rate is refreshed, a hand-entered
+ * manual rate is left untouched by the server.
  */
 function CardWebLookup({
   r,
