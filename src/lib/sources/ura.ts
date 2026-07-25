@@ -86,13 +86,40 @@ export interface UraCarpark {
   band: string | null;
 }
 
-/** "$1.20" + "30" -> "$1.20 per 30 mins" (a form the rate parser handles). */
-function rateString(amount?: string, mins?: string): string | null {
+/**
+ * "$0.60" + "30 mins" -> "$0.60 per 30 mins" (a form the rate parser handles).
+ * URA's min field already carries the word "mins", so it is NOT re-appended.
+ */
+function rateString(amount?: string, minField?: string): string | null {
   const a = (amount ?? "").trim();
-  const m = (mins ?? "").trim();
-  if (!a || a === "0" || a === "$0.00") return a === "$0.00" || a === "0" ? "Free" : null;
-  if (!m) return a;
-  return `${a.startsWith("$") ? a : `$${a}`} per ${m} mins`;
+  const m = (minField ?? "").trim();
+  if (!a) return null;
+  if (/^\$?0(\.0+)?$/.test(a)) return "Free";
+  const mins = parseInt(m, 10);
+  if (!mins) return a;
+  return `${a.startsWith("$") ? a : `$${a}`} per ${m}`;
+}
+
+/** URA time like "07.00 AM" / "05.00 PM" -> minutes since midnight. */
+function parseUraTime(s?: string): number | null {
+  const m = (s ?? "").trim().match(/(\d{1,2})\.(\d{2})\s*(AM|PM)/i);
+  if (!m) return null;
+  let h = parseInt(m[1]!, 10) % 12;
+  if (/pm/i.test(m[3]!)) h += 12;
+  return h * 60 + parseInt(m[2]!, 10);
+}
+
+/** Does this band cover 1pm — the representative daytime parking hour? */
+function coversMidday(r: RawUraCarpark): boolean {
+  const s = parseUraTime(r.startTime);
+  const e = parseUraTime(r.endTime);
+  if (s === null || e === null || e <= s) return false; // ignore overnight-wrap bands
+  const T = 13 * 60;
+  return s <= T && T < e;
+}
+
+function blockMins(r: RawUraCarpark): number {
+  return parseInt((r.weekdayMin ?? "").trim(), 10) || 0;
 }
 
 /** URA returns SVY21 "x,y"; convert with the verified transform. */
@@ -130,34 +157,46 @@ export async function fetchUraCarparks(): Promise<UraCarpark[]> {
     );
   }
 
-  const byCode = new Map<string, UraCarpark>();
+  // URA returns one row per (vehicle category × time band). Group the Car rows
+  // per carpark, then pick the band that covers 1pm — the representative
+  // daytime rate — skipping free early/overnight bands and the 510-min
+  // overnight-cap rows, which our single-weekday-rate model can't hold.
+  const groups = new Map<string, RawUraCarpark[]>();
   for (const r of body.Result) {
-    // Cars only — URA also lists motorcycle and heavy-vehicle rates.
     if (r.vehCat && !/^car$/i.test(r.vehCat.trim())) continue;
     const code = (r.ppCode ?? "").trim();
     if (!code) continue;
-
-    const band =
-      r.startTime && r.endTime ? `${r.startTime}-${r.endTime}` : null;
-    const record: UraCarpark = {
-      code,
-      name: (r.ppName ?? code).trim(),
-      location: toLatLng(r.geometries),
-      capacity: Number(r.parkCapacity) || null,
-      parkingSystem: r.parkingSystem?.trim() || null,
-      weekdayRate: rateString(r.weekdayRate, r.weekdayMin),
-      saturdayRate: rateString(r.satdayRate, r.satdayMin),
-      sundayPhRate: rateString(r.sunPHRate, r.sunPHMin),
-      band,
-    };
-
-    // Keep the first row with a usable weekday rate; otherwise keep whatever
-    // we have so the carpark still appears.
-    const existing = byCode.get(code);
-    if (!existing || (!existing.weekdayRate && record.weekdayRate)) {
-      byCode.set(code, record);
+    let arr = groups.get(code);
+    if (!arr) {
+      arr = [];
+      groups.set(code, arr);
     }
+    arr.push(r);
   }
 
-  return [...byCode.values()];
+  const out: UraCarpark[] = [];
+  for (const [code, rows] of groups) {
+    const normal = (r: RawUraCarpark) => blockMins(r) > 0 && blockMins(r) <= 120;
+    const pick =
+      rows.find((r) => coversMidday(r) && normal(r)) ??
+      rows.find((r) => normal(r)) ??
+      rows[0]!;
+
+    out.push({
+      code,
+      name: (pick.ppName ?? code).trim(),
+      location: toLatLng(pick.geometries),
+      capacity: Number(pick.parkCapacity) || null,
+      parkingSystem: pick.parkingSystem?.trim() || null,
+      weekdayRate: rateString(pick.weekdayRate, pick.weekdayMin),
+      saturdayRate: rateString(pick.satdayRate, pick.satdayMin),
+      sundayPhRate: rateString(pick.sunPHRate, pick.sunPHMin),
+      band:
+        pick.startTime && pick.endTime
+          ? `${pick.startTime}-${pick.endTime}`
+          : null,
+    });
+  }
+
+  return out;
 }
