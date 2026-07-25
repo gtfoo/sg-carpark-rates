@@ -120,10 +120,10 @@ export function parseRate(rawInput: string): ParsedRate {
     }
   }
 
-  // "$0.018 /min". The dollar sign is required — without it any bare number
-  // sitting next to the word "min" gets treated as a rate.
+  // "$0.018 /min", "$0.06 per minute". The dollar sign is required — without it
+  // any bare number sitting next to the word "min" gets treated as a rate.
   const perMin = raw.match(
-    new RegExp(`\\$\\s*(\\d+(?:\\.\\d+)?)\\s*/?\\s*(?:per\\s*)?mins?\\b`, "i"),
+    new RegExp(`\\$\\s*(\\d+(?:\\.\\d+)?)${SEPS}min(?:ute)?s?\\b`, "i"),
   );
   if (perMin) {
     const dollars = Number(perMin[1]);
