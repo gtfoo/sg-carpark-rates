@@ -353,7 +353,13 @@ function Results({
 
       <ul className="flex flex-col gap-3">
         {data.results.map((r) => (
-          <CarparkCard key={r.id} r={r} index={mapNumbers.get(r.id) ?? null} />
+          <CarparkCard
+            key={r.id}
+            r={r}
+            index={mapNumbers.get(r.id) ?? null}
+            llmEnabled={data.llmEnabled}
+            onLookedUp={onRateSaved}
+          />
         ))}
       </ul>
 
@@ -562,9 +568,14 @@ function ManualRateForm({
 function CarparkCard({
   r,
   index,
+  llmEnabled,
+  onLookedUp,
 }: {
   r: CarparkResult;
   index: number | null;
+  llmEnabled: boolean;
+  /** Re-run the search after a lookup saves a rate, so the new rate shows. */
+  onLookedUp: () => void;
 }) {
   // Fraction of lots FREE, not occupied. Named explicitly because "3/4" was
   // ambiguous enough to read as either.
@@ -648,6 +659,10 @@ function CarparkCard({
         )}
       </div>
 
+      {freeRatio === null && llmEnabled && (
+        <CardWebLookup r={r} onLookedUp={onLookedUp} />
+      )}
+
       {r.feeNote && (
         <p className="mt-2 text-[11px]" style={{ color: "var(--muted)" }}>
           {r.feeNote}
@@ -702,6 +717,92 @@ function CarparkCard({
         </details>
       )}
     </li>
+  );
+}
+
+/**
+ * Per-carpark "search the web for its rate" button. Shown only on cards with no
+ * live lot data (the commercial / operator carparks, where a fresh public-rate
+ * lookup is most useful). Forces a real search — a saved AI/operator rate is
+ * refreshed, a hand-entered manual rate is left untouched by the server.
+ */
+function CardWebLookup({
+  r,
+  onLookedUp,
+}: {
+  r: CarparkResult;
+  onLookedUp: () => void;
+}) {
+  const [state, setState] = useState<
+    "idle" | "searching" | "notfound" | "error"
+  >("idle");
+  const [reason, setReason] = useState<string | null>(null);
+
+  async function search() {
+    setState("searching");
+    setReason(null);
+    try {
+      const res = await fetch("/api/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          destination: r.name,
+          postal: null,
+          lat: r.location?.lat ?? null,
+          lng: r.location?.lng ?? null,
+          force: true,
+        }),
+      });
+      const body = await res.json();
+      if (res.ok && body.found) {
+        // A rate was saved — re-run the search so this card shows it. The card
+        // unmounts on refresh, so no local state needs resetting.
+        onLookedUp();
+      } else if (body.status === "error") {
+        setState("error");
+        setReason(body.reason ?? "Web lookup failed.");
+      } else {
+        setState("notfound");
+        setReason(body.reason ?? "No rate found online.");
+      }
+    } catch {
+      setState("error");
+      setReason("Network error.");
+    }
+  }
+
+  if (state === "searching") {
+    return (
+      <p
+        className="mt-2 flex items-center gap-2 text-[11px]"
+        style={{ color: "var(--muted)" }}
+      >
+        <span
+          aria-hidden
+          className="h-3 w-3 shrink-0 animate-spin rounded-full border-2"
+          style={{ borderColor: "var(--border)", borderTopColor: "var(--accent)" }}
+        />
+        Searching the web for {r.name}&apos;s rate…
+      </p>
+    );
+  }
+
+  return (
+    <div className="mt-2">
+      <button
+        type="button"
+        onClick={search}
+        className="text-[11px] font-medium underline underline-offset-2"
+        style={{ color: "var(--accent)" }}
+      >
+        {state === "idle" ? "🔎 Search the web for its rate" : "Try again"}
+      </button>
+      {reason && (
+        <span className="ml-2 text-[11px]" style={{ color: "#d97706" }}>
+          {reason}
+        </span>
+      )}
+    </div>
   );
 }
 

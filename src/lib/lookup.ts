@@ -69,6 +69,12 @@ export async function lookupCarparkRate(args: {
   /** The destination's coordinates, stored so the saved rate is spatially matchable. */
   lat?: number | null;
   lng?: number | null;
+  /**
+   * Re-search even when a rate already exists (the per-carpark "search the web"
+   * button). A hand-entered manual rate is still protected — we never let an
+   * AI-retrieved rate clobber one the user typed in themselves.
+   */
+  force?: boolean;
 }): Promise<LookupResult> {
   if (!isLlmConfigured()) {
     return { found: false, status: "disabled", reason: "LLM is not configured.", sources: [] };
@@ -82,12 +88,14 @@ export async function lookupCarparkRate(args: {
     };
   }
 
-  // Don't spend a lookup on something we already have.
+  // Don't spend a lookup on something we already have — unless the caller
+  // explicitly forced a refresh. Even then, never overwrite a rate the user
+  // typed in themselves; return it untouched.
   const existing = findOverrideForDestination({
     postal: args.postal,
     name: args.destination,
   });
-  if (existing) {
+  if (existing && (!args.force || existing.source === "manual")) {
     return { found: true, status: "found", override: existing, sources: [] };
   }
 

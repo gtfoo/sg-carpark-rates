@@ -26,13 +26,14 @@ export async function POST(request: Request) {
     typeof b.postal === "string" && b.postal.trim() !== "" ? b.postal.trim() : null;
   const lat = typeof b.lat === "number" ? b.lat : null;
   const lng = typeof b.lng === "number" ? b.lng : null;
+  const force = b.force === true;
 
   if (!destination) {
     return Response.json({ error: "destination is required." }, { status: 400 });
   }
 
   try {
-    const result = await lookupCarparkRate({ destination, postal, lat, lng });
+    const result = await lookupCarparkRate({ destination, postal, lat, lng, force });
     return Response.json(result);
   } catch (err) {
     console.error("lookup failed", err);
