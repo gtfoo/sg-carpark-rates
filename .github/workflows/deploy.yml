@@ -1,0 +1,33 @@
+name: Deploy to droplet
+
+# Push to main -> SSH into the droplet, pull, rebuild, restart.
+# Also runnable on demand from the Actions tab (e.g. after fixing a bad deploy).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Never let two deploys overlap; queue them instead of interrupting a build.
+concurrency:
+  group: deploy-droplet
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          port: ${{ secrets.DROPLET_PORT || 22 }}
+          # Fail the job if any command in the script fails.
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ secrets.DROPLET_APP_DIR }}"
+            git fetch --quiet origin main
+            git reset --hard origin/main
+            bash scripts/deploy.sh
