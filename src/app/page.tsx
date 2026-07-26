@@ -742,7 +742,7 @@ function CarparkCard({
       )}
 
       <p className="mt-1 flex items-center gap-1.5 text-[10px]" style={{ color: "var(--muted)" }}>
-        <span>{feeSourceLabel(r.feeSource, r.feeVerifiedAt)}</span>
+        <span>{feeSourceLabel(r)}</span>
         {browsableSourceUrl(r.feeSourceUrl) && (
           <a
             href={browsableSourceUrl(r.feeSourceUrl)!}
@@ -812,6 +812,16 @@ function rateIsFromLiveApi(r: CarparkResult): boolean {
 /** True for URA's Data Service endpoint — an API, not a human-viewable page. */
 function isUraApiUrl(url: string | null): boolean {
   return Boolean(url && url.includes("uraDataService"));
+}
+
+/**
+ * True for LTA's OneMotoring portal. Both URA and OneMotoring rates are stored
+ * as "operator-site", but OneMotoring is a government aggregator that re-lists
+ * operators' rates — not the operator's own site — so it gets its own label and
+ * remains eligible for a user-triggered web refresh.
+ */
+function isOneMotoringUrl(url: string | null): boolean {
+  return Boolean(url && url.includes("onemotoring.lta.gov.sg"));
 }
 
 /**
@@ -911,21 +921,23 @@ function CardWebLookup({
   );
 }
 
-function feeSourceLabel(
-  source: CarparkResult["feeSource"],
-  verifiedAt: string | null,
-): string {
-  switch (source) {
+function feeSourceLabel(r: CarparkResult): string {
+  const age = ageLabel(r.feeVerifiedAt);
+  switch (r.feeSource) {
     case "hdb-schedule":
       return "HDB rate schedule (current)";
     case "lta-dataset":
-      return `LTA dataset · ${ageLabel(verifiedAt)}`;
+      return `LTA dataset · ${age}`;
     case "manual":
-      return `Your rate · ${ageLabel(verifiedAt)}`;
-    case "operator-site":
-      return `From operator site · ${ageLabel(verifiedAt)}`;
+      return `Your rate · ${age}`;
     case "web-llm":
-      return `AI-retrieved · ${ageLabel(verifiedAt)} · verify`;
+      return `AI-retrieved · ${age} · verify`;
+    case "operator-site":
+      // "operator-site" is really three sources; separate them so the label
+      // matches how authoritative each is.
+      if (isUraApiUrl(r.feeSourceUrl)) return `URA (official) · ${age}`;
+      if (isOneMotoringUrl(r.feeSourceUrl)) return `Via LTA OneMotoring · ${age}`;
+      return `From operator site · ${age}`;
   }
 }
 
