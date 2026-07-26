@@ -1,34 +1,44 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
+import { BrandProvider } from "./brand-provider";
+import { brandFromHost } from "@/lib/brand";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Carpark SG",
-  description: "Nearby Singapore carparks, rates and availability",
-  appleWebApp: {
-    capable: true,
-    title: "Carpark SG",
-    statusBarStyle: "black-translucent",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = brandFromHost((await headers()).get("host"));
+  return {
+    title: brand.name,
+    description: brand.description,
+    appleWebApp: {
+      capable: true,
+      title: brand.name,
+      statusBarStyle: "black-translucent",
+    },
+  };
+}
 
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0b0d10" },
-    { media: "(prefers-color-scheme: light)", color: "#f6f7f9" },
-  ],
-  width: "device-width",
-  initialScale: 1,
-  // Allow pinch-zoom; disabling it is an accessibility failure.
-  maximumScale: 5,
-  viewportFit: "cover",
-};
+export async function generateViewport(): Promise<Viewport> {
+  const brand = brandFromHost((await headers()).get("host"));
+  return {
+    // Tints the mobile browser chrome to match the brand.
+    themeColor: brand.theme.bg,
+    width: "device-width",
+    initialScale: 1,
+    // Allow pinch-zoom; disabling it is an accessibility failure.
+    maximumScale: 5,
+    viewportFit: "cover",
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const brand = brandFromHost((await headers()).get("host"));
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body data-brand={brand.key}>
+        <BrandProvider brand={brand}>{children}</BrandProvider>
+      </body>
     </html>
   );
 }

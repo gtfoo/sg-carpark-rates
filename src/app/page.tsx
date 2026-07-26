@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import AddressInput from "./AddressInput";
+import { useBrand } from "./brand-provider";
 import { toSgtInputValue } from "@/lib/time";
 import { formatFee } from "@/lib/format";
 import type { SearchResponse, CarparkResult } from "@/lib/search";
@@ -34,6 +35,7 @@ const DURATIONS = [
 ];
 
 export default function Home() {
+  const brand = useBrand();
   const [query, setQuery] = useState("");
   const [minutes, setMinutes] = useState(120);
   const [data, setData] = useState<SearchResponse | null>(null);
@@ -127,9 +129,9 @@ export default function Home() {
   return (
     <main className="mx-auto w-full max-w-lg px-4 pb-16 pt-6">
       <header className="mb-5">
-        <h1 className="text-2xl font-bold tracking-tight">Carpark SG</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{brand.name}</h1>
         <p className="text-sm" style={{ color: "var(--muted)" }}>
-          Nearby carparks, rates and live availability
+          {brand.tagline}
         </p>
       </header>
 

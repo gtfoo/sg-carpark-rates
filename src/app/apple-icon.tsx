@@ -1,10 +1,13 @@
 import { ImageResponse } from "next/og";
+import { headers } from "next/headers";
+import { brandFromHost } from "@/lib/brand";
 
 /** iOS uses this for the home-screen icon after "Add to Home Screen". */
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
-export default function AppleIcon() {
+export default async function AppleIcon() {
+  const brand = brandFromHost((await headers()).get("host"));
   return new ImageResponse(
     (
       <div
@@ -14,8 +17,8 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0b0d10",
-          color: "#5b8cff",
+          background: brand.theme.bg,
+          color: brand.theme.accent,
           fontSize: 110,
           fontWeight: 700,
         }}

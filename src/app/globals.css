@@ -36,6 +36,27 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+
+/* Park Here Anne is the same parking engine with a warmer, private identity. */
+body[data-brand="anne"] {
+  --bg: #181016;
+  --surface: #251820;
+  --border: #432a38;
+  --text: #fff6fa;
+  --muted: #cfafbd;
+  --accent: #e76d9b;
+}
+
+@media (prefers-color-scheme: light) {
+  body[data-brand="anne"] {
+    --bg: #fff5f8;
+    --surface: #fffafd;
+    --border: #efcfdb;
+    --text: #381925;
+    --muted: #805568;
+    --accent: #d95282;
+  }
+}
 /* 16px minimum on inputs stops iOS Safari zooming in on focus. */
 input,
 select,
