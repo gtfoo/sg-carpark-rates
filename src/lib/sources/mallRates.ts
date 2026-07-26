@@ -81,12 +81,16 @@ export function parseRate(rawInput: string): ParsedRate {
 
   // "$1.20 for 1st hr; $0.60 for sub. ½ hr or part thereof."
   // "$3.90 for 1st hr; $1.95 per sub.½ hr"  <- "per" before "sub" is common too.
+  // "$5.00 for 1st hr; $0.10 for next sub. min." <- the subsequent block can be
+  // per-minute, so the unit here also accepts a bare "min"/"minute" (excluded
+  // from BLOCK_UNIT, which is why unitToMinutes maps it to 1 minute).
+  const RATE_UNIT = `(?:${BLOCK_UNIT})|min(?:ute)?s?`;
   const firstThen = raw.match(
     new RegExp(
-      `${NUM}${SEPS}(?:the\\s*)?1st\\s*(${BLOCK_UNIT})` +
+      `${NUM}${SEPS}(?:the\\s*)?1st\\s*(${RATE_UNIT})` +
         // "for each sub. ½ hr", "for next sub 30min", "per subsequent hour"
         `[\\s\\S]*?${NUM}${SEPS}(?:(?:each|next)\\s*)?(?:sub\\.?|subsequent)\\s*` +
-        `(${BLOCK_UNIT})`,
+        `(${RATE_UNIT})`,
       "i",
     ),
   );
@@ -146,6 +150,8 @@ function unitToMinutes(unit: string): number {
   if (u.startsWith("hr") || u.startsWith("hour")) return 60;
   const mins = u.match(/(\d+)min/);
   if (mins) return Number(mins[1]);
+  // Bare "min"/"minute"/"minutes" (no leading number) is one minute.
+  if (u.startsWith("min")) return 1;
   const n = u.match(/^(\d+)/);
   return n ? Number(n[1]) : 60;
 }
@@ -165,7 +171,7 @@ export async function fetchMallRates(): Promise<MallCarparkRates[]> {
 /** Human-readable description of a parsed rate, for the fee breakdown UI. */
 export function describeRate(rate: ParsedRate): string {
   const block = (m: number) =>
-    m === 60 ? "hour" : m === 30 ? "30 min" : `${m} min`;
+    m === 60 ? "hour" : m === 1 ? "min" : m === 30 ? "30 min" : `${m} min`;
   switch (rate.kind) {
     case "per-minute":
       return `$${rate.dollars.toFixed(3).replace(/0+$/, "").replace(/\.$/, "")}/min`;
