@@ -1,5 +1,6 @@
 import { fetchHdbCarparks, type HdbCarpark } from "./sources/hdb";
 import { fetchAvailability, type Availability } from "./sources/availability";
+import { publicEpsCarparks, type EpsCarpark } from "./sources/eps";
 import {
   fetchMallRates,
   estimateMallFee,
@@ -44,7 +45,9 @@ export type FeeSource =
   | "lta-dataset"
   | "manual"
   | "operator-site"
-  | "web-llm";
+  | "web-llm"
+  // eps-inventory: a car park from the LTA EPS list — location only, no rate yet.
+  | "eps-inventory";
 
 export interface CarparkResult {
   id: string;
@@ -192,28 +195,53 @@ export async function search(
 
   type Candidate =
     | { kind: "hdb"; c: HdbCarpark; d: number }
-    | { kind: "override"; o: RateOverride; d: number };
+    | { kind: "override"; o: RateOverride; d: number }
+    | { kind: "eps"; c: EpsCarpark; d: number };
 
-  const candidates: Candidate[] = [
+  const ranked: Candidate[] = [
     ...carparks.map((c) => ({
       kind: "hdb" as const,
       c,
       d: haversineMetres(place.location, c.location),
     })),
     ...overrideHits.map((x) => ({ kind: "override" as const, o: x.o, d: x.d })),
-  ]
-    .sort((a, b) => a.d - b.d)
-    .slice(0, limit);
+    ...publicEpsCarparks.map((c) => ({
+      kind: "eps" as const,
+      c,
+      d: haversineMetres(place.location, c.location),
+    })),
+  ].sort((a, b) => a.d - b.d);
+
+  const candLocation = (cand: Candidate): LatLng =>
+    cand.kind === "hdb" || cand.kind === "eps"
+      ? cand.c.location
+      : { lat: cand.o.lat!, lng: cand.o.lng! };
+
+  // Drop an EPS entry when a rated carpark (HDB/override) sits within ~35 m —
+  // it's the same physical car park, and we prefer the one we can price. Only
+  // the nearest handful are checked, so this stays cheap.
+  const DEDUP_M = 35;
+  const kept: Candidate[] = [];
+  for (const cand of ranked) {
+    if (kept.length >= limit) break;
+    if (cand.kind === "eps") {
+      const dup = kept.some(
+        (k) =>
+          k.kind !== "eps" &&
+          haversineMetres(cand.c.location, candLocation(k)) < DEDUP_M,
+      );
+      if (dup) continue;
+    }
+    kept.push(cand);
+  }
+  const candidates = kept;
 
   const nearestHdbM = candidates.find((x) => x.kind === "hdb")?.d ?? Infinity;
   const nearestOverrideM = overrideHits[0]?.d ?? Infinity;
 
   const results: CarparkResult[] = [];
   for (const cand of candidates) {
-    const loc =
-      cand.kind === "hdb"
-        ? cand.c.location
-        : { lat: cand.o.lat!, lng: cand.o.lng! };
+    const loc = candLocation(cand);
     const walk = await walkingDistanceMetres(place.location, loc);
     results.push(
       cand.kind === "hdb"
@@ -224,7 +252,9 @@ export async function search(
             dayType,
             holidays,
           })
-        : overrideResult(cand.o, cand.d, walk, minutes, dayType),
+        : cand.kind === "eps"
+          ? epsResult(cand.c, cand.d, walk)
+          : overrideResult(cand.o, cand.d, walk, minutes, dayType),
     );
   }
 
@@ -471,6 +501,40 @@ function overrideResult(
       minutes,
       dollars,
     ),
+  };
+}
+
+/**
+ * Builds a result for an EPS-inventory car park: we know where it is but not
+ * its rate. Shown as a nearby option with an unknown fee ("—") and the
+ * per-card "search the web for its rate" button to fill it in.
+ */
+function epsResult(
+  c: EpsCarpark,
+  straightM: number,
+  walkM: number | null,
+): CarparkResult {
+  return {
+    id: `eps:${c.id}`,
+    name: titleCase(c.name),
+    operator: "Commercial",
+    carparkType: "EPS car park",
+    shelter: "unknown",
+    needsParkingApp: false,
+    location: c.location,
+    distanceM: Math.round(walkM ?? straightM),
+    distanceIsWalking: walkM !== null,
+    lotsAvailable: null,
+    totalLots: null,
+    fee: null,
+    feeConfidence: "unknown",
+    feeSource: "eps-inventory",
+    feeVerifiedAt: null,
+    feeSourceUrl: null,
+    feeNote:
+      (c.publicLots ? `${c.publicLots} public lots. ` : "") +
+      "No rate on file yet.",
+    feeBreakdown: [],
   };
 }
 

@@ -934,6 +934,8 @@ function feeSourceLabel(r: CarparkResult): string {
       return `Your rate · ${age}`;
     case "web-llm":
       return `AI-retrieved · ${age} · verify`;
+    case "eps-inventory":
+      return "LTA EPS listing · no rate yet";
     case "operator-site":
       // "operator-site" is really three sources; separate them so the label
       // matches how authoritative each is.
