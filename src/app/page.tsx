@@ -423,16 +423,6 @@ function Results({
         ))}
       </ul>
 
-      {/* When the destination already has a rate, keep an entry point to
-          correct or update it. The no-rate case shows its own prompt above. */}
-      {data.destinationRateFound && (
-        <ManualRateForm
-          destination={data.destination}
-          onSaved={onRateSaved}
-          llmEnabled={data.llmEnabled}
-        />
-      )}
-
       <details className="mt-4 text-xs" style={{ color: "var(--muted)" }}>
         <summary className="cursor-pointer">How accurate is this?</summary>
         <ul className="mt-2 flex list-disc flex-col gap-1 pl-5">
@@ -490,124 +480,117 @@ function NoRatePrompt({
             {lookupBusy ? "Searching the web…" : "🔎 Search the web for its rate"}
           </button>
         )}
-        <ManualRateForm
-          destination={destination}
-          onSaved={onSaved}
-          llmEnabled={llmEnabled}
-          noMargin
-        />
+        {llmEnabled && (
+          <AiAddRate target={destTarget(destination)} onSaved={onSaved} />
+        )}
       </div>
     </div>
   );
 }
 
-function ManualRateForm({
-  destination,
+/** RateTarget for the searched destination itself. */
+function destTarget(d: SearchResponse["destination"]): RateTarget {
+  return {
+    matchType: d.postal ? "postal" : "name",
+    matchValue: d.postal ?? d.name,
+    displayName: d.name,
+    lat: d.location.lat,
+    lng: d.location.lng,
+  };
+}
+
+/** RateTarget for a specific car park card in the results list. */
+function cardTarget(r: CarparkResult): RateTarget {
+  return {
+    matchType: "name",
+    matchValue: r.name,
+    displayName: r.name,
+    lat: r.location?.lat ?? null,
+    lng: r.location?.lng ?? null,
+  };
+}
+
+/**
+ * Where an added rate should be attached: a specific car park card in the
+ * list, or the searched destination itself.
+ */
+interface RateTarget {
+  matchType: "postal" | "name";
+  matchValue: string;
+  displayName: string;
+  lat: number | null;
+  lng: number | null;
+}
+
+/**
+ * Add a rate for a car park with the LLM's help — no manual keying. Either
+ * paste a link (we fetch and read the page) or paste the rate text copied from
+ * the operator's site (the path for JavaScript sites whose rates never appear
+ * in fetched HTML). The extracted rate is saved directly, then shows on the
+ * card so it can be eyeballed and re-done if it's off.
+ */
+function AiAddRate({
+  target,
   onSaved,
-  llmEnabled = false,
-  noMargin = false,
 }: {
-  destination: SearchResponse["destination"];
+  target: RateTarget;
   onSaved: () => void;
-  /** Whether the AI extract-from-link / paste helper is offered. */
-  llmEnabled?: boolean;
-  /** Drop the top margin when embedded in the no-rate prompt's button stack. */
-  noMargin?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [displayName, setDisplayName] = useState(destination.name);
-  const [weekday, setWeekday] = useState("");
-  const [saturday, setSaturday] = useState("");
-  const [sunday, setSunday] = useState("");
-  const [sourceUrl, setSourceUrl] = useState("");
-  const [notes, setNotes] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
+  const [mode, setMode] = useState<"url" | "text">("url");
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
-  // AI-assist: paste a link or the rate text, let the model fill the fields.
-  const [aiMode, setAiMode] = useState<"url" | "text">("url");
-  const [aiValue, setAiValue] = useState("");
-  const [aiBusy, setAiBusy] = useState(false);
-  const [aiMsg, setAiMsg] = useState<{ ok: boolean; text: string } | null>(null);
-
-  async function extract() {
-    if (!aiValue.trim()) return;
-    setAiBusy(true);
-    setAiMsg(null);
-    setErr(null);
+  async function extractAndSave() {
+    if (!value.trim()) return;
+    setBusy(true);
+    setMsg(null);
     try {
-      const res = await fetch("/api/extract", {
+      const ex = await fetch("/api/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source: aiMode, value: aiValue.trim() }),
-      });
-      const b = await res.json();
-      if (res.ok && b.found) {
-        if (b.weekdayRate) setWeekday(b.weekdayRate);
-        if (b.saturdayRate) setSaturday(b.saturdayRate);
-        if (b.sundayPhRate) setSunday(b.sundayPhRate);
-        if (b.notes) setNotes(b.notes);
-        if (b.carparkName) setDisplayName(b.carparkName);
-        // Keep the link the user pasted as the source, if any.
-        if (aiMode === "url") setSourceUrl(aiValue.trim());
-        else if (b.sourceUrl) setSourceUrl(b.sourceUrl);
-        setAiMsg({ ok: true, text: "Filled in below — check it's right, then Save." });
-      } else {
-        setAiMsg({ ok: false, text: b.reason ?? "Couldn't find rates in that." });
+        body: JSON.stringify({ source: mode, value: value.trim() }),
+      }).then((r) => r.json());
+      if (!ex.found) {
+        setMsg({ ok: false, text: ex.reason ?? "Couldn't find a rate in that." });
+        return;
       }
-    } catch {
-      setAiMsg({ ok: false, text: "Network error." });
-    } finally {
-      setAiBusy(false);
-    }
-  }
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!weekday.trim()) {
-      setErr("A weekday rate is required (e.g. \"$1.20 per half hour\").");
-      return;
-    }
-    setSaving(true);
-    setErr(null);
-    try {
       const res = await fetch("/api/rates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Postal is the stable key when available, else the name.
-          matchType: destination.postal ? "postal" : "name",
-          matchValue: destination.postal ?? destination.name,
-          displayName: displayName.trim() || destination.name,
-          weekdayRate: weekday.trim(),
-          saturdayRate: saturday.trim() || null,
-          sundayPhRate: sunday.trim() || null,
-          sourceUrl: sourceUrl.trim() || null,
-          notes: notes.trim() || null,
-          source: sourceUrl.trim() ? "operator-site" : "manual",
-          lat: destination.location.lat,
-          lng: destination.location.lng,
+          matchType: target.matchType,
+          matchValue: target.matchValue,
+          displayName: ex.carparkName || target.displayName,
+          weekdayRate: ex.weekdayRate,
+          saturdayRate: ex.saturdayRate ?? null,
+          sundayPhRate: ex.sundayPhRate ?? null,
+          // Keep the link the user pasted as the source, else one the AI spotted.
+          sourceUrl: (mode === "url" ? value.trim() : ex.sourceUrl) || null,
+          notes: ex.notes || null,
+          // AI-parsed, so labelled AI-retrieved ("verify") in the UI.
+          source: "web-llm",
+          lat: target.lat,
+          lng: target.lng,
         }),
       });
-      const body = await res.json();
       if (!res.ok) {
-        setErr(body.error ?? "Could not save.");
+        const b = await res.json();
+        setMsg({ ok: false, text: b.error ?? "Could not save the rate." });
         return;
       }
-      setOpen(false);
-      // Reset the volatile fields for next time.
-      setWeekday("");
-      setSaturday("");
-      setSunday("");
-      setSourceUrl("");
-      setNotes("");
-      setAiValue("");
-      setAiMsg(null);
-      onSaved();
+      setMsg({ ok: true, text: `Saved: ${ex.weekdayRate}` });
+      setValue("");
+      // Let the confirmation show briefly, then refresh so the rate appears.
+      setTimeout(() => {
+        setOpen(false);
+        onSaved();
+      }, 1400);
     } catch {
-      setErr("Network error.");
+      setMsg({ ok: false, text: "Network error." });
     } finally {
-      setSaving(false);
+      setBusy(false);
     }
   }
 
@@ -622,199 +605,108 @@ function ManualRateForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`w-full rounded-xl border border-dashed py-2.5 text-sm font-medium ${noMargin ? "" : "mt-4"}`}
-        style={{ borderColor: "var(--border)", color: "var(--accent)" }}
+        className="mt-2 text-[11px] font-medium underline underline-offset-2"
+        style={{ color: "var(--accent)" }}
       >
-        ＋ Add a rate for {destination.name}
+        ✨ Add a rate (link or paste)
       </button>
     );
   }
 
   return (
-    <form
-      onSubmit={submit}
-      className={`rounded-xl border p-4 ${noMargin ? "" : "mt-4"}`}
-      style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+    <div
+      className="mt-2 rounded-lg border p-3"
+      style={{ borderColor: "var(--border)", background: "var(--bg)" }}
     >
-      <p className="mb-3 text-sm font-medium">Add a rate for {destination.name}</p>
-
-      {llmEnabled && (
-        <div
-          className="mb-3 rounded-lg border p-3"
-          style={{ borderColor: "var(--border)", background: "var(--bg)" }}
-        >
-          <div className="mb-2 flex items-center gap-2">
-            <span className="text-xs font-medium">✨ Fill in with AI</span>
-            <div className="ml-auto flex gap-1">
-              {([
-                ["url", "From a link"],
-                ["text", "Paste rates"],
-              ] as const).map(([key, label]) => {
-                const active = aiMode === key;
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => {
-                      setAiMode(key);
-                      setAiMsg(null);
-                    }}
-                    aria-pressed={active}
-                    className="rounded-md border px-2 py-1 text-[11px] font-medium"
-                    style={{
-                      background: active ? "var(--accent)" : "var(--surface)",
-                      borderColor: active ? "var(--accent)" : "var(--border)",
-                      color: active ? "#fff" : "var(--text)",
-                    }}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {aiMode === "url" ? (
-            <input
-              value={aiValue}
-              onChange={(e) => setAiValue(e.target.value)}
-              placeholder="https://operator-site/parking-rates"
-              className="w-full rounded-lg border px-3 py-2 text-sm"
-              style={inputStyle}
-            />
-          ) : (
-            <textarea
-              value={aiValue}
-              onChange={(e) => setAiValue(e.target.value)}
-              rows={4}
-              placeholder="Paste the rates you copied from the operator's site…"
-              className="w-full rounded-lg border px-3 py-2 text-sm"
-              style={inputStyle}
-            />
-          )}
-
-          <button
-            type="button"
-            onClick={extract}
-            disabled={aiBusy || !aiValue.trim()}
-            className="mt-2 w-full rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-50"
-            style={{ background: "var(--accent)", color: "#fff" }}
-          >
-            {aiBusy
-              ? aiMode === "url"
-                ? "Reading the page…"
-                : "Reading the rates…"
-              : "Extract rates"}
-          </button>
-
-          {aiMsg && (
-            <p
-              className="mt-2 text-[11px]"
-              style={{ color: aiMsg.ok ? "#22c55e" : "#d97706" }}
-            >
-              {aiMsg.text}
-            </p>
-          )}
-          <p className="mt-1 text-[11px]" style={{ color: "var(--muted)" }}>
-            AI-filled rates land in the fields below — always review before saving.
-          </p>
+      <div className="mb-2 flex items-center gap-2">
+        <span className="text-[11px] font-medium">✨ Add a rate</span>
+        <div className="ml-auto flex gap-1">
+          {([
+            ["url", "From a link"],
+            ["text", "Paste rates"],
+          ] as const).map(([key, label]) => {
+            const active = mode === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  setMode(key);
+                  setMsg(null);
+                }}
+                aria-pressed={active}
+                className="rounded-md border px-2 py-1 text-[11px] font-medium"
+                style={{
+                  background: active ? "var(--accent)" : "var(--surface)",
+                  borderColor: active ? "var(--accent)" : "var(--border)",
+                  color: active ? "#fff" : "var(--text)",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
-      )}
-
-      <div className="flex flex-col gap-2">
-        <label className="text-xs" style={{ color: "var(--muted)" }}>
-          Name shown
-          <input
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
-            style={inputStyle}
-          />
-        </label>
-        <label className="text-xs" style={{ color: "var(--muted)" }}>
-          Weekday rate *
-          <input
-            value={weekday}
-            onChange={(e) => setWeekday(e.target.value)}
-            placeholder="$1.20 per half hour"
-            className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
-            style={inputStyle}
-          />
-        </label>
-        <div className="flex gap-2">
-          <label className="flex-1 text-xs" style={{ color: "var(--muted)" }}>
-            Saturday (optional)
-            <input
-              value={saturday}
-              onChange={(e) => setSaturday(e.target.value)}
-              placeholder="same if blank"
-              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
-              style={inputStyle}
-            />
-          </label>
-          <label className="flex-1 text-xs" style={{ color: "var(--muted)" }}>
-            Sunday / PH (optional)
-            <input
-              value={sunday}
-              onChange={(e) => setSunday(e.target.value)}
-              placeholder="Free / rate"
-              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
-              style={inputStyle}
-            />
-          </label>
-        </div>
-        <label className="text-xs" style={{ color: "var(--muted)" }}>
-          Source URL (optional)
-          <input
-            value={sourceUrl}
-            onChange={(e) => setSourceUrl(e.target.value)}
-            placeholder="https://operator-site/parking"
-            className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
-            style={inputStyle}
-          />
-        </label>
-        <label className="text-xs" style={{ color: "var(--muted)" }}>
-          Notes (optional)
-          <input
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="grace period, min-spend, etc."
-            className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
-            style={inputStyle}
-          />
-        </label>
       </div>
 
-      <p className="mt-2 text-[11px]" style={{ color: "var(--muted)" }}>
-        Rate format like the datasets: &quot;$1.20 per half hour&quot;, &quot;$2 for 1st
-        hr; $1 per 30 mins&quot;, or &quot;Free&quot;.
-      </p>
-
-      {err && (
-        <p className="mt-2 text-xs" style={{ color: "#fca5a5" }}>
-          {err}
-        </p>
+      {mode === "url" ? (
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="https://operator-site/parking-rates"
+          className="w-full rounded-lg border px-3 py-2 text-sm"
+          style={inputStyle}
+        />
+      ) : (
+        <textarea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          rows={4}
+          placeholder="Paste the rates copied from the operator's site…"
+          className="w-full rounded-lg border px-3 py-2 text-sm"
+          style={inputStyle}
+        />
       )}
 
-      <div className="mt-3 flex gap-2">
+      <div className="mt-2 flex gap-2">
         <button
-          type="submit"
-          disabled={saving}
-          className="flex-1 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50"
+          type="button"
+          onClick={extractAndSave}
+          disabled={busy || !value.trim()}
+          className="flex-1 rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-50"
           style={{ background: "var(--accent)", color: "#fff" }}
         >
-          {saving ? "Saving…" : "Save rate"}
+          {busy
+            ? mode === "url"
+              ? "Reading the page…"
+              : "Reading the rates…"
+            : "Extract & save"}
         </button>
         <button
           type="button"
-          onClick={() => setOpen(false)}
-          className="rounded-lg border px-4 py-2 text-sm"
+          onClick={() => {
+            setOpen(false);
+            setMsg(null);
+          }}
+          className="rounded-lg border px-3 py-2 text-sm"
           style={{ borderColor: "var(--border)", color: "var(--muted)" }}
         >
           Cancel
         </button>
       </div>
-    </form>
+
+      {msg && (
+        <p
+          className="mt-2 text-[11px]"
+          style={{ color: msg.ok ? "#22c55e" : "#d97706" }}
+        >
+          {msg.text}
+        </p>
+      )}
+      <p className="mt-1 text-[11px]" style={{ color: "var(--muted)" }}>
+        The AI reads the rate and saves it — check it on the card afterwards.
+      </p>
+    </div>
   );
 }
 
@@ -914,7 +806,10 @@ function CarparkCard({
       </div>
 
       {llmEnabled && !rateIsFromLiveApi(r) && (
-        <CardWebLookup r={r} onLookedUp={onLookedUp} />
+        <>
+          <CardWebLookup r={r} onLookedUp={onLookedUp} />
+          <AiAddRate target={cardTarget(r)} onSaved={onLookedUp} />
+        </>
       )}
 
       {r.feeNote && (

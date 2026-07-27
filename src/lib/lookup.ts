@@ -1,6 +1,5 @@
-import { generateObject } from "ai";
 import { z } from "zod";
-import { getModel, isLlmConfigured } from "./llm";
+import { generateObjectFallback, isLlmConfigured } from "./llm";
 import { webSearch, isSearchConfigured } from "./websearch";
 import {
   upsertOverride,
@@ -122,8 +121,7 @@ export async function lookupCarparkRate(args: {
       .join("\n\n---\n\n");
 
     // Step 2 — structured extraction from the search results (no tools).
-    const { object } = await generateObject({
-      model: getModel(),
+    const { object } = await generateObjectFallback({
       schema: RateExtraction,
       prompt:
         `From the web search results below, extract the CURRENT public car ` +

@@ -1,5 +1,4 @@
-import { generateObject } from "ai";
-import { getModel, isLlmConfigured } from "./llm";
+import { generateObjectFallback, isLlmConfigured } from "./llm";
 import { RateExtraction, classifyError } from "./lookup";
 
 /**
@@ -119,8 +118,7 @@ export async function extractRate(args: {
   }
 
   try {
-    const { object } = await generateObject({
-      model: getModel(),
+    const { object } = await generateObjectFallback({
       schema: RateExtraction,
       prompt:
         `Extract the CURRENT public car park parking rates for CARS from the ` +
