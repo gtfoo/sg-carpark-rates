@@ -33,9 +33,19 @@ interface RawEps {
   publicLots: number | null;
 }
 
+/**
+ * A handful of CapitaLand-managed sites are listed with a trailing " - C"
+ * (the car-park tier, vs the motorcycle/lorry tiers on the operator's own
+ * site). There's no matching " - M"/" - L" in this feed, so it's just noise on
+ * the display name — drop it.
+ */
+function cleanName(name: string): string {
+  return name.replace(/\s*-\s*C$/i, "").trim();
+}
+
 const all: EpsCarpark[] = (raw as RawEps[]).map((c) => ({
   id: c.id,
-  name: c.name,
+  name: cleanName(c.name),
   address: c.address,
   postal: c.postal,
   location: { lat: c.lat, lng: c.lng },

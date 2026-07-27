@@ -331,13 +331,29 @@ function Results({
   onWebLookup: () => void;
   onRateSaved: () => void;
 }) {
+  const [sortBy, setSortBy] = useState<"distance" | "price">("distance");
+
   // Pin numbers must be derived from the mappable subset only, in the same
   // order CarparkMap uses — otherwise the badge on a card points at a
-  // different pin than the one on the map.
+  // different pin than the one on the map. Keyed by id, so re-sorting the list
+  // below never desyncs a card's number from its map pin.
   const mapNumbers = new Map<string, number>();
   data.results
     .filter((r) => r.location !== null)
     .forEach((r, i) => mapNumbers.set(r.id, i + 1));
+
+  // The server returns results nearest-first. Re-sort a copy for display.
+  // Cheapest-first puts free ($0) at the top and rate-unknown ("—") at the
+  // bottom, since a price we don't know can't be compared.
+  const sorted = [...data.results].sort((a, b) => {
+    if (sortBy === "price") {
+      if (a.fee === null && b.fee === null) return a.distanceM - b.distanceM;
+      if (a.fee === null) return 1;
+      if (b.fee === null) return -1;
+      return a.fee - b.fee || a.distanceM - b.distanceM;
+    }
+    return a.distanceM - b.distanceM;
+  });
 
   return (
     <section>
@@ -367,8 +383,36 @@ function Results({
 
       <CarparkMap data={data} />
 
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-xs" style={{ color: "var(--muted)" }}>
+          Sort by
+        </span>
+        {([
+          ["distance", "Distance"],
+          ["price", "Price"],
+        ] as const).map(([key, label]) => {
+          const active = sortBy === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setSortBy(key)}
+              aria-pressed={active}
+              className="rounded-lg border px-3 py-1 text-xs font-medium transition-colors"
+              style={{
+                background: active ? "var(--accent)" : "var(--surface)",
+                borderColor: active ? "var(--accent)" : "var(--border)",
+                color: active ? "#fff" : "var(--text)",
+              }}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
       <ul className="flex flex-col gap-3">
-        {data.results.map((r) => (
+        {sorted.map((r) => (
           <CarparkCard
             key={r.id}
             r={r}
