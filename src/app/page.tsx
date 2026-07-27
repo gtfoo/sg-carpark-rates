@@ -723,8 +723,9 @@ function CarparkCard({
             <p className="text-xs" style={{ color: "var(--muted)" }}>
               {r.distanceIsWalking ? "walk" : "approx"}{" "}
               {formatDistance(r.distanceM)}
-              {" · "}
-              {r.shelter}
+              {/* Shelter is only known for HDB carparks; hide the "unknown"
+                  placeholder on commercial/EPS ones rather than guessing. */}
+              {r.shelter && r.shelter !== "unknown" && ` · ${r.shelter}`}
               {r.needsParkingApp && " · parking.sg"}
             </p>
           </div>
