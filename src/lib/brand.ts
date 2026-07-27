@@ -28,9 +28,10 @@ const brands: Record<BrandKey, Brand> = {
     key: "anne",
     name: "Park Here Anne",
     shortName: "Park Anne",
-    description: "A friendly way to find nearby Singapore carparks, rates and availability",
-    tagline: "A friendly way to find your next parking spot",
-    theme: { bg: "#181016", accent: "#e76d9b" },
+    description:
+      "Ask Anne where to park — the nearest, cheapest Singapore carparks, served warm with live availability.",
+    tagline: "Your friendly parking auntie 🥨 — spots, rates & live lots nearby.",
+    theme: { bg: "#0c1330", accent: "#f5871f" },
   },
 };
 

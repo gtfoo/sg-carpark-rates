@@ -37,24 +37,24 @@ body {
 }
 
 
-/* Park Here Anne is the same parking engine with a warmer, private identity. */
+/* Park Here Anne — same parking engine, navy + pretzel-orange identity. */
 body[data-brand="anne"] {
-  --bg: #181016;
-  --surface: #251820;
-  --border: #432a38;
-  --text: #fff6fa;
-  --muted: #cfafbd;
-  --accent: #e76d9b;
+  --bg: #0c1330;
+  --surface: #15204a;
+  --border: #2a3768;
+  --text: #f4f6ff;
+  --muted: #aeb8dd;
+  --accent: #f5871f;
 }
 
 @media (prefers-color-scheme: light) {
   body[data-brand="anne"] {
-    --bg: #fff5f8;
-    --surface: #fffafd;
-    --border: #efcfdb;
-    --text: #381925;
-    --muted: #805568;
-    --accent: #d95282;
+    --bg: #fdf8ee;
+    --surface: #ffffff;
+    --border: #ecdfc6;
+    --text: #17235f;
+    --muted: #6f6752;
+    --accent: #ea7a12;
   }
 }
 /* 16px minimum on inputs stops iOS Safari zooming in on focus. */
