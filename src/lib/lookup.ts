@@ -14,7 +14,7 @@ import { resolveGapsByName } from "./store/gaps";
  * form (e.g. "$1.20 per half hour") so they flow through the SAME parser and
  * time-aware fee engine as every other rate — no special-casing downstream.
  */
-const RateExtraction = z.object({
+export const RateExtraction = z.object({
   found: z
     .boolean()
     .describe("true only if concrete public parking rates were found"),
@@ -44,7 +44,7 @@ export interface LookupResult {
 }
 
 /** Turns a provider error into a message that explains the real cause. */
-function classifyError(err: unknown): string {
+export function classifyError(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err);
   if (/no longer available|not found|404/i.test(msg)) {
     return "The configured model is unavailable for this API key. Set LLM_MODEL to a current model (e.g. gemini-flash-latest).";

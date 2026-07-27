@@ -426,7 +426,11 @@ function Results({
       {/* When the destination already has a rate, keep an entry point to
           correct or update it. The no-rate case shows its own prompt above. */}
       {data.destinationRateFound && (
-        <ManualRateForm destination={data.destination} onSaved={onRateSaved} />
+        <ManualRateForm
+          destination={data.destination}
+          onSaved={onRateSaved}
+          llmEnabled={data.llmEnabled}
+        />
       )}
 
       <details className="mt-4 text-xs" style={{ color: "var(--muted)" }}>
@@ -486,7 +490,12 @@ function NoRatePrompt({
             {lookupBusy ? "Searching the web…" : "🔎 Search the web for its rate"}
           </button>
         )}
-        <ManualRateForm destination={destination} onSaved={onSaved} noMargin />
+        <ManualRateForm
+          destination={destination}
+          onSaved={onSaved}
+          llmEnabled={llmEnabled}
+          noMargin
+        />
       </div>
     </div>
   );
@@ -495,10 +504,13 @@ function NoRatePrompt({
 function ManualRateForm({
   destination,
   onSaved,
+  llmEnabled = false,
   noMargin = false,
 }: {
   destination: SearchResponse["destination"];
   onSaved: () => void;
+  /** Whether the AI extract-from-link / paste helper is offered. */
+  llmEnabled?: boolean;
   /** Drop the top margin when embedded in the no-rate prompt's button stack. */
   noMargin?: boolean;
 }) {
@@ -511,6 +523,44 @@ function ManualRateForm({
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  // AI-assist: paste a link or the rate text, let the model fill the fields.
+  const [aiMode, setAiMode] = useState<"url" | "text">("url");
+  const [aiValue, setAiValue] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiMsg, setAiMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function extract() {
+    if (!aiValue.trim()) return;
+    setAiBusy(true);
+    setAiMsg(null);
+    setErr(null);
+    try {
+      const res = await fetch("/api/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source: aiMode, value: aiValue.trim() }),
+      });
+      const b = await res.json();
+      if (res.ok && b.found) {
+        if (b.weekdayRate) setWeekday(b.weekdayRate);
+        if (b.saturdayRate) setSaturday(b.saturdayRate);
+        if (b.sundayPhRate) setSunday(b.sundayPhRate);
+        if (b.notes) setNotes(b.notes);
+        if (b.carparkName) setDisplayName(b.carparkName);
+        // Keep the link the user pasted as the source, if any.
+        if (aiMode === "url") setSourceUrl(aiValue.trim());
+        else if (b.sourceUrl) setSourceUrl(b.sourceUrl);
+        setAiMsg({ ok: true, text: "Filled in below — check it's right, then Save." });
+      } else {
+        setAiMsg({ ok: false, text: b.reason ?? "Couldn't find rates in that." });
+      }
+    } catch {
+      setAiMsg({ ok: false, text: "Network error." });
+    } finally {
+      setAiBusy(false);
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -551,6 +601,8 @@ function ManualRateForm({
       setSunday("");
       setSourceUrl("");
       setNotes("");
+      setAiValue("");
+      setAiMsg(null);
       onSaved();
     } catch {
       setErr("Network error.");
@@ -585,6 +637,89 @@ function ManualRateForm({
       style={{ background: "var(--surface)", borderColor: "var(--border)" }}
     >
       <p className="mb-3 text-sm font-medium">Add a rate for {destination.name}</p>
+
+      {llmEnabled && (
+        <div
+          className="mb-3 rounded-lg border p-3"
+          style={{ borderColor: "var(--border)", background: "var(--bg)" }}
+        >
+          <div className="mb-2 flex items-center gap-2">
+            <span className="text-xs font-medium">✨ Fill in with AI</span>
+            <div className="ml-auto flex gap-1">
+              {([
+                ["url", "From a link"],
+                ["text", "Paste rates"],
+              ] as const).map(([key, label]) => {
+                const active = aiMode === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      setAiMode(key);
+                      setAiMsg(null);
+                    }}
+                    aria-pressed={active}
+                    className="rounded-md border px-2 py-1 text-[11px] font-medium"
+                    style={{
+                      background: active ? "var(--accent)" : "var(--surface)",
+                      borderColor: active ? "var(--accent)" : "var(--border)",
+                      color: active ? "#fff" : "var(--text)",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {aiMode === "url" ? (
+            <input
+              value={aiValue}
+              onChange={(e) => setAiValue(e.target.value)}
+              placeholder="https://operator-site/parking-rates"
+              className="w-full rounded-lg border px-3 py-2 text-sm"
+              style={inputStyle}
+            />
+          ) : (
+            <textarea
+              value={aiValue}
+              onChange={(e) => setAiValue(e.target.value)}
+              rows={4}
+              placeholder="Paste the rates you copied from the operator's site…"
+              className="w-full rounded-lg border px-3 py-2 text-sm"
+              style={inputStyle}
+            />
+          )}
+
+          <button
+            type="button"
+            onClick={extract}
+            disabled={aiBusy || !aiValue.trim()}
+            className="mt-2 w-full rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-50"
+            style={{ background: "var(--accent)", color: "#fff" }}
+          >
+            {aiBusy
+              ? aiMode === "url"
+                ? "Reading the page…"
+                : "Reading the rates…"
+              : "Extract rates"}
+          </button>
+
+          {aiMsg && (
+            <p
+              className="mt-2 text-[11px]"
+              style={{ color: aiMsg.ok ? "#22c55e" : "#d97706" }}
+            >
+              {aiMsg.text}
+            </p>
+          )}
+          <p className="mt-1 text-[11px]" style={{ color: "var(--muted)" }}>
+            AI-filled rates land in the fields below — always review before saving.
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-2">
         <label className="text-xs" style={{ color: "var(--muted)" }}>
