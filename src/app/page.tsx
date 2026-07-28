@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import AddressInput from "./AddressInput";
 import { useBrand } from "./brand-provider";
@@ -1086,20 +1086,73 @@ const NAV_APPS: {
   },
 ];
 
-/** Per-carpark "Navigate" button — pick a maps app, open it to the carpark. */
+const NAV_STORAGE_KEY = "carpark:navApp";
+
+/**
+ * Per-carpark "Navigate" button. Remembers the last maps app chosen (in
+ * localStorage) so it becomes a one-tap open next time, with a caret to switch.
+ */
 function NavigateButton({ lat, lng }: { lat: number; lng: number }) {
   const [open, setOpen] = useState(false);
+  const [pref, setPref] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      setPref(localStorage.getItem(NAV_STORAGE_KEY));
+    } catch {
+      /* localStorage unavailable */
+    }
+  }, []);
+
+  function remember(key: string) {
+    try {
+      localStorage.setItem(NAV_STORAGE_KEY, key);
+    } catch {
+      /* ignore */
+    }
+    setPref(key);
+    setOpen(false);
+  }
+
+  const prefApp = NAV_APPS.find((a) => a.key === pref) ?? null;
+
   return (
     <div className="relative mt-3">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
-        style={{ background: "var(--accent)", color: "#fff" }}
-      >
-        🧭 Navigate
-      </button>
+      {prefApp ? (
+        // Remembered app → one-tap open, with a caret to switch.
+        <div
+          className="inline-flex overflow-hidden rounded-lg text-xs font-semibold text-white"
+          style={{ background: "var(--accent)" }}
+        >
+          <a
+            href={prefApp.href(lat, lng)}
+            target="_blank"
+            rel="noreferrer"
+            className="px-3 py-1.5"
+          >
+            🧭 {prefApp.label}
+          </a>
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-label="Change navigation app"
+            aria-expanded={open}
+            className="border-l border-white/25 px-2 py-1.5"
+          >
+            ▾
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
+          style={{ background: "var(--accent)", color: "#fff" }}
+        >
+          🧭 Navigate
+        </button>
+      )}
       {open && (
         <div
           className="absolute left-0 z-10 mt-1 flex flex-col overflow-hidden rounded-lg border shadow-lg"
@@ -1111,11 +1164,14 @@ function NavigateButton({ lat, lng }: { lat: number; lng: number }) {
               href={app.href(lat, lng)}
               target="_blank"
               rel="noreferrer"
-              onClick={() => setOpen(false)}
-              className="whitespace-nowrap px-4 py-2.5 text-xs hover:opacity-80"
+              onClick={() => remember(app.key)}
+              className="flex items-center justify-between gap-3 whitespace-nowrap px-4 py-2.5 text-xs hover:opacity-80"
               style={{ color: "var(--text)" }}
             >
               {app.label}
+              {pref === app.key && (
+                <span style={{ color: "var(--accent)" }}>✓</span>
+              )}
             </a>
           ))}
         </div>
