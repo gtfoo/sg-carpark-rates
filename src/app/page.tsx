@@ -749,7 +749,7 @@ function CarparkCard({
             <p className="truncate font-medium">{r.name}</p>
             <p className="text-xs" style={{ color: "var(--muted)" }}>
               {r.distanceIsWalking ? "walk" : "approx"}{" "}
-              {formatDistance(r.distanceM)}
+              {formatDistance(r.distanceM)} · {formatWalkMinutes(r.distanceM)}
               {/* Shelter is only known for HDB carparks; hide the "unknown"
                   placeholder on commercial/EPS ones rather than guessing. */}
               {r.shelter && r.shelter !== "unknown" && ` · ${r.shelter}`}
@@ -804,6 +804,10 @@ function CarparkCard({
           </>
         )}
       </div>
+
+      {r.location && (
+        <NavigateButton lat={r.location.lat} lng={r.location.lng} />
+      )}
 
       {llmEnabled && !rateIsFromLiveApi(r) && (
         <>
@@ -1043,6 +1047,73 @@ function lotColour(freeRatio: number): string {
 /** Must match availabilityColour() in CarparkMap so pins and badges agree. */
 function badgeColour(freeRatio: number | null): string {
   return freeRatio === null ? "#6b7280" : lotColour(freeRatio);
+}
+
+/** External nav apps. Universal links that open the installed app on mobile. */
+const NAV_APPS: {
+  key: string;
+  label: string;
+  href: (lat: number, lng: number) => string;
+}[] = [
+  {
+    key: "gmaps",
+    label: "Google Maps",
+    href: (lat, lng) =>
+      `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`,
+  },
+  {
+    key: "waze",
+    label: "Waze",
+    href: (lat, lng) => `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`,
+  },
+  {
+    key: "apple",
+    label: "Apple Maps",
+    href: (lat, lng) => `https://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`,
+  },
+];
+
+/** Per-carpark "Navigate" button — pick a maps app, open it to the carpark. */
+function NavigateButton({ lat, lng }: { lat: number; lng: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative mt-3">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
+        style={{ background: "var(--accent)", color: "#fff" }}
+      >
+        🧭 Navigate
+      </button>
+      {open && (
+        <div
+          className="absolute left-0 z-10 mt-1 flex flex-col overflow-hidden rounded-lg border shadow-lg"
+          style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+        >
+          {NAV_APPS.map((app) => (
+            <a
+              key={app.key}
+              href={app.href(lat, lng)}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setOpen(false)}
+              className="whitespace-nowrap px-4 py-2.5 text-xs hover:opacity-80"
+              style={{ color: "var(--text)" }}
+            >
+              {app.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Rough walking time from distance at ~5 km/h (≈80 m/min). */
+function formatWalkMinutes(distanceM: number): string {
+  return `~${Math.max(1, Math.round(distanceM / 80))} min`;
 }
 
 function formatDistance(m: number): string {
