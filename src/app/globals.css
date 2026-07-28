@@ -36,27 +36,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-
-/* Park Here Anne — same parking engine, navy + pretzel-orange identity. */
-body[data-brand="anne"] {
-  --bg: #0c1330;
-  --surface: #15204a;
-  --border: #2a3768;
-  --text: #f4f6ff;
-  --muted: #aeb8dd;
-  --accent: #f5871f;
-}
-
-@media (prefers-color-scheme: light) {
-  body[data-brand="anne"] {
-    --bg: #fdf8ee;
-    --surface: #ffffff;
-    --border: #ecdfc6;
-    --text: #17235f;
-    --muted: #6f6752;
-    --accent: #ea7a12;
-  }
-}
 /* 16px minimum on inputs stops iOS Safari zooming in on focus. */
 input,
 select,

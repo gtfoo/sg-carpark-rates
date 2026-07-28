@@ -7,7 +7,6 @@ import { useBrand } from "./brand-provider";
 import { toSgtInputValue } from "@/lib/time";
 import { formatFee } from "@/lib/format";
 import type { SearchResponse, CarparkResult } from "@/lib/search";
-import type { Brand } from "@/lib/brand";
 
 /**
  * Leaflet reaches for `window` at import time, so it must never run during
@@ -34,26 +33,6 @@ const DURATIONS = [
   { label: "4h", minutes: 240 },
   { label: "8h", minutes: 480 },
 ];
-
-/**
- * The Park Here Anne brand shows its logo image; every other brand (and the
- * fallback if the logo fails to load) shows the plain wordmark.
- */
-function BrandHeading({ brand }: { brand: Brand }) {
-  const [showLogo, setShowLogo] = useState(brand.key === "anne");
-  if (brand.key === "anne" && showLogo) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src="/logo-anne.png"
-        alt={brand.name}
-        onError={() => setShowLogo(false)}
-        className="h-24 w-auto"
-      />
-    );
-  }
-  return <h1 className="text-2xl font-bold tracking-tight">{brand.name}</h1>;
-}
 
 export default function Home() {
   const brand = useBrand();
@@ -150,8 +129,8 @@ export default function Home() {
   return (
     <main className="mx-auto w-full max-w-lg px-4 pb-16 pt-6">
       <header className="mb-5">
-        <BrandHeading brand={brand} />
-        <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
+        <h1 className="text-2xl font-bold tracking-tight">{brand.name}</h1>
+        <p className="text-sm" style={{ color: "var(--muted)" }}>
           {brand.tagline}
         </p>
       </header>

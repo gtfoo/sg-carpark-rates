@@ -11,3 +11,6 @@ tsconfig.tsbuildinfo
 
 # Persistent SQLite store — never commit your local rates/gaps DB
 data/
+
+# Park Here Anne logo — kept out of git (trademark-y), lives on the server only
+/public/logo-anne.png

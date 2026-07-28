@@ -1,4 +1,4 @@
-export type BrandKey = "carpark" | "anne";
+export type BrandKey = "carpark";
 
 export interface Brand {
   key: BrandKey;
@@ -24,19 +24,10 @@ const brands: Record<BrandKey, Brand> = {
     tagline: "Nearby carparks, rates and live availability",
     theme: { bg: "#0b0d10", accent: "#5b8cff" },
   },
-  anne: {
-    key: "anne",
-    name: "Park Here Anne",
-    shortName: "Park Anne",
-    description:
-      "Ask Anne where to park — the nearest, cheapest Singapore carparks, served warm with live availability.",
-    tagline: "Your friendly parking auntie 🥨 — spots, rates & live lots nearby.",
-    theme: { bg: "#0c1330", accent: "#f5871f" },
-  },
 };
 
-/** Select the visual identity from the public hostname. All parking logic is shared. */
+/** Select the visual identity from the public hostname. */
 export function brandFromHost(host: string | null): Brand {
-  const hostname = (host?.split(":")[0] ?? "").toLowerCase();
-  return hostname === "park-here-anne.gtfoo.com" ? brands.anne : brands.carpark;
+  void host;
+  return brands.carpark;
 }

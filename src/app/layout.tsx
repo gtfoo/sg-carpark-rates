@@ -14,11 +14,6 @@ export async function generateMetadata(): Promise<Metadata> {
       title: brand.name,
       statusBarStyle: "black-translucent",
     },
-    // Park Here Anne uses its logo as the favicon; other brands fall back to
-    // the generated glyph in icon.tsx.
-    ...(brand.key === "anne"
-      ? { icons: { icon: "/logo-anne.png", apple: "/logo-anne.png" } }
-      : {}),
   };
 }
 
