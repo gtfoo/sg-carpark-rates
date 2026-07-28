@@ -455,6 +455,7 @@ function NoRatePrompt({
   onWebLookup: () => void;
   onSaved: () => void;
 }) {
+  const [addOpen, setAddOpen] = useState(false);
   return (
     <div
       className="mb-4 rounded-xl border p-4"
@@ -480,9 +481,23 @@ function NoRatePrompt({
             {lookupBusy ? "Searching the web…" : "🔎 Search the web for its rate"}
           </button>
         )}
-        {llmEnabled && (
-          <AiAddRate target={destTarget(destination)} onSaved={onSaved} />
-        )}
+        {llmEnabled &&
+          (addOpen ? (
+            <AddRatePanel
+              target={destTarget(destination)}
+              onSaved={onSaved}
+              onClose={() => setAddOpen(false)}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAddOpen(true)}
+              className="text-left text-[11px] font-medium underline underline-offset-2"
+              style={{ color: "var(--accent)" }}
+            >
+              ✨ Add a rate
+            </button>
+          ))}
       </div>
     </div>
   );
@@ -529,18 +544,54 @@ interface RateTarget {
  * in fetched HTML). The extracted rate is saved directly, then shows on the
  * card so it can be eyeballed and re-done if it's off.
  */
-function AiAddRate({
+function AddRatePanel({
   target,
   onSaved,
+  onClose,
 }: {
   target: RateTarget;
   onSaved: () => void;
+  onClose: () => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<"url" | "text">("url");
+  const [mode, setMode] = useState<"auto" | "url" | "text">("auto");
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  // Auto query: let the server search the public web for this car park's rate.
+  async function runAuto() {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          destination: target.displayName,
+          postal: target.matchType === "postal" ? target.matchValue : null,
+          lat: target.lat,
+          lng: target.lng,
+          force: true,
+        }),
+      });
+      const body = await res.json();
+      if (res.ok && body.found) {
+        setMsg({ ok: true, text: "Found and saved a rate." });
+        setTimeout(() => {
+          onClose();
+          onSaved();
+        }, 1200);
+      } else if (body.status === "error") {
+        setMsg({ ok: false, text: body.reason ?? "Web lookup failed." });
+      } else {
+        setMsg({ ok: false, text: body.reason ?? "No rate found online." });
+      }
+    } catch {
+      setMsg({ ok: false, text: "Network error." });
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function extractAndSave() {
     if (!value.trim()) return;
@@ -584,7 +635,7 @@ function AiAddRate({
       setValue("");
       // Let the confirmation show briefly, then refresh so the rate appears.
       setTimeout(() => {
-        setOpen(false);
+        onClose();
         onSaved();
       }, 1400);
     } catch {
@@ -600,18 +651,17 @@ function AiAddRate({
     color: "var(--text)",
   };
 
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="mt-2 text-[11px] font-medium underline underline-offset-2"
-        style={{ color: "var(--accent)" }}
-      >
-        ✨ Add a rate (link or paste)
-      </button>
-    );
-  }
+  const submit = mode === "auto" ? runAuto : extractAndSave;
+  const submitLabel = busy
+    ? mode === "auto"
+      ? "Searching the web…"
+      : mode === "url"
+        ? "Reading the page…"
+        : "Reading the rates…"
+    : mode === "auto"
+      ? "Auto query"
+      : "Extract & save";
+  const submitDisabled = busy || (mode !== "auto" && !value.trim());
 
   return (
     <div
@@ -622,6 +672,7 @@ function AiAddRate({
         <span className="text-[11px] font-medium">✨ Add a rate</span>
         <div className="ml-auto flex gap-1">
           {([
+            ["auto", "Auto query"],
             ["url", "From a link"],
             ["text", "Paste rates"],
           ] as const).map(([key, label]) => {
@@ -649,7 +700,13 @@ function AiAddRate({
         </div>
       </div>
 
-      {mode === "url" ? (
+      {mode === "auto" ? (
+        <p className="text-[11px]" style={{ color: "var(--muted)" }}>
+          Auto query searches the public web for this car park&apos;s official
+          rates and fills them in for you. It&apos;s AI-assisted, so double-check
+          the result on the card before relying on it.
+        </p>
+      ) : mode === "url" ? (
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -671,21 +728,17 @@ function AiAddRate({
       <div className="mt-2 flex gap-2">
         <button
           type="button"
-          onClick={extractAndSave}
-          disabled={busy || !value.trim()}
+          onClick={submit}
+          disabled={submitDisabled}
           className="flex-1 rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-50"
           style={{ background: "var(--accent)", color: "#fff" }}
         >
-          {busy
-            ? mode === "url"
-              ? "Reading the page…"
-              : "Reading the rates…"
-            : "Extract & save"}
+          {submitLabel}
         </button>
         <button
           type="button"
           onClick={() => {
-            setOpen(false);
+            onClose();
             setMsg(null);
           }}
           className="rounded-lg border px-3 py-2 text-sm"
@@ -703,9 +756,11 @@ function AiAddRate({
           {msg.text}
         </p>
       )}
-      <p className="mt-1 text-[11px]" style={{ color: "var(--muted)" }}>
-        The AI reads the rate and saves it — check it on the card afterwards.
-      </p>
+      {mode !== "auto" && (
+        <p className="mt-1 text-[11px]" style={{ color: "var(--muted)" }}>
+          The AI reads the rate and saves it — check it on the card afterwards.
+        </p>
+      )}
     </div>
   );
 }
@@ -722,6 +777,7 @@ function CarparkCard({
   /** Re-run the search after a lookup saves a rate, so the new rate shows. */
   onLookedUp: () => void;
 }) {
+  const [addOpen, setAddOpen] = useState(false);
   // Fraction of lots FREE, not occupied. Named explicitly because "3/4" was
   // ambiguous enough to read as either.
   const freeRatio =
@@ -758,11 +814,30 @@ function CarparkCard({
           </div>
         </div>
         <div className="shrink-0 text-right">
-          <p className="font-semibold">{formatFee(r.fee)}</p>
-          {r.feeConfidence !== "high" && (
-            <p className="text-[10px] uppercase" style={{ color: "#d97706" }}>
-              {r.feeConfidence}
-            </p>
+          {r.fee !== null ? (
+            <>
+              <p className="font-semibold">{formatFee(r.fee)}</p>
+              {r.feeConfidence !== "high" && (
+                <p
+                  className="text-[10px] uppercase"
+                  style={{ color: "#d97706" }}
+                >
+                  {r.feeConfidence}
+                </p>
+              )}
+            </>
+          ) : llmEnabled && !rateIsFromLiveApi(r) ? (
+            <button
+              type="button"
+              onClick={() => setAddOpen((o) => !o)}
+              aria-expanded={addOpen}
+              className="rounded-lg px-2.5 py-1.5 text-xs font-semibold"
+              style={{ background: "var(--accent)", color: "#fff" }}
+            >
+              ＋ Add rate
+            </button>
+          ) : (
+            <p className="font-semibold">{formatFee(r.fee)}</p>
           )}
         </div>
       </div>
@@ -809,11 +884,13 @@ function CarparkCard({
         <NavigateButton lat={r.location.lat} lng={r.location.lng} />
       )}
 
-      {llmEnabled && !rateIsFromLiveApi(r) && (
-        <>
-          <CardWebLookup r={r} onLookedUp={onLookedUp} />
-          <AiAddRate target={cardTarget(r)} onSaved={onLookedUp} />
-        </>
+      {/* No rate yet: the "＋ Add rate" price button opens this panel. */}
+      {r.fee === null && llmEnabled && !rateIsFromLiveApi(r) && addOpen && (
+        <AddRatePanel
+          target={cardTarget(r)}
+          onSaved={onLookedUp}
+          onClose={() => setAddOpen(false)}
+        />
       )}
 
       {r.feeNote && (
@@ -837,7 +914,8 @@ function CarparkCard({
         )}
       </p>
 
-      {r.feeBreakdown.length > 0 && (
+      {(r.feeBreakdown.length > 0 ||
+        (r.fee !== null && llmEnabled && !rateIsFromLiveApi(r))) && (
         <details className="mt-2">
           <summary
             className="cursor-pointer text-[11px] font-medium"
@@ -845,28 +923,50 @@ function CarparkCard({
           >
             How this fee is worked out
           </summary>
-          <dl
-            className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg border p-3 text-[11px]"
-            style={{ borderColor: "var(--border)" }}
-          >
-            {r.feeBreakdown.map((row, i) => {
-              const isTotal = row.label === "Total";
-              return (
-                <div key={i} className="contents">
-                  <dt style={{ color: "var(--muted)" }}>{row.label}</dt>
-                  <dd
-                    className="text-right tabular-nums"
-                    style={{
-                      color: isTotal ? "var(--text)" : "var(--muted)",
-                      fontWeight: isTotal ? 600 : 400,
-                    }}
-                  >
-                    {row.value}
-                  </dd>
-                </div>
-              );
-            })}
-          </dl>
+          {r.feeBreakdown.length > 0 && (
+            <dl
+              className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg border p-3 text-[11px]"
+              style={{ borderColor: "var(--border)" }}
+            >
+              {r.feeBreakdown.map((row, i) => {
+                const isTotal = row.label === "Total";
+                return (
+                  <div key={i} className="contents">
+                    <dt style={{ color: "var(--muted)" }}>{row.label}</dt>
+                    <dd
+                      className="text-right tabular-nums"
+                      style={{
+                        color: isTotal ? "var(--text)" : "var(--muted)",
+                        fontWeight: isTotal ? 600 : 400,
+                      }}
+                    >
+                      {row.value}
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+          )}
+          {r.fee !== null && llmEnabled && !rateIsFromLiveApi(r) && (
+            <div className="mt-2">
+              {addOpen ? (
+                <AddRatePanel
+                  target={cardTarget(r)}
+                  onSaved={onLookedUp}
+                  onClose={() => setAddOpen(false)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAddOpen(true)}
+                  className="text-[11px] font-medium underline underline-offset-2"
+                  style={{ color: "var(--accent)" }}
+                >
+                  ✨ Add or update this rate
+                </button>
+              )}
+            </div>
+          )}
         </details>
       )}
     </li>
@@ -913,93 +1013,6 @@ function isOneMotoringUrl(url: string | null): boolean {
 function browsableSourceUrl(url: string | null): string | null {
   if (!url || isUraApiUrl(url)) return null;
   return url;
-}
-
-/**
- * Per-carpark "search the web for its rate" button. Shown on cards whose rate
- * is NOT from a live official API (see rateIsFromLiveApi) — i.e. stale dataset,
- * scraped, manual or AI rates, where a fresh public-rate lookup is useful.
- * Forces a real search — a saved AI/operator rate is refreshed, a hand-entered
- * manual rate is left untouched by the server.
- */
-function CardWebLookup({
-  r,
-  onLookedUp,
-}: {
-  r: CarparkResult;
-  onLookedUp: () => void;
-}) {
-  const [state, setState] = useState<
-    "idle" | "searching" | "notfound" | "error"
-  >("idle");
-  const [reason, setReason] = useState<string | null>(null);
-
-  async function search() {
-    setState("searching");
-    setReason(null);
-    try {
-      const res = await fetch("/api/lookup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          destination: r.name,
-          postal: null,
-          lat: r.location?.lat ?? null,
-          lng: r.location?.lng ?? null,
-          force: true,
-        }),
-      });
-      const body = await res.json();
-      if (res.ok && body.found) {
-        // A rate was saved — re-run the search so this card shows it. The card
-        // unmounts on refresh, so no local state needs resetting.
-        onLookedUp();
-      } else if (body.status === "error") {
-        setState("error");
-        setReason(body.reason ?? "Web lookup failed.");
-      } else {
-        setState("notfound");
-        setReason(body.reason ?? "No rate found online.");
-      }
-    } catch {
-      setState("error");
-      setReason("Network error.");
-    }
-  }
-
-  if (state === "searching") {
-    return (
-      <p
-        className="mt-2 flex items-center gap-2 text-[11px]"
-        style={{ color: "var(--muted)" }}
-      >
-        <span
-          aria-hidden
-          className="h-3 w-3 shrink-0 animate-spin rounded-full border-2"
-          style={{ borderColor: "var(--border)", borderTopColor: "var(--accent)" }}
-        />
-        Searching the web for {r.name}&apos;s rate…
-      </p>
-    );
-  }
-
-  return (
-    <div className="mt-2">
-      <button
-        type="button"
-        onClick={search}
-        className="text-[11px] font-medium underline underline-offset-2"
-        style={{ color: "var(--accent)" }}
-      >
-        {state === "idle" ? "🔎 Search the web for its rate" : "Try again"}
-      </button>
-      {reason && (
-        <span className="ml-2 text-[11px]" style={{ color: "#d97706" }}>
-          {reason}
-        </span>
-      )}
-    </div>
-  );
 }
 
 function feeSourceLabel(r: CarparkResult): string {
