@@ -14,3 +14,4 @@ data/
 
 # Park Here Anne logo — kept out of git (trademark-y), lives on the server only
 /public/logo-anne.png
+/public/logo-anne-icon.png
