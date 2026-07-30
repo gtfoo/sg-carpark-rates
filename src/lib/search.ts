@@ -607,8 +607,6 @@ function hdbBreakdown(
   ];
   if (fee.freeMinutes > 0) rows.push({ label: "Free", value: `${fee.freeMinutes} min` });
   rows.push({ label: "Charged", value: `${fee.chargedMinutes} min` });
-  rows.push({ label: "Subtotal", value: `$${fee.dollarsBeforeGst.toFixed(2)}` });
-  rows.push({ label: "GST 9%", value: `$${fee.gst.toFixed(2)}` });
   if (fee.capApplied) rows.push({ label: "Cap", value: "daily/night cap applied" });
   rows.push({ label: "Total", value: formatFee(fee.total) });
   return rows;

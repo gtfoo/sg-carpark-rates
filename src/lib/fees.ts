@@ -11,14 +11,14 @@ import { toSgt, fromSgt, type SgtParts } from "./time";
  *   Night window 22:30 - 07:00, capped $5 where night parking applies
  *   Charged per minute at electronic (EPS) carparks; coupon carparks bill in
  *   whole half-hour blocks.
- *   9% GST applies on top of published rates.
+ *   Published rates are the final amount charged (GST-inclusive) — the same
+ *   figures parking.sg bills — so no GST is added on top.
  */
 
 export const HDB_RATES = {
   nonCentral: { perHalfHour: 0.6, dayCap: 12 },
   central: { perHalfHour: 1.2, dayCap: 20 },
   nightCap: 5,
-  gstRate: 0.09,
 } as const;
 
 /** Minutes from local midnight. */
@@ -229,12 +229,10 @@ export function calculateHdbFee(input: FeeInput): FeeResult {
     notes.push("Coupon carpark — billed in whole half-hour blocks.");
   }
 
-  const gst = total * HDB_RATES.gstRate;
-
   return {
     dollarsBeforeGst: round2(total),
-    gst: round2(gst),
-    total: round2(total + gst),
+    gst: 0,
+    total: round2(total),
     capApplied,
     freeMinutes,
     chargedMinutes,
@@ -268,10 +266,13 @@ function round2(n: number): number {
  * but that flag is absent from the published dataset, so it has to be derived.
  * This bounding box roughly covers the CBD / Orchard / Marina area and WILL
  * misclassify carparks near the boundary, where the error is a 2x fee change.
+ * The western edge is 103.82: Orchard (~103.837) is the westernmost genuinely
+ * central spot, while Queenstown / Commonwealth / Tanglin Halt (~103.80) are
+ * NOT central and must be excluded.
  *
  * Replace with a point-in-polygon test against the URA Master Plan Central
  * Area boundary before relying on the numbers.
  */
 export function isProbablyCentral(lat: number, lng: number): boolean {
-  return lat > 1.264 && lat < 1.32 && lng > 103.79 && lng < 103.877;
+  return lat > 1.264 && lat < 1.32 && lng > 103.82 && lng < 103.877;
 }
