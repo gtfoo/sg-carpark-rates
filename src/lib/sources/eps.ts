@@ -56,10 +56,23 @@ const all: EpsCarpark[] = (raw as RawEps[]).map((c) => ({
 export const allEpsCarparks: EpsCarpark[] = all;
 
 /**
+ * EPS lists HDB car parks under their internal code instead of a name, e.g.
+ * "HDB_J4_J5" (which is really Blk 201 Jurong East Street 21). Half this feed
+ * is such entries, and ~88% of them sit within 100 m of a car park the HDB
+ * dataset already covers properly — with a readable name, live lot counts and
+ * a computed rate. Surfacing them again would show an unreadable code with no
+ * rate, so they're excluded from search; the HDB source owns those car parks.
+ */
+function isHdbCode(name: string): boolean {
+  return /^HDB[_ ]/i.test(name);
+}
+
+/**
  * Car parks that actually offer public (short-term) parking — the subset worth
  * surfacing as parking options. Season- or heavy-vehicle-only entries (public
- * lots reported as -1/0) are kept in the full inventory but left out of search.
+ * lots reported as -1/0) are kept in the full inventory but left out of search,
+ * as are the HDB-coded duplicates above.
  */
 export const publicEpsCarparks: EpsCarpark[] = all.filter(
-  (c) => c.publicLots !== null && c.publicLots > 0,
+  (c) => c.publicLots !== null && c.publicLots > 0 && !isHdbCode(c.name),
 );
