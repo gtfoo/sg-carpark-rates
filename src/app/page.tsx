@@ -201,13 +201,16 @@ export default function Home() {
               <input
                 type="number"
                 min={1}
+                max={customUnit === "hr" ? 24 : 24 * 60}
                 inputMode="numeric"
                 value={customVal}
                 onChange={(e) => {
                   setCustomVal(e.target.value);
                   setMinutes(customMinutes(e.target.value, customUnit));
                 }}
-                aria-label="Parking duration amount"
+                aria-label={`Parking duration amount (max 24 ${
+                  customUnit === "hr" ? "hours" : "hours worth of minutes"
+                })`}
                 className="w-24 rounded-lg border px-3 py-2 text-sm"
                 style={{
                   background: "var(--surface)",
@@ -241,6 +244,23 @@ export default function Home() {
                 = {formatDuration(minutes)}
               </span>
             </div>
+          )}
+
+          {customDuration && (
+            <p
+              className="mt-1.5 text-[11px]"
+              style={{
+                color: exceedsDurationMax(customVal, customUnit)
+                  ? "#d97706"
+                  : "var(--muted)",
+              }}
+            >
+              {exceedsDurationMax(customVal, customUnit)
+                ? `Longest we can price is 24 hours — using 24h instead of ${customVal} ${
+                    customUnit === "hr" ? "hours" : "minutes"
+                  }.`
+                : "Up to 24 hours."}
+            </p>
           )}
         </div>
 
@@ -1160,12 +1180,24 @@ function formatDistance(m: number): string {
   return m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${m} m`;
 }
 
+/** Longest session the fee engine prices; caps are per-day, so beyond this the
+ *  number stops being meaningful. */
+const MAX_DURATION_MIN = 24 * 60;
+
 /** Minutes from the custom-duration input (a number + unit), clamped 1min–24h. */
 function customMinutes(val: string, unit: "min" | "hr"): number {
   const n = Number(val);
   if (!Number.isFinite(n) || n <= 0) return 1;
   const mins = unit === "hr" ? Math.round(n * 60) : Math.round(n);
-  return Math.max(1, Math.min(24 * 60, mins));
+  return Math.max(1, Math.min(MAX_DURATION_MIN, mins));
+}
+
+/** True when the typed duration is longer than we price, so the UI can say so
+ *  instead of silently showing "= 24h". */
+function exceedsDurationMax(val: string, unit: "min" | "hr"): boolean {
+  const n = Number(val);
+  if (!Number.isFinite(n) || n <= 0) return false;
+  return (unit === "hr" ? n * 60 : n) > MAX_DURATION_MIN;
 }
 
 function formatDuration(mins: number): string {

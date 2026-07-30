@@ -129,6 +129,7 @@ const PARKING_SG = {
   androidPackage: "sg.parking.streetsmart",
   playStore:
     "https://play.google.com/store/apps/details?id=sg.parking.streetsmart",
+  appStore: "https://apps.apple.com/sg/app/parking-sg/id1286602494",
 } as const;
 
 /**
@@ -162,25 +163,52 @@ const ANDROID_INTENT =
  */
 export function ParkingSgButton() {
   const [href, setHref] = useState<string>(PARKING_SG.web);
+  const [isIos, setIsIos] = useState(false);
   const isIntent = href.startsWith("intent:");
 
   useEffect(() => {
     // Resolved after mount: the server has no user agent, and rendering a
     // different href on the server would be a hydration mismatch.
-    if (/android/i.test(navigator.userAgent)) setHref(ANDROID_INTENT);
+    const ua = navigator.userAgent;
+    if (/android/i.test(ua)) {
+      setHref(ANDROID_INTENT);
+    } else if (/iphone|ipad|ipod/i.test(ua)) {
+      setIsIos(true);
+    }
   }, []);
 
   return (
-    <a
-      href={href}
-      // An intent: URL must navigate in the current tab — opening it in a new
-      // tab stops Chrome handing off to the app on some Android versions.
-      target={isIntent ? undefined : "_blank"}
-      rel={isIntent ? undefined : "noreferrer"}
-      className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium"
-      style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
-    >
-      🅿️ Pay with parking.sg
-    </a>
+    <span className="inline-flex flex-wrap items-center gap-2">
+      <a
+        href={href}
+        // An intent: URL must navigate in the current tab — opening it in a new
+        // tab stops Chrome handing off to the app on some Android versions.
+        target={isIntent ? undefined : "_blank"}
+        rel={isIntent ? undefined : "noreferrer"}
+        className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium"
+        style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
+      >
+        🅿️ Pay with parking.sg
+      </a>
+      {/*
+        iOS can't be made to open an app that publishes no URL scheme, and we
+        can't detect whether it's installed. The button above opens
+        www.parking.sg, which hands off to the app if parking.sg publishes
+        Universal Links; this second link is the App Store for anyone who
+        doesn't have it. Sending everyone straight to the App Store would put an
+        extra tap in front of people who already have the app.
+      */}
+      {isIos && (
+        <a
+          href={PARKING_SG.appStore}
+          target="_blank"
+          rel="noreferrer"
+          className="text-[11px] underline underline-offset-2"
+          style={{ color: "var(--muted)" }}
+        >
+          Get the app
+        </a>
+      )}
+    </span>
   );
 }
