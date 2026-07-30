@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import AddressInput from "./AddressInput";
+import { NavigateButton, ParkingSgButton } from "./NavigateButton";
 import { useBrand } from "./brand-provider";
 import { toSgtInputValue } from "@/lib/time";
 import { formatFee } from "@/lib/format";
@@ -966,6 +967,11 @@ function CarparkCard({
       {r.location && (
         <NavigateButton lat={r.location.lat} lng={r.location.lng} />
       )}
+      {r.needsParkingApp && (
+        <div className="mt-2">
+          <ParkingSgButton />
+        </div>
+      )}
 
       {/* No rate yet: the "＋ Add rate" price button opens this panel. */}
       {r.fee === null && llmEnabled && !rateIsFromLiveApi(r) && addOpen && (
@@ -1143,124 +1149,6 @@ function lotColour(freeRatio: number): string {
 /** Must match availabilityColour() in CarparkMap so pins and badges agree. */
 function badgeColour(freeRatio: number | null): string {
   return freeRatio === null ? "#6b7280" : lotColour(freeRatio);
-}
-
-/** External nav apps. Universal links that open the installed app on mobile. */
-const NAV_APPS: {
-  key: string;
-  label: string;
-  href: (lat: number, lng: number) => string;
-}[] = [
-  {
-    key: "gmaps",
-    label: "Google Maps",
-    href: (lat, lng) =>
-      `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`,
-  },
-  {
-    key: "waze",
-    label: "Waze",
-    href: (lat, lng) => `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`,
-  },
-  {
-    key: "apple",
-    label: "Apple Maps",
-    href: (lat, lng) => `https://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`,
-  },
-];
-
-const NAV_STORAGE_KEY = "carpark:navApp";
-
-/**
- * Per-carpark "Navigate" button. Remembers the last maps app chosen (in
- * localStorage) so it becomes a one-tap open next time, with a caret to switch.
- */
-function NavigateButton({ lat, lng }: { lat: number; lng: number }) {
-  const [open, setOpen] = useState(false);
-  const [pref, setPref] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      setPref(localStorage.getItem(NAV_STORAGE_KEY));
-    } catch {
-      /* localStorage unavailable */
-    }
-  }, []);
-
-  function remember(key: string) {
-    try {
-      localStorage.setItem(NAV_STORAGE_KEY, key);
-    } catch {
-      /* ignore */
-    }
-    setPref(key);
-    setOpen(false);
-  }
-
-  const prefApp = NAV_APPS.find((a) => a.key === pref) ?? null;
-
-  return (
-    <div className="relative mt-3">
-      {prefApp ? (
-        // Remembered app → one-tap open, with a caret to switch.
-        <div
-          className="inline-flex overflow-hidden rounded-lg text-xs font-semibold text-white"
-          style={{ background: "var(--accent)" }}
-        >
-          <a
-            href={prefApp.href(lat, lng)}
-            target="_blank"
-            rel="noreferrer"
-            className="px-3 py-1.5"
-          >
-            🧭 {prefApp.label}
-          </a>
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            aria-label="Change navigation app"
-            aria-expanded={open}
-            className="border-l border-white/25 px-2 py-1.5"
-          >
-            ▾
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-expanded={open}
-          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
-          style={{ background: "var(--accent)", color: "#fff" }}
-        >
-          🧭 Navigate
-        </button>
-      )}
-      {open && (
-        <div
-          className="absolute left-0 z-10 mt-1 flex flex-col overflow-hidden rounded-lg border shadow-lg"
-          style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-        >
-          {NAV_APPS.map((app) => (
-            <a
-              key={app.key}
-              href={app.href(lat, lng)}
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => remember(app.key)}
-              className="flex items-center justify-between gap-3 whitespace-nowrap px-4 py-2.5 text-xs hover:opacity-80"
-              style={{ color: "var(--text)" }}
-            >
-              {app.label}
-              {pref === app.key && (
-                <span style={{ color: "var(--accent)" }}>✓</span>
-              )}
-            </a>
-          ))}
-        </div>
-      )}
-    </div>
-  );
 }
 
 /** Rough walking time from distance at ~5 km/h (≈80 m/min). */
