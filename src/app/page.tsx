@@ -38,6 +38,10 @@ export default function Home() {
   const brand = useBrand();
   const [query, setQuery] = useState("");
   const [minutes, setMinutes] = useState(120);
+  // Custom parking duration (a number + min/hr) when the presets don't fit.
+  const [customDuration, setCustomDuration] = useState(false);
+  const [customVal, setCustomVal] = useState("90");
+  const [customUnit, setCustomUnit] = useState<"min" | "hr">("min");
   const [data, setData] = useState<SearchResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -146,29 +150,103 @@ export default function Home() {
           }}
         />
 
-        <div className="mt-3 flex flex-wrap gap-2">
-          {DURATIONS.map((d) => {
-            const active = d.minutes === minutes;
-            return (
-              <button
-                key={d.minutes}
-                type="button"
-                onClick={() => setMinutes(d.minutes)}
-                aria-pressed={active}
-                className="rounded-lg border px-3 py-2 transition-colors"
-                style={{
-                  background: active ? "var(--accent)" : "var(--surface)",
-                  borderColor: active ? "var(--accent)" : "var(--border)",
-                  color: active ? "#fff" : "var(--text)",
+        <div className="mt-4">
+          <p className="mb-1.5 text-xs font-medium" style={{ color: "var(--muted)" }}>
+            How long are you parking?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {DURATIONS.map((d) => {
+              const active = !customDuration && d.minutes === minutes;
+              return (
+                <button
+                  key={d.minutes}
+                  type="button"
+                  onClick={() => {
+                    setCustomDuration(false);
+                    setMinutes(d.minutes);
+                  }}
+                  aria-pressed={active}
+                  className="rounded-lg border px-3 py-2 transition-colors"
+                  style={{
+                    background: active ? "var(--accent)" : "var(--surface)",
+                    borderColor: active ? "var(--accent)" : "var(--border)",
+                    color: active ? "#fff" : "var(--text)",
+                  }}
+                >
+                  {d.label}
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => {
+                setCustomDuration(true);
+                setMinutes(customMinutes(customVal, customUnit));
+              }}
+              aria-pressed={customDuration}
+              className="rounded-lg border px-3 py-2 transition-colors"
+              style={{
+                background: customDuration ? "var(--accent)" : "var(--surface)",
+                borderColor: customDuration ? "var(--accent)" : "var(--border)",
+                color: customDuration ? "#fff" : "var(--text)",
+              }}
+            >
+              Custom
+            </button>
+          </div>
+
+          {customDuration && (
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="number"
+                min={1}
+                inputMode="numeric"
+                value={customVal}
+                onChange={(e) => {
+                  setCustomVal(e.target.value);
+                  setMinutes(customMinutes(e.target.value, customUnit));
                 }}
-              >
-                {d.label}
-              </button>
-            );
-          })}
+                aria-label="Parking duration amount"
+                className="w-24 rounded-lg border px-3 py-2 text-sm"
+                style={{
+                  background: "var(--surface)",
+                  borderColor: "var(--border)",
+                  color: "var(--text)",
+                }}
+              />
+              {(["min", "hr"] as const).map((u) => {
+                const active = customUnit === u;
+                return (
+                  <button
+                    key={u}
+                    type="button"
+                    onClick={() => {
+                      setCustomUnit(u);
+                      setMinutes(customMinutes(customVal, u));
+                    }}
+                    aria-pressed={active}
+                    className="rounded-lg border px-3 py-2 text-sm transition-colors"
+                    style={{
+                      background: active ? "var(--accent)" : "var(--surface)",
+                      borderColor: active ? "var(--accent)" : "var(--border)",
+                      color: active ? "#fff" : "var(--text)",
+                    }}
+                  >
+                    {u === "min" ? "minutes" : "hours"}
+                  </button>
+                );
+              })}
+              <span className="text-xs" style={{ color: "var(--muted)" }}>
+                = {formatDuration(minutes)}
+              </span>
+            </div>
+          )}
         </div>
 
-        <div className="mt-3">
+        <div className="mt-4">
+          <p className="mb-1.5 text-xs font-medium" style={{ color: "var(--muted)" }}>
+            When are you arriving?
+          </p>
           {!useCustomStart ? (
             <button
               type="button"
@@ -178,10 +256,15 @@ export default function Home() {
                 setStart(toSgtInputValue(new Date()));
                 setUseCustomStart(true);
               }}
-              className="text-sm underline underline-offset-2"
-              style={{ color: "var(--muted)" }}
+              className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm"
+              style={{
+                background: "var(--surface)",
+                borderColor: "var(--border)",
+                color: "var(--text)",
+              }}
             >
-              Starting now · change
+              <span>Now</span>
+              <span style={{ color: "var(--accent)" }}>Change ›</span>
             </button>
           ) : (
             <div className="flex items-center gap-2">
@@ -189,7 +272,7 @@ export default function Home() {
                 type="datetime-local"
                 value={start}
                 onChange={(e) => setStart(e.target.value)}
-                aria-label="Start time (Singapore)"
+                aria-label="Parking start time (Singapore)"
                 className="flex-1 rounded-lg border px-3 py-2"
                 style={{
                   background: "var(--surface)",
@@ -203,8 +286,8 @@ export default function Home() {
                   setUseCustomStart(false);
                   setStart("");
                 }}
-                className="text-sm underline underline-offset-2"
-                style={{ color: "var(--muted)" }}
+                className="rounded-lg border px-3 py-2 text-sm"
+                style={{ borderColor: "var(--border)", color: "var(--muted)" }}
               >
                 Now
               </button>
@@ -1187,6 +1270,14 @@ function formatWalkMinutes(distanceM: number): string {
 
 function formatDistance(m: number): string {
   return m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${m} m`;
+}
+
+/** Minutes from the custom-duration input (a number + unit), clamped 1min–24h. */
+function customMinutes(val: string, unit: "min" | "hr"): number {
+  const n = Number(val);
+  if (!Number.isFinite(n) || n <= 0) return 1;
+  const mins = unit === "hr" ? Math.round(n * 60) : Math.round(n);
+  return Math.max(1, Math.min(24 * 60, mins));
 }
 
 function formatDuration(mins: number): string {
