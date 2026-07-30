@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { SearchResponse, CarparkResult } from "@/lib/search";
-import { formatFee } from "@/lib/format";
+import { formatFee, walkMinutes } from "@/lib/format";
 
 /**
  * OneMap raster tiles — free, no API key, and the authoritative Singapore
@@ -138,8 +138,10 @@ export default function CarparkMap({ data }: { data: SearchResponse }) {
               <strong>{r.name}</strong>
               <br />
               {r.distanceIsWalking ? "walk" : "approx"} {r.distanceM} m
-              {" · "}
-              {r.shelter}
+              {/* Rough walk time, only for real walking routes. */}
+              {r.distanceIsWalking && ` · ~${walkMinutes(r.distanceM)} min`}
+              {/* Shelter is only known for HDB carparks — blank otherwise. */}
+              {r.shelter && r.shelter !== "unknown" && ` · ${r.shelter}`}
               <br />
               {r.fee !== null && (
                 <>{r.fee <= 0 ? "Free" : `Fee: ${formatFee(r.fee)}`}</>
@@ -152,6 +154,24 @@ export default function CarparkMap({ data }: { data: SearchResponse }) {
                     : `${r.lotsAvailable} of ${r.totalLots} lots free`}
                 </>
               )}
+              <br />
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${r.location!.lat},${r.location!.lng}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: "inline-block",
+                  marginTop: 6,
+                  padding: "4px 10px",
+                  borderRadius: 8,
+                  background: "#2f6bff",
+                  color: "#fff",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                }}
+              >
+                Navigate ↗
+              </a>
             </Popup>
           </Marker>
         ))}
