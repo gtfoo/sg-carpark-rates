@@ -132,12 +132,19 @@ const PARKING_SG = {
 } as const;
 
 /**
- * Android can open a specific installed app by package id without the app
- * publishing a URL scheme, via an intent: URL. `S.browser_fallback_url` is what
- * the browser loads when the app isn't installed — the Play Store listing here.
+ * Android opens a specific installed app by package id via an intent: URL.
+ *
+ * This asks for the app's LAUNCHER activity (the MAIN/LAUNCHER pair) rather
+ * than pointing at a https://www.parking.sg/ URL: a URL-shaped intent only
+ * resolves if the app declares an intent-filter for that exact host, which
+ * parking.sg's app does not appear to do — Chrome then silently falls through
+ * to the web. Launching by package sidesteps that entirely.
+ *
+ * `S.browser_fallback_url` is what Chrome loads when the app isn't installed.
  */
 const ANDROID_INTENT =
-  `intent://www.parking.sg/#Intent;scheme=https;package=${PARKING_SG.androidPackage};` +
+  `intent:#Intent;package=${PARKING_SG.androidPackage};` +
+  `action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;` +
   `S.browser_fallback_url=${encodeURIComponent(PARKING_SG.playStore)};end`;
 
 /**
@@ -155,6 +162,7 @@ const ANDROID_INTENT =
  */
 export function ParkingSgButton() {
   const [href, setHref] = useState<string>(PARKING_SG.web);
+  const isIntent = href.startsWith("intent:");
 
   useEffect(() => {
     // Resolved after mount: the server has no user agent, and rendering a
@@ -165,8 +173,10 @@ export function ParkingSgButton() {
   return (
     <a
       href={href}
-      target="_blank"
-      rel="noreferrer"
+      // An intent: URL must navigate in the current tab — opening it in a new
+      // tab stops Chrome handing off to the app on some Android versions.
+      target={isIntent ? undefined : "_blank"}
+      rel={isIntent ? undefined : "noreferrer"}
       className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium"
       style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
     >
