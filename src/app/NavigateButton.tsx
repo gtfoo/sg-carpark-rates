@@ -121,16 +121,50 @@ export function NavigateButton({ lat, lng }: { lat: number; lng: number }) {
   );
 }
 
+/** parking.sg's native apps and its site. */
+const PARKING_SG = {
+  // Follow the canonical host directly: parking.sg 301s to www, and a redirect
+  // can stop iOS from matching a Universal Link to the installed app.
+  web: "https://www.parking.sg/",
+  androidPackage: "sg.parking.streetsmart",
+  playStore:
+    "https://play.google.com/store/apps/details?id=sg.parking.streetsmart",
+} as const;
+
 /**
- * parking.sg is the official Digital Parking System web app (coupon parking).
- * There's no public per-car-park deep link, so this opens the app to the home
- * screen where the driver picks the car park and pays. On mobile it opens the
- * installed parking.sg app / PWA; on desktop, the site.
+ * Android can open a specific installed app by package id without the app
+ * publishing a URL scheme, via an intent: URL. `S.browser_fallback_url` is what
+ * the browser loads when the app isn't installed — the Play Store listing here.
+ */
+const ANDROID_INTENT =
+  `intent://www.parking.sg/#Intent;scheme=https;package=${PARKING_SG.androidPackage};` +
+  `S.browser_fallback_url=${encodeURIComponent(PARKING_SG.playStore)};end`;
+
+/**
+ * "Pay with parking.sg" for coupon car parks.
+ *
+ * On Android this opens the installed parking.sg app directly (intent: URL by
+ * package id), falling back to the Play Store listing. Elsewhere — including
+ * iOS — it opens https://www.parking.sg/, which hands off to the installed app
+ * automatically IF parking.sg publishes Universal Links for that domain.
+ *
+ * There is no documented parking.sg URL scheme and no public per-car-park deep
+ * link, so iOS can't be forced open and the app always lands on its own home
+ * screen, where the driver picks the car park. Guessing a scheme would just
+ * show a broken-link error when wrong, so we don't.
  */
 export function ParkingSgButton() {
+  const [href, setHref] = useState<string>(PARKING_SG.web);
+
+  useEffect(() => {
+    // Resolved after mount: the server has no user agent, and rendering a
+    // different href on the server would be a hydration mismatch.
+    if (/android/i.test(navigator.userAgent)) setHref(ANDROID_INTENT);
+  }, []);
+
   return (
     <a
-      href="https://parking.sg"
+      href={href}
       target="_blank"
       rel="noreferrer"
       className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium"

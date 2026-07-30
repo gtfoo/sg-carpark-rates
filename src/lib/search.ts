@@ -217,20 +217,35 @@ export async function search(
       ? cand.c.location
       : { lat: cand.o.lat!, lng: cand.o.lng! };
 
-  // Drop an EPS entry when a rated carpark (HDB/override) sits within ~35 m —
-  // it's the same physical car park, and we prefer the one we can price. Only
-  // the nearest handful are checked, so this stays cheap.
-  const DEDUP_M = 35;
+  // The same physical car park can appear in more than one source — e.g. Jem is
+  // both an EPS inventory entry and a saved LTA rate, 10 m apart. Prefer the one
+  // we can price, so an EPS entry is dropped when a RATED car park (HDB or a
+  // saved rate) sits within ~40 m of it.
+  //
+  // This must compare against every rated candidate, not just the ones already
+  // kept: `ranked` is ordered by distance from the destination, so an EPS entry
+  // can be visited before its rated twin and would otherwise survive.
+  const DEDUP_M = 40;
+  const ratedPoints: LatLng[] = ranked
+    .filter((c) => c.kind !== "eps")
+    .map(candLocation);
+
   const kept: Candidate[] = [];
   for (const cand of ranked) {
     if (kept.length >= limit) break;
     if (cand.kind === "eps") {
-      const dup = kept.some(
-        (k) =>
-          k.kind !== "eps" &&
-          haversineMetres(cand.c.location, candLocation(k)) < DEDUP_M,
-      );
-      if (dup) continue;
+      const loc = cand.c.location;
+      // Same spot as something we can price → skip the unpriced copy.
+      if (ratedPoints.some((p) => haversineMetres(loc, p) < DEDUP_M)) continue;
+      // Two EPS rows for one car park (duplicate feed entries) → keep the first,
+      // which is the nearer of the two given the distance ordering.
+      if (
+        kept.some(
+          (k) => k.kind === "eps" && haversineMetres(loc, k.c.location) < DEDUP_M,
+        )
+      ) {
+        continue;
+      }
     }
     kept.push(cand);
   }
