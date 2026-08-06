@@ -69,6 +69,62 @@ const SEP = String.raw`/|per|for|every|each`;
 // published text contains typos like "$1.50 for for sub. ½ hr".
 const SEPS = `(?:\\s*(?:${SEP}))*\\s*`;
 
+/** "7am", "5.30pm", "12.01am", "1759hrs" -> minutes since midnight. */
+function parseClock(s: string): number | null {
+  const t = s.trim();
+  let m = t.match(/^(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)$/i);
+  if (m) {
+    let h = parseInt(m[1]!, 10) % 12;
+    if (/pm/i.test(m[3]!)) h += 12;
+    return h * 60 + (m[2] ? parseInt(m[2], 10) : 0);
+  }
+  m = t.match(/^(\d{3,4})\s*hrs?$/i);
+  if (m) {
+    const v = m[1]!.padStart(4, "0");
+    return parseInt(v.slice(0, 2), 10) * 60 + parseInt(v.slice(2), 10);
+  }
+  return null;
+}
+
+const CLOCK = String.raw`\d{1,2}(?:[.:]\d{2})?\s*(?:am|pm)|\d{3,4}\s*hrs?`;
+/** Fresh each call — a global regex carries lastIndex between uses. */
+const timeRangeRe = () =>
+  new RegExp(`(${CLOCK})\\s*(?:-|–|to)\\s*(${CLOCK})`, "gi");
+
+/** Does [from,to) cover t? Ranges may wrap past midnight (e.g. 11pm-7am). */
+function covers(from: number, to: number, t: number): boolean {
+  return to > from ? t >= from && t < to : t >= from || t < to;
+}
+
+/**
+ * Operators often put several time bands in one rate string, e.g.
+ *   "7am-5pm & 11pm-7am: $1.50 for 1st 30 mins, $0.05/min; 5pm-11pm: $3.00 per entry"
+ * Returns just the band covering `minutesOfDay`, with the clock prefix stripped
+ * so the fee patterns don't read "5pm-11pm" as an amount. Strings without
+ * multiple bands are returned untouched.
+ */
+export function bandForTime(rawInput: string, minutesOfDay: number): string {
+  const raw = repairEncoding(rawInput ?? "");
+  const segments = raw.split(";").map((s) => s.trim()).filter(Boolean);
+  if (segments.length < 2) return raw;
+
+  for (const seg of segments) {
+    for (const m of seg.matchAll(timeRangeRe())) {
+      const from = parseClock(m[1]!);
+      const to = parseClock(m[2]!);
+      if (from === null || to === null) continue;
+      if (covers(from, to, minutesOfDay)) {
+        const stripped = seg
+          .replace(timeRangeRe(), " ")
+          .replace(/^[\s&,:-]+/, "")
+          .trim();
+        return stripped || seg;
+      }
+    }
+  }
+  return raw;
+}
+
 export function parseRate(rawInput: string): ParsedRate {
   const raw = repairEncoding(rawInput ?? "");
   if (!raw || raw === "-" || raw.toLowerCase() === "na") return { kind: "none" };

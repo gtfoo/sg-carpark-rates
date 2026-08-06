@@ -446,6 +446,14 @@ function Results({
     .filter((r) => r.location !== null)
     .forEach((r, i) => mapNumbers.set(r.id, i + 1));
 
+  // The nearest car park we can actually price is the yardstick for "is walking
+  // further worth it?" — every other priced card is compared against it.
+  const benchmark = data.results.reduce<CarparkResult | null>(
+    (best, r) =>
+      r.fee === null ? best : !best || r.distanceM < best.distanceM ? r : best,
+    null,
+  );
+
   // The server returns results nearest-first. Re-sort a copy for display.
   // Cheapest-first puts free ($0) at the top and rate-unknown ("—") at the
   // bottom, since a price we don't know can't be compared.
@@ -522,6 +530,7 @@ function Results({
             r={r}
             index={mapNumbers.get(r.id) ?? null}
             llmEnabled={data.llmEnabled}
+            benchmark={benchmark}
             onLookedUp={onRateSaved}
           />
         ))}
@@ -873,11 +882,14 @@ function CarparkCard({
   r,
   index,
   llmEnabled,
+  benchmark,
   onLookedUp,
 }: {
   r: CarparkResult;
   index: number | null;
   llmEnabled: boolean;
+  /** Nearest priced car park, to compare cost against. Null if none priced. */
+  benchmark: CarparkResult | null;
   /** Re-run the search after a lookup saves a rate, so the new rate shows. */
   onLookedUp: () => void;
 }) {
@@ -929,6 +941,7 @@ function CarparkCard({
                   {r.feeConfidence}
                 </p>
               )}
+              <TradeOff r={r} benchmark={benchmark} />
             </>
           ) : llmEnabled && !rateIsFromLiveApi(r) ? (
             <button
@@ -1169,6 +1182,47 @@ function lotColour(freeRatio: number): string {
 /** Must match availabilityColour() in CarparkMap so pins and badges agree. */
 function badgeColour(freeRatio: number | null): string {
   return freeRatio === null ? "#6b7280" : lotColour(freeRatio);
+}
+
+/**
+ * "Save $2.40 · 4 min further" — what this car park costs relative to the
+ * nearest one we can price, so the extra walk can be judged against the money.
+ * Hidden on the benchmark itself, and when the saving rounds to nothing.
+ */
+function TradeOff({
+  r,
+  benchmark,
+}: {
+  r: CarparkResult;
+  benchmark: CarparkResult | null;
+}) {
+  if (!benchmark || benchmark.id === r.id || r.fee === null) return null;
+
+  const diff = r.fee - benchmark.fee!;
+  const walkDiff =
+    Math.round(r.distanceM / 80) - Math.round(benchmark.distanceM / 80);
+  if (Math.abs(diff) < 0.01) return null;
+
+  const cheaper = diff < 0;
+  const money = `${cheaper ? "Save" : "+"} $${Math.abs(diff).toFixed(2)}`;
+  // Only mention the walk when it actually differs; nearer AND cheaper needs no
+  // trade-off framing at all.
+  const walk =
+    walkDiff > 0
+      ? ` · ${walkDiff} min further`
+      : walkDiff < 0
+        ? ` · ${Math.abs(walkDiff)} min closer`
+        : "";
+
+  return (
+    <p
+      className="text-[10px]"
+      style={{ color: cheaper ? "#22c55e" : "var(--muted)" }}
+    >
+      {money}
+      {walk}
+    </p>
+  );
 }
 
 /** Rough walking time from distance at ~5 km/h (≈80 m/min). */

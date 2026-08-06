@@ -69,9 +69,19 @@ async function main() {
   const removed = deleteOverridesBySourceUrlLike("%uraDataService%");
   if (removed > 0) console.log(`\nCleared ${removed} rows from a previous URA import.`);
 
+  // Lorry / heavy-vehicle parks ("… HVP") have no standard car lots, so they
+  // aren't parking options for a car — don't store them as rates at all.
+  const isHeavyVehicle = (n: string) =>
+    /\bHVP\b|HEAVY[\s-]?VEHICLE|\bLORRY\b/i.test(n);
+
   let saved = 0;
+  let skippedHv = 0;
   for (const c of carparks) {
     if (!c.weekdayRate && !c.saturdayRate && !c.sundayPhRate) continue;
+    if (isHeavyVehicle(c.name)) {
+      skippedHv++;
+      continue;
+    }
     upsertOverride({
       matchType: "name",
       matchValue: c.name,
@@ -90,7 +100,10 @@ async function main() {
     });
     saved++;
   }
-  console.log(`\nDone. Saved ${saved} URA car parks with rates.`);
+  console.log(
+    `\nDone. Saved ${saved} URA car parks with rates` +
+      `${skippedHv ? ` (skipped ${skippedHv} heavy-vehicle parks)` : ""}.`,
+  );
 }
 
 main().catch((e) => {

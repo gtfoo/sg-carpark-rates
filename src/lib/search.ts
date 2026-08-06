@@ -4,6 +4,7 @@ import { publicEpsCarparks, type EpsCarpark } from "./sources/eps";
 import {
   fetchMallRates,
   estimateMallFee,
+  bandForTime,
   rateForDay,
   parseRate,
   describeRate,
@@ -188,7 +189,9 @@ export async function search(
 
   // Saved rates with coordinates become nearby options, ranked with the HDB
   // carparks — this is what surfaces Terminal 1's rate when searching Terminal 2.
+  // Lorry/heavy-vehicle parks are dropped: a car can't park there.
   const overrideHits = safe(() => listOverridesWithCoords(), [])
+    .filter((o) => !isHeavyVehicleOnly(o.displayName ?? o.matchValue))
     .map((o) => ({ o, d: haversineMetres(place.location, { lat: o.lat!, lng: o.lng! }) }))
     .filter((x) => x.d <= OVERRIDE_RADIUS_M)
     .sort((a, b) => a.d - b.d);
@@ -269,7 +272,14 @@ export async function search(
           })
         : cand.kind === "eps"
           ? epsResult(cand.c, cand.d, walk)
-          : overrideResult(cand.o, cand.d, walk, minutes, dayType),
+          : overrideResult(
+              cand.o,
+              cand.d,
+              walk,
+              minutes,
+              dayType,
+              startParts.minutesOfDay,
+            ),
     );
   }
 
@@ -286,7 +296,14 @@ export async function search(
     // Only use the name match for coordless overrides — ones with coordinates
     // are already handled by the spatial list above (avoids double-listing).
     if (nameOv && nameOv.lat === null && nameOv.lng === null) {
-      destRate = overrideResult(nameOv, 0, null, minutes, dayType);
+      destRate = overrideResult(
+        nameOv,
+        0,
+        null,
+        minutes,
+        dayType,
+        startParts.minutesOfDay,
+      );
     } else {
       destRate = mallDatasetMatch(place, mallRates, minutes, dayType);
     }
@@ -366,18 +383,24 @@ function safe<T>(fn: () => T, fallback: T): T {
   }
 }
 
-/** Prices a saved override through the same parser as the LTA dataset. */
+/**
+ * Prices a saved override through the same parser as the LTA dataset, using the
+ * rate band that covers the arrival time (many rates carry a day and an evening
+ * band in one string).
+ */
 function feeFromOverride(
   o: RateOverride,
   minutes: number,
   dayType: DayType,
+  startMod: number,
 ): number | null {
+  const band = (s: string | null) => parseRate(bandForTime(s ?? "", startMod));
   const rates: MallCarparkRates = {
     name: o.displayName ?? o.matchValue,
     category: "",
-    weekday: parseRate(o.weekdayRate ?? ""),
-    saturday: parseRate(o.saturdayRate ?? ""),
-    sundayPh: parseRate(o.sundayPhRate ?? ""),
+    weekday: band(o.weekdayRate),
+    saturday: band(o.saturdayRate),
+    sundayPh: band(o.sundayPhRate),
   };
   return estimateMallFee(rateForDay(rates, dayType), minutes);
 }
@@ -412,7 +435,10 @@ function hdbResult(
 
   // A saved rate for this exact carpark wins over the computed schedule.
   const ov = safe(() => findOverrideForCarpark(c.carparkNo), null);
-  const ovFee = ov ? feeFromOverride(ov, opts.minutes, opts.dayType) : null;
+  const startMod = toSgt(opts.start).minutesOfDay;
+  const ovFee = ov
+    ? feeFromOverride(ov, opts.minutes, opts.dayType, startMod)
+    : null;
 
   const base = {
     id: c.carparkNo,
@@ -438,7 +464,7 @@ function hdbResult(
       feeSourceUrl: ov.sourceUrl,
       feeNote: ov.notes ?? "Your saved rate.",
       feeBreakdown: commercialBreakdown(
-        rawRateForDay(ov, opts.dayType),
+        rawRateForDay(ov, opts.dayType, startMod),
         opts.dayType,
         opts.minutes,
         ovFee,
@@ -489,8 +515,9 @@ function overrideResult(
   walkM: number | null,
   minutes: number,
   dayType: DayType,
+  startMod: number,
 ): CarparkResult {
-  const dollars = feeFromOverride(o, minutes, dayType);
+  const dollars = feeFromOverride(o, minutes, dayType, startMod);
   return {
     id: `override:${o.id}`,
     name: o.displayName ?? o.matchValue,
@@ -511,7 +538,7 @@ function overrideResult(
     feeSourceUrl: o.sourceUrl,
     feeNote: o.notes ?? "",
     feeBreakdown: commercialBreakdown(
-      rawRateForDay(o, dayType),
+      rawRateForDay(o, dayType, startMod),
       dayType,
       minutes,
       dollars,
@@ -643,12 +670,32 @@ function commercialBreakdown(
   ];
 }
 
-/** The raw rate string an override uses for a given day. */
-function rawRateForDay(o: RateOverride, dayType: DayType): string {
-  if (dayType === "sunday-ph")
-    return o.sundayPhRate ?? o.saturdayRate ?? o.weekdayRate ?? "";
-  if (dayType === "saturday") return o.saturdayRate ?? o.weekdayRate ?? "";
-  return o.weekdayRate ?? "";
+/**
+ * The rate string an override uses for a given day, narrowed to the band that
+ * covers the arrival time so the breakdown shows the rate actually charged.
+ */
+function rawRateForDay(
+  o: RateOverride,
+  dayType: DayType,
+  startMod: number,
+): string {
+  const raw =
+    dayType === "sunday-ph"
+      ? o.sundayPhRate ?? o.saturdayRate ?? o.weekdayRate ?? ""
+      : dayType === "saturday"
+        ? o.saturdayRate ?? o.weekdayRate ?? ""
+        : o.weekdayRate ?? "";
+  return bandForTime(raw, startMod);
+}
+
+/**
+ * Lorry / heavy-vehicle parks, which have no standard car lots — URA lists a
+ * handful as "… HVP" (e.g. BENDEMEER RD HVP) and other feeds spell it out.
+ * Matched on the name because no source flags the vehicle type. "HV" alone is
+ * deliberately not matched: too short to be safe inside ordinary names.
+ */
+function isHeavyVehicleOnly(name: string): boolean {
+  return /\bHVP\b|HEAVY[\s-]?VEHICLE|\bLORRY\b/i.test(name);
 }
 
 function looseNameMatch(a: string, b: string): boolean {
