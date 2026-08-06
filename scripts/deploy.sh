@@ -42,8 +42,19 @@ if [ -f "$PATCH" ]; then
   fi
 fi
 
-echo "==> npm ci (recompiles better-sqlite3 for this host)"
-npm ci
+# npm ci wipes node_modules and recompiles better-sqlite3 from source, which is
+# minutes of work on a 1 vCPU box shared with other apps — and pointless when
+# the dependencies haven't moved. Only reinstall when the lockfile actually
+# changes. node_modules is gitignored, so the stamp survives the hard reset.
+STAMP="node_modules/.deps-lock-hash"
+LOCK_HASH="$(sha1sum package-lock.json | cut -d' ' -f1)"
+if [ -d node_modules ] && [ "$(cat "$STAMP" 2>/dev/null)" = "$LOCK_HASH" ]; then
+  echo "==> dependencies unchanged, skipping npm ci"
+else
+  echo "==> npm ci (recompiles better-sqlite3 for this host)"
+  npm ci
+  echo "$LOCK_HASH" >"$STAMP"
+fi
 
 echo "==> next build"
 npm run build

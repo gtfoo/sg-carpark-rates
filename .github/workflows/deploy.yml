@@ -23,6 +23,10 @@ jobs:
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
           port: ${{ secrets.DROPLET_PORT || 22 }}
+          # The droplet is 1 vCPU and hosts several apps; when another one is
+          # building, a cold npm ci plus next build can exceed the action's
+          # 10m default and the deploy dies mid-install.
+          command_timeout: 30m
           script: |
             set -e
             cd "${{ secrets.DROPLET_APP_DIR }}"
