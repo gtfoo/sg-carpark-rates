@@ -14,8 +14,26 @@ import { dirname, join } from "node:path";
  * Override the path with CARPARK_DB_PATH on the VPS to point at a volume that
  * survives deploys.
  */
-const DB_PATH =
-  process.env.CARPARK_DB_PATH ?? join(process.cwd(), "data", "carpark.db");
+/**
+ * The database lives beside the project, never inside the build output.
+ *
+ * Next's standalone server runs with cwd = <project>/.next/standalone, so a
+ * plain cwd-relative path would resolve to .next/standalone/data/carpark.db —
+ * a throwaway location that better-sqlite3 would happily CREATE, leaving the
+ * app serving an empty rate store while the real one sat untouched. Walk back
+ * out of the build directory so both `next start` and the standalone server
+ * open the same file. CARPARK_DB_PATH still overrides everything.
+ */
+function defaultDbPath(): string {
+  let root = process.cwd();
+  const standaloneSuffix = join(".next", "standalone");
+  if (root.endsWith(standaloneSuffix)) {
+    root = root.slice(0, -standaloneSuffix.length) || ".";
+  }
+  return join(root, "data", "carpark.db");
+}
+
+const DB_PATH = process.env.CARPARK_DB_PATH ?? defaultDbPath();
 
 let db: Database.Database | null = null;
 

@@ -18,6 +18,15 @@ const nextConfig: NextConfig = {
   // build fails trying to parse the binary. Keep it external so it's required
   // from node_modules at runtime; standalone output traces the .node file in.
   serverExternalPackages: ["better-sqlite3"],
+  // File tracing copies the live SQLite database into
+  // .next/standalone/data/carpark.db. That snapshot is stale the moment it's
+  // taken, and if this app is ever run from the standalone server (as the
+  // sibling apps on the droplet are) it would read and WRITE that copy instead
+  // of the real database — losing every saved rate. The DB is runtime state,
+  // never a build input, so keep the whole directory out of the trace.
+  outputFileTracingExcludes: {
+    "/*": ["data/**"],
+  },
 };
 
 export default nextConfig;
