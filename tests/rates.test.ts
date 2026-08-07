@@ -56,6 +56,44 @@ test("first-then rates, including the published typos", () => {
   assert.equal(fee("$5.00 for 1st hr; $0.10 for next sub. min.", 90), 8);
 });
 
+test("a first period of more than one hour is charged as one period", () => {
+  // 49 stored rates said "for 1st 2 hrs" and every one of them was quoting
+  // $4.00 — the pattern below didn't allow a count after "1st", so it failed
+  // and the per-block pattern read the bare "2" of "2 hrs" as $2 an hour. The
+  // number looked ordinary on the card, which is why it went unnoticed.
+  const bugis = "$3.30 for 1st 2 hrs; $0.65 for sub. 15 min or part thereof.";
+  assert.deepEqual(parseRate(bugis), {
+    kind: "first-then",
+    firstDollars: 3.3,
+    firstMinutes: 120,
+    thenDollars: 0.65,
+    thenBlockMinutes: 15,
+  });
+  assert.equal(fee(bugis, 120), 3.3);
+  assert.equal(fee(bugis, 150), 3.3 + 2 * 0.65);
+  // Square 2 — four hours, and "½ hr" for the block after it.
+  assert.equal(fee("$2.40 for 1st 4hrs; $1.20 for sub. ½ hr", 120), 2.4);
+  // A count of one, written out, must not change the meaning.
+  assert.equal(fee("$2.40 for 1st 1hr or part thereof; $1.53 for sub. 30min", 120), 5.46);
+});
+
+test("the follow-on rate is never read out of a duration", () => {
+  // Tekka Place and Tanglin Shopping Centre both put the amount last. Allowing
+  // a bare number there let "30min" become $30 a minute — a $1,800 two-hour
+  // quote. Unpriceable is the honest answer for these.
+  assert.equal(fee("$1.80 for 1st hr, sub 30min at $1.20.", 120), null);
+  assert.equal(fee("$3.50 for 1st hr; $1.75 for next sub.sequent 30min", 120), null);
+  // But an amount that trails "sub." legitimately still parses.
+  assert.equal(fee("$3 for 1st hour; sub. $2/hour", 120), 5);
+});
+
+test("the follow-on rate needs no 'subsequent' to be found", () => {
+  // Marina Square and Mandarin Oriental write it straight after a comma.
+  assert.equal(fee("$3.27 for 1st 2hrs; $1.64 per ½ hr for sub. ½ hr", 120), 3.27);
+  assert.equal(fee("$2.44 for 1st 2 hrs, $1.22/hr for next 2 hrs", 120), 2.44);
+  assert.equal(fee("$1.35 for 1st hr; $0.70 every 30min or part thereof.", 120), 2.75);
+});
+
 test("per-minute rates", () => {
   // IKEA Alexandra — "minute" spelled out defeated a \bmins?\b pattern.
   assert.equal(fee("$0.06 per minute", 120), 7.2);

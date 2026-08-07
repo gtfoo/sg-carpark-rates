@@ -178,22 +178,34 @@ export function parseRate(rawInput: string): ParsedRate {
   // per-minute, so the unit here also accepts a bare "min"/"minute" (excluded
   // from BLOCK_UNIT, which is why unitToMinutes maps it to 1 minute).
   const RATE_UNIT = `(?:${BLOCK_UNIT})|min(?:ute)?s?`;
+  // The first period often carries a count — "for 1st 2 hrs", "1st 3 hours" —
+  // and that count MUST be captured here. Miss it and the whole pattern fails,
+  // then the per-block pattern below reads the bare "2" as a price and quotes
+  // $2 an hour: 49 stored rates priced that way, every one of them wrong.
+  const FIRST_PERIOD = `(?:the\\s*)?1st\\s*(?:(\\d+)\\s*)?(${RATE_UNIT})`;
+  // Both amounts must carry a "$". Without it the follow-on half of the pattern
+  // will happily read the "30" of "30min" as thirty dollars a minute — which is
+  // exactly what "$1.80 for 1st hr, sub 30min at $1.20" does.
+  const MONEY = String.raw`\$\s*(\d+(?:\.\d+)?)`;
   const firstThen = raw.match(
     new RegExp(
-      `${NUM}${SEPS}(?:the\\s*)?1st\\s*(${RATE_UNIT})` +
-        // "for each sub. ½ hr", "for next sub 30min", "per subsequent hour"
-        `[\\s\\S]*?${NUM}${SEPS}(?:(?:each|next)\\s*)?(?:sub\\.?|subsequent)\\s*` +
+      `${MONEY}${SEPS}${FIRST_PERIOD}` +
+        // "for each sub. ½ hr", "for next sub 30min", "per subsequent hour".
+        // "sub" is optional: plenty of operators just write the follow-on rate
+        // straight after a comma ("$3.27 for 1st 2 hrs, $1.64 per 30 mins").
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:each|next)\\s*)?(?:(?:sub\\.?|subsequent)\\s*)?` +
         `(${RATE_UNIT})`,
       "i",
     ),
   );
   if (firstThen) {
+    const firstUnits = firstThen[2] ? Number(firstThen[2]) : 1;
     return {
       kind: "first-then",
       firstDollars: Number(firstThen[1]),
-      firstMinutes: unitToMinutes(firstThen[2]!),
-      thenDollars: Number(firstThen[3]),
-      thenBlockMinutes: unitToMinutes(firstThen[4]!),
+      firstMinutes: firstUnits * unitToMinutes(firstThen[3]!),
+      thenDollars: Number(firstThen[4]),
+      thenBlockMinutes: unitToMinutes(firstThen[5]!),
     };
   }
 
