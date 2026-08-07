@@ -10,11 +10,13 @@ import {
 import {
   fetchMallRates,
   estimateMallFee,
+  parseLimits,
   bandForTime,
   rateForDay,
   parseRate,
   describeRate,
   type MallCarparkRates,
+  type RateLimits,
 } from "./sources/mallRates";
 import { getPublicHolidays } from "./sources/holidays";
 import { geocode, walkingDistanceMetres, type GeocodeResult } from "./onemap";
@@ -429,7 +431,23 @@ function feeFromOverride(
     saturday: band(o.saturdayRate),
     sundayPh: band(o.sundayPhRate),
   };
-  return estimateMallFee(rateForDay(rates, dayType), minutes);
+  return estimateMallFee(
+    rateForDay(rates, dayType),
+    minutes,
+    limitsForOverride(o, dayType),
+  );
+}
+
+/**
+ * Grace period and daily cap for a saved rate. They're published beside the
+ * price rather than inside it, so both the rate text and the notes are read —
+ * the AI extractor is told to put caveats like "Grace Period : 20 Minutes" and
+ * "Whole Day Max Cap: $20.00" in the notes.
+ */
+function limitsForOverride(o: RateOverride, dayType: DayType): RateLimits {
+  return parseLimits(
+    [rawRateForDay(o, dayType, 0), o.notes ?? ""].join(" "),
+  );
 }
 
 interface HdbFeeOpts {
@@ -499,6 +517,7 @@ function hdbResult(
         opts.dayType,
         opts.minutes,
         ovFee,
+        limitsForOverride(ov, opts.dayType),
       ),
     };
   }
@@ -580,6 +599,7 @@ function overrideResult(
       dayType,
       minutes,
       dollars,
+      limitsForOverride(o, dayType),
     ),
   };
 }
@@ -701,15 +721,32 @@ function commercialBreakdown(
   dayType: DayType,
   minutes: number,
   dollars: number | null,
+  limits: RateLimits = { graceMinutes: null, capDollars: null },
 ): { label: string; value: string }[] {
-  return [
+  const rows = [
     { label: "Applied rate", value: rateText || "—" },
     { label: "When", value: `${dayLabel(dayType)}, ${minutes} min` },
-    {
-      label: "Total",
-      value: dollars === null ? "not computable" : formatFee(dollars),
-    },
   ];
+  // Only mention a limit when it changed the number, so the breakdown explains
+  // the price rather than listing rules that didn't apply.
+  if (limits.graceMinutes) {
+    const free = Math.min(limits.graceMinutes, minutes);
+    rows.push({
+      label: "Grace",
+      value:
+        minutes <= limits.graceMinutes
+          ? `first ${limits.graceMinutes} min free — whole stay`
+          : `first ${free} min free, ${minutes - free} min charged`,
+    });
+  }
+  if (limits.capDollars !== null && dollars !== null && dollars >= limits.capDollars) {
+    rows.push({ label: "Cap", value: `capped at ${formatFee(limits.capDollars)}` });
+  }
+  rows.push({
+    label: "Total",
+    value: dollars === null ? "not computable" : formatFee(dollars),
+  });
+  return rows;
 }
 
 /**

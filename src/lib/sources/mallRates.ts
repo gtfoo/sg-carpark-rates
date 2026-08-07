@@ -248,11 +248,94 @@ export function describeRate(rate: ParsedRate): string {
   }
 }
 
+/**
+ * The two rules that sit outside the per-block price and change what's actually
+ * charged: free minutes at the start, and a ceiling on the day.
+ */
+export interface RateLimits {
+  /** Free minutes from entry, e.g. Techquest's 20-minute grace period. */
+  graceMinutes: number | null;
+  /** Most the session can cost, e.g. a "whole day max cap: $20.00". */
+  capDollars: number | null;
+}
+
+export const NO_LIMITS: RateLimits = { graceMinutes: null, capDollars: null };
+
+/**
+ * Reads a grace period and a daily cap out of free text.
+ *
+ * These are published alongside the rate rather than inside it — the AI
+ * extractor is told to put them in the notes, and operators write them as
+ * "Grace Period : 20 Minutes" or "Whole Day Max Cap: $20.00". Ignoring them
+ * overcharges long stays and charges at all for stays inside the grace.
+ *
+ * Deliberately conservative: a number must be tied to a grace/cap word, so
+ * "min spend $20" or "maximum stay 2 hours" don't become a $20 cap.
+ */
+export function parseLimits(text: string): RateLimits {
+  const t = repairEncoding(text ?? "");
+  if (!t) return NO_LIMITS;
+
+  let graceMinutes: number | null = null;
+  for (const re of [
+    /grace(?:\s*period)?[^0-9]{0,14}(\d{1,3})\s*(?:min|minute)/i,
+    /(\d{1,3})\s*(?:min|minute)s?\s*(?:'s)?\s*grace/i,
+    /first\s*(\d{1,3})\s*(?:min|minute)s?\s*(?:is\s*|are\s*)?free/i,
+  ]) {
+    const m = t.match(re);
+    if (m) {
+      const n = Number(m[1]);
+      // A "grace period" longer than a couple of hours is a misread.
+      if (Number.isFinite(n) && n > 0 && n <= 180) graceMinutes = n;
+      break;
+    }
+  }
+
+  let capDollars: number | null = null;
+  for (const re of [
+    /(?:max(?:imum)?|cap(?:ped)?)[^.$]{0,24}\$\s*(\d+(?:\.\d{1,2})?)/i,
+    /\$\s*(\d+(?:\.\d{1,2})?)\s*(?:max(?:imum)?|cap)/i,
+  ]) {
+    const m = t.match(re);
+    if (m) {
+      const n = Number(m[1]);
+      // Below a dollar it's a per-block price that happened to sit near the
+      // word; above a few hundred it isn't a day cap either.
+      if (Number.isFinite(n) && n >= 1 && n <= 300) capDollars = n;
+      break;
+    }
+  }
+
+  return { graceMinutes, capDollars };
+}
+
 /** Cost in dollars for `minutes` of parking, or null if the rate is unusable. */
 export function estimateMallFee(
   rate: ParsedRate,
   minutes: number,
+  limits: RateLimits = NO_LIMITS,
 ): number | null {
+  // Grace comes off the front of the session; leave within it and pay nothing.
+  const billable = limits.graceMinutes
+    ? Math.max(0, minutes - limits.graceMinutes)
+    : minutes;
+
+  const gross = grossFee(rate, billable);
+  if (gross === null) return null;
+  if (limits.capDollars === null) return gross;
+  return Math.min(gross, limits.capDollars);
+}
+
+function grossFee(rate: ParsedRate, minutes: number): number | null {
+  // A session entirely inside the grace period is free — but only for rates we
+  // could actually price, so an unparseable rate still reads "not computable".
+  const priceable =
+    rate.kind === "per-minute" ||
+    rate.kind === "per-block" ||
+    rate.kind === "first-then" ||
+    rate.kind === "flat-per-entry";
+  if (minutes <= 0) return priceable ? 0 : null;
+
   switch (rate.kind) {
     case "per-minute":
       return rate.dollars * minutes;

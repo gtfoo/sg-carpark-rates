@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   parseRate,
   estimateMallFee,
+  parseLimits,
   bandForTime,
   rateForDay,
   type ParsedRate,
@@ -98,6 +99,63 @@ test("bandForTime leaves single-band strings alone", () => {
   const techquest = "$2.18 for 1st hr; $1.64 per sub 30 mins";
   assert.equal(bandForTime(techquest, 13 * 60), techquest);
   assert.equal(bandForTime("$1.20 per half hour", 13 * 60), "$1.20 per half hour");
+});
+
+test("grace periods and daily caps are read out of the notes", () => {
+  // Techquest, exactly as the AI extractor filed it.
+  const techquest = "Grace period: 20 mins. Whole day max cap: $20.00. Rates inclusive of GST.";
+  assert.deepEqual(parseLimits(techquest), { graceMinutes: 20, capDollars: 20 });
+
+  assert.equal(parseLimits("Grace Period : 20 Minutes").graceMinutes, 20);
+  assert.equal(parseLimits("first 15 min free").graceMinutes, 15);
+  assert.equal(parseLimits("10 mins grace").graceMinutes, 10);
+  assert.equal(parseLimits("capped at $12 per day").capDollars, 12);
+  assert.equal(parseLimits("$25 max per entry").capDollars, 25);
+});
+
+test("limit parsing does not invent rules that aren't there", () => {
+  // Each of these contains a number and a dollar sign near a suggestive word.
+  for (const text of [
+    "Free parking with $20 min spend",
+    "Maximum stay 2 hours",
+    "$1.20 per half hour",
+    "AI-retrieved — verify before relying on it.",
+    "",
+  ]) {
+    const l = parseLimits(text);
+    assert.equal(l.capDollars, null, `"${text}" should not yield a cap`);
+    assert.equal(l.graceMinutes, null, `"${text}" should not yield a grace`);
+  }
+});
+
+test("a grace period is deducted, and a stay inside it is free", () => {
+  const rate = parseRate("$2.18 for 1st hr; $1.64 per sub 30 mins");
+  const limits = { graceMinutes: 20, capDollars: null };
+  const cents = (d: number | null) => (d === null ? null : Math.round(d * 100) / 100);
+  // 15 min, entirely within the grace.
+  assert.equal(estimateMallFee(rate, 15, limits), 0);
+  // 80 min bills as 60 — the first hour only, not first hour plus a block.
+  assert.equal(cents(estimateMallFee(rate, 80, limits)), 2.18);
+  // Without the grace the same stay tips into the next block.
+  assert.equal(cents(estimateMallFee(rate, 80)), 3.82);
+});
+
+test("a daily cap stops a long stay running away", () => {
+  const rate = parseRate("$2.18 for 1st hr; $1.64 per sub 30 mins");
+  const limits = { graceMinutes: 20, capDollars: 20 };
+  // 12 hours uncapped is far past the cap.
+  assert.ok((estimateMallFee(rate, 720) ?? 0) > 20);
+  assert.equal(estimateMallFee(rate, 720, limits), 20);
+  // A short stay is untouched by the cap.
+  assert.equal(estimateMallFee(rate, 80, limits), 2.18);
+});
+
+test("limits never rescue a rate we couldn't parse", () => {
+  // "not computable" must stay that way — a grace period doesn't make an
+  // unreadable rate free.
+  const junk = parseRate("rates vary, ask the operator");
+  assert.equal(estimateMallFee(junk, 10, { graceMinutes: 30, capDollars: 20 }), null);
+  assert.equal(estimateMallFee(junk, 120, { graceMinutes: 30, capDollars: 20 }), null);
 });
 
 test("rateForDay falls back the way the datasets expect", () => {
