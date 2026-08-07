@@ -95,6 +95,18 @@ test("time bands pick the rate for the arrival hour", () => {
   assert.equal(fee(LASALLE, 120, 3 * 60), 6, "3am wraps to the night band");
 });
 
+test("a doubled decimal in the source data doesn't inflate the price", () => {
+  // LTA really does publish "$3.27.00". The amount pattern used to match the
+  // tail — $27.00 — and 313@Somerset quoted $30.28 for two hours.
+  const raw =
+    "Friday to Sunday and Public Holiday 7.00am-7.00am: $3.27.00 for 1st hr; $1.64 for sub. 30min";
+  const r = parseRate(bandForTime(raw, 13 * 60));
+  assert.equal(r.kind, "first-then");
+  assert.equal((r as { firstDollars: number }).firstDollars, 3.27);
+  const d = estimateMallFee(r, 120);
+  assert.equal(d === null ? null : Math.round(d * 100) / 100, 6.55);
+});
+
 test("a semicolon inside one band does not split the rate", () => {
   // LTA writes a band's tiers with a semicolon. Treating it as a band
   // separator stranded "$3.90 for 1st hr" with no subsequent price, which

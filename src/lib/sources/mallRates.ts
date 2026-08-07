@@ -54,7 +54,20 @@ export interface MallCarparkRates {
  * arrives as "Â½". Repair before matching or the fraction patterns miss.
  */
 function repairEncoding(s: string): string {
-  return s.replace(/Â/g, "").trim();
+  return repairAmounts(s.replace(/Â/g, "").trim());
+}
+
+/**
+ * Repairs money written with a doubled decimal, e.g. "$3.27.00".
+ *
+ * LTA's data contains these, and left alone the amount pattern matches the
+ * TAIL of the token — "$3.27.00 for 1st hr" was read as $27.00, so
+ * 313@Somerset quoted $30.28 for two hours instead of $6.55. A plausible-
+ * looking number is the dangerous kind of wrong, so the trailing group is
+ * dropped rather than the string being rejected.
+ */
+function repairAmounts(s: string): string {
+  return s.replace(/(\$\s*\d+\.\d{2})\.\d{1,2}\b/g, "$1");
 }
 
 const NUM = String.raw`\$?\s*(\d+(?:\.\d+)?)`;

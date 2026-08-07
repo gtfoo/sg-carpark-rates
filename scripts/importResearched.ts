@@ -16,8 +16,10 @@ interface Researched {
   /** Must match the EPS car park name so the two dedupe to one card. */
   match: string;
   display: string;
-  lat: number;
-  lng: number;
+  /** Omit when updating a record that already has coordinates — the upsert
+   *  keeps the stored pair rather than clearing it. */
+  lat?: number;
+  lng?: number;
   weekday: string;
   /** Only where the operator bills Friday with the weekend. */
   friday?: string;
@@ -90,6 +92,21 @@ const RATES: Researched[] = [
     url: "https://www.sgh.com.sg/patient-services/visiting-information/getting-to-sgh/carpark-and-fee",
   },
   {
+    // Replaces the LTA text, which read "$3.27.00 for 1st hr" — a doubled
+    // decimal that priced two hours at $30.28. These are the mall's own
+    // figures, and they name Friday explicitly.
+    match: "313@Somerset",
+    display: "313@Somerset",
+    weekday: "$3.05 for 1st hr, $1.31 per sub 30 mins",
+    friday: "$3.27 for 1st hr, $1.64 per sub 30 mins",
+    saturday: "$3.27 for 1st hr, $1.64 per sub 30 mins",
+    sundayPh: "$3.27 for 1st hr, $1.64 per sub 30 mins",
+    notes:
+      "Mon-Thu is the cheaper schedule; Friday to Sunday and public holidays " +
+      "bill at the higher one. No cap or grace period published.",
+    url: "https://www.313somerset.com.sg/concierge/parking/",
+  },
+  {
     match: "UNITED SQUARE",
     display: "United Square",
     lat: 1.31718,
@@ -135,8 +152,8 @@ async function main() {
       source: "operator-site" as const,
       sourceUrl: r.url,
       notes: r.notes,
-      lat: r.lat,
-      lng: r.lng,
+      lat: r.lat ?? null,
+      lng: r.lng ?? null,
     };
     if (dry) {
       console.log(`  ${r.display}\n     ${r.weekday}\n     ${r.notes.slice(0, 96)}`);
