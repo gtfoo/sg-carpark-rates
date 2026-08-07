@@ -1,6 +1,7 @@
 import { fetchHdbCarparks, type HdbCarpark } from "./sources/hdb";
 import { fetchAvailability, type Availability } from "./sources/availability";
 import { publicEpsCarparks, type EpsCarpark } from "./sources/eps";
+import { fetchCarparkLots, lotsFor, type CarparkLots } from "./sources/datamall";
 import {
   fetchMallRates,
   estimateMallFee,
@@ -166,12 +167,16 @@ export async function search(
   const place = await geocode(destination);
   if (!place) return null;
 
-  const [carparks, availability, mallRates, holidayMap] = await Promise.all([
-    getCarparks(),
-    getAvailabilitySafe(),
-    getMallRates(),
-    getPublicHolidays(),
-  ]);
+  const [carparks, availability, mallRates, holidayMap, commercialLots] =
+    await Promise.all([
+      getCarparks(),
+      getAvailabilitySafe(),
+      getMallRates(),
+      getPublicHolidays(),
+      // Live lots for commercial/URA car parks. Returns [] when DataMall isn't
+      // configured or is down, which just means the cards stay as they were.
+      fetchCarparkLots(),
+    ]);
 
   const isCentral = isProbablyCentral(place.location.lat, place.location.lng);
   const warnings: string[] = [];
@@ -271,7 +276,7 @@ export async function search(
             holidays,
           })
         : cand.kind === "eps"
-          ? epsResult(cand.c, cand.d, walk)
+          ? epsResult(cand.c, cand.d, walk, commercialLots)
           : overrideResult(
               cand.o,
               cand.d,
@@ -279,6 +284,7 @@ export async function search(
               minutes,
               dayType,
               startParts.minutesOfDay,
+              commercialLots,
             ),
     );
   }
@@ -520,8 +526,13 @@ function overrideResult(
   minutes: number,
   dayType: DayType,
   startMod: number,
+  commercialLots: CarparkLots[] = [],
 ): CarparkResult {
   const dollars = feeFromOverride(o, minutes, dayType, startMod);
+  const live =
+    o.lat !== null && o.lng !== null
+      ? lotsFor({ lat: o.lat, lng: o.lng }, commercialLots)
+      : null;
   return {
     id: `override:${o.id}`,
     name: o.displayName ?? o.matchValue,
@@ -532,7 +543,9 @@ function overrideResult(
     location: o.lat !== null && o.lng !== null ? { lat: o.lat, lng: o.lng } : null,
     distanceM: Math.round(walkM ?? straightM),
     distanceIsWalking: walkM !== null,
-    lotsAvailable: null,
+    // DataMall reports free lots but no capacity, so totalLots stays null and
+    // the card shows a count without a fullness bar.
+    lotsAvailable: live?.availableLots ?? null,
     totalLots: null,
     fee: dollars,
     feeConfidence:
@@ -559,7 +572,9 @@ function epsResult(
   c: EpsCarpark,
   straightM: number,
   walkM: number | null,
+  commercialLots: CarparkLots[] = [],
 ): CarparkResult {
+  const live = lotsFor(c.location, commercialLots);
   return {
     id: `eps:${c.id}`,
     name: titleCase(c.name),
@@ -570,8 +585,10 @@ function epsResult(
     location: c.location,
     distanceM: Math.round(walkM ?? straightM),
     distanceIsWalking: walkM !== null,
-    lotsAvailable: null,
-    totalLots: null,
+    // EPS publishes a capacity, and DataMall the live free count — together
+    // they make a real "N of M" reading for a commercial car park.
+    lotsAvailable: live?.availableLots ?? null,
+    totalLots: live ? c.publicLots : null,
     fee: null,
     feeConfidence: "unknown",
     feeSource: "eps-inventory",

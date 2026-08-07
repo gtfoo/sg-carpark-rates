@@ -968,7 +968,16 @@ function CarparkCard({
       </div>
 
       <div className="mt-3 flex items-center gap-2">
-        {freeRatio === null ? (
+        {freeRatio === null && r.lotsAvailable !== null ? (
+          // Live count with no capacity behind it (DataMall reports free lots
+          // only). A bar would need a total, so show the number alone.
+          <span
+            className="text-xs font-medium tabular-nums"
+            style={{ color: r.lotsAvailable === 0 ? "#ef4444" : "#22c55e" }}
+          >
+            {r.lotsAvailable === 0 ? "Full" : `${r.lotsAvailable} lots free`}
+          </span>
+        ) : freeRatio === null ? (
           <span className="text-xs" style={{ color: "var(--muted)" }}>
             No live lot data
           </span>
