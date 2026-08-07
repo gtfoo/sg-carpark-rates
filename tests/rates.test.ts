@@ -104,13 +104,22 @@ test("bandForTime leaves single-band strings alone", () => {
 test("grace periods and daily caps are read out of the notes", () => {
   // Techquest, exactly as the AI extractor filed it.
   const techquest = "Grace period: 20 mins. Whole day max cap: $20.00. Rates inclusive of GST.";
-  assert.deepEqual(parseLimits(techquest), { graceMinutes: 20, capDollars: 20 });
+  assert.deepEqual(parseLimits(techquest), {
+    graceMinutes: 20,
+    graceMode: "threshold",
+    capDollars: 20,
+  });
 
   assert.equal(parseLimits("Grace Period : 20 Minutes").graceMinutes, 20);
-  assert.equal(parseLimits("first 15 min free").graceMinutes, 15);
   assert.equal(parseLimits("10 mins grace").graceMinutes, 10);
+  assert.equal(parseLimits("10-minute grace period").graceMinutes, 10);
   assert.equal(parseLimits("capped at $12 per day").capDollars, 12);
   assert.equal(parseLimits("$25 max per entry").capDollars, 25);
+
+  // The two conventions bill differently, so they're told apart.
+  assert.equal(parseLimits("Grace period: 20 mins").graceMode, "threshold");
+  assert.equal(parseLimits("first 15 min free").graceMode, "deduct");
+  assert.equal(parseLimits("first 15 min free").graceMinutes, 15);
 });
 
 test("limit parsing does not invent rules that aren't there", () => {
@@ -128,26 +137,48 @@ test("limit parsing does not invent rules that aren't there", () => {
   }
 });
 
-test("a grace period is deducted, and a stay inside it is free", () => {
-  const rate = parseRate("$2.18 for 1st hr; $1.64 per sub 30 mins");
-  const limits = { graceMinutes: 20, capDollars: null };
+test("a stay inside the grace is free under either convention", () => {
+  const rate = parseRate("$0.65 per 15 mins");
+  const threshold = { graceMinutes: 10, graceMode: "threshold" as const, capDollars: null };
+  const deduct = { graceMinutes: 10, graceMode: "deduct" as const, capDollars: null };
+  assert.equal(estimateMallFee(rate, 10, threshold), 0);
+  assert.equal(estimateMallFee(rate, 10, deduct), 0);
+});
+
+test("a grace period charges the whole stay once it's passed", () => {
+  // Changi: "full parking charges will apply for vehicles that stay beyond 10
+  // minutes from the time of entry" — 20 minutes is two blocks, not one.
+  const rate = parseRate("$0.65 per 15 mins");
+  const limits = { graceMinutes: 10, graceMode: "threshold" as const, capDollars: null };
   const cents = (d: number | null) => (d === null ? null : Math.round(d * 100) / 100);
-  // 15 min, entirely within the grace.
-  assert.equal(estimateMallFee(rate, 15, limits), 0);
+  assert.equal(cents(estimateMallFee(rate, 20, limits)), 1.3);
+  assert.equal(cents(estimateMallFee(rate, 60, limits)), 2.6);
+  // Deducting instead would bill 10 minutes — one block — and undercharge.
+  assert.equal(
+    cents(estimateMallFee(rate, 20, { ...limits, graceMode: "deduct" })),
+    0.65,
+  );
+});
+
+test("'first N minutes free' comes off the bill", () => {
+  const rate = parseRate("$2.18 for 1st hr; $1.64 per sub 30 mins");
+  const limits = { graceMinutes: 20, graceMode: "deduct" as const, capDollars: null };
+  const cents = (d: number | null) => (d === null ? null : Math.round(d * 100) / 100);
   // 80 min bills as 60 — the first hour only, not first hour plus a block.
   assert.equal(cents(estimateMallFee(rate, 80, limits)), 2.18);
-  // Without the grace the same stay tips into the next block.
+  // Without it the same stay tips into the next block.
   assert.equal(cents(estimateMallFee(rate, 80)), 3.82);
 });
 
 test("a daily cap stops a long stay running away", () => {
   const rate = parseRate("$2.18 for 1st hr; $1.64 per sub 30 mins");
-  const limits = { graceMinutes: 20, capDollars: 20 };
+  const limits = { graceMinutes: 20, graceMode: "deduct" as const, capDollars: 20 };
+  const cents = (d: number | null) => (d === null ? null : Math.round(d * 100) / 100);
   // 12 hours uncapped is far past the cap.
   assert.ok((estimateMallFee(rate, 720) ?? 0) > 20);
   assert.equal(estimateMallFee(rate, 720, limits), 20);
   // A short stay is untouched by the cap.
-  assert.equal(estimateMallFee(rate, 80, limits), 2.18);
+  assert.equal(cents(estimateMallFee(rate, 80, limits)), 2.18);
 });
 
 test("limits never rescue a rate we couldn't parse", () => {

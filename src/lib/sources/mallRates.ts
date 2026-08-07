@@ -255,11 +255,28 @@ export function describeRate(rate: ParsedRate): string {
 export interface RateLimits {
   /** Free minutes from entry, e.g. Techquest's 20-minute grace period. */
   graceMinutes: number | null;
+  /**
+   * What those free minutes mean — the two conventions charge differently:
+   *
+   *  "threshold" — the usual "grace period". Leave inside it and pay nothing;
+   *    stay a minute longer and the FULL duration is charged from entry. Changi
+   *    spells it out: "full parking charges will apply for vehicles that stay
+   *    beyond 10 minutes from the time of entry".
+   *  "deduct" — the free minutes come off the bill, as in "first 15 min free".
+   *
+   * Treating a threshold as a deduction undercharges: 20 minutes at Changi is
+   * two 15-minute blocks ($1.30), not one ($0.65).
+   */
+  graceMode: "threshold" | "deduct";
   /** Most the session can cost, e.g. a "whole day max cap: $20.00". */
   capDollars: number | null;
 }
 
-export const NO_LIMITS: RateLimits = { graceMinutes: null, capDollars: null };
+export const NO_LIMITS: RateLimits = {
+  graceMinutes: null,
+  graceMode: "threshold",
+  capDollars: null,
+};
 
 /**
  * Reads a grace period and a daily cap out of free text.
@@ -277,16 +294,21 @@ export function parseLimits(text: string): RateLimits {
   if (!t) return NO_LIMITS;
 
   let graceMinutes: number | null = null;
-  for (const re of [
-    /grace(?:\s*period)?[^0-9]{0,14}(\d{1,3})\s*(?:min|minute)/i,
-    /(\d{1,3})\s*(?:min|minute)s?\s*(?:'s)?\s*grace/i,
-    /first\s*(\d{1,3})\s*(?:min|minute)s?\s*(?:is\s*|are\s*)?free/i,
-  ]) {
+  let graceMode: "threshold" | "deduct" = "threshold";
+  for (const [re, mode] of [
+    [/grace(?:\s*period)?[^0-9]{0,14}(\d{1,3})\s*(?:min|minute)/i, "threshold"],
+    [/(\d{1,3})\s*[-\s]*(?:min|minute)s?\s*(?:'s)?\s*grace/i, "threshold"],
+    // "first 15 min free" takes the minutes off the bill instead.
+    [/first\s*(\d{1,3})\s*(?:min|minute)s?\s*(?:is\s*|are\s*)?free/i, "deduct"],
+  ] as const) {
     const m = t.match(re);
     if (m) {
       const n = Number(m[1]);
       // A "grace period" longer than a couple of hours is a misread.
-      if (Number.isFinite(n) && n > 0 && n <= 180) graceMinutes = n;
+      if (Number.isFinite(n) && n > 0 && n <= 180) {
+        graceMinutes = n;
+        graceMode = mode;
+      }
       break;
     }
   }
@@ -306,7 +328,7 @@ export function parseLimits(text: string): RateLimits {
     }
   }
 
-  return { graceMinutes, capDollars };
+  return { graceMinutes, graceMode, capDollars };
 }
 
 /** Cost in dollars for `minutes` of parking, or null if the rate is unusable. */
@@ -315,10 +337,14 @@ export function estimateMallFee(
   minutes: number,
   limits: RateLimits = NO_LIMITS,
 ): number | null {
-  // Grace comes off the front of the session; leave within it and pay nothing.
-  const billable = limits.graceMinutes
-    ? Math.max(0, minutes - limits.graceMinutes)
-    : minutes;
+  // Leave inside the grace and pay nothing, either way. Past it, only a
+  // "first N free" deduction reduces the billed time — a plain grace period
+  // charges the whole stay from entry.
+  let billable = minutes;
+  if (limits.graceMinutes) {
+    if (minutes <= limits.graceMinutes) billable = 0;
+    else if (limits.graceMode === "deduct") billable = minutes - limits.graceMinutes;
+  }
 
   const gross = grossFee(rate, billable);
   if (gross === null) return null;

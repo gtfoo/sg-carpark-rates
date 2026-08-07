@@ -15,6 +15,7 @@ import {
   rateForDay,
   parseRate,
   describeRate,
+  NO_LIMITS,
   type MallCarparkRates,
   type RateLimits,
 } from "./sources/mallRates";
@@ -250,7 +251,14 @@ export async function search(
     .filter((c) => c.kind !== "eps")
     .map((c) => ({
       loc: candLocation(c),
-      name: c.kind === "hdb" ? c.c.address : (c.o.displayName ?? c.o.matchValue),
+      // Both names: a saved rate is often filed against the EPS name while
+      // showing a tidier one, e.g. matchValue "T3A CAR PARK" displayed as
+      // "Changi Airport T3 Car Park". Comparing only the display name left the
+      // EPS card sitting beside its own rate.
+      names:
+        c.kind === "hdb"
+          ? [c.c.address]
+          : [c.o.displayName ?? c.o.matchValue, c.o.matchValue],
     }));
 
   const kept: Candidate[] = [];
@@ -261,9 +269,12 @@ export async function search(
       // Same spot, or the same name nearby, as something we can price → skip
       // the unpriced copy.
       if (
-        rated.some(({ loc: p, name }) => {
+        rated.some(({ loc: p, names }) => {
           const d = haversineMetres(loc, p);
-          return d < DEDUP_M || (d < DEDUP_NAME_M && looseNameMatch(cand.c.name, name));
+          if (d < DEDUP_M) return true;
+          return (
+            d < DEDUP_NAME_M && names.some((n) => looseNameMatch(cand.c.name, n))
+          );
         })
       ) {
         continue;
@@ -721,7 +732,7 @@ function commercialBreakdown(
   dayType: DayType,
   minutes: number,
   dollars: number | null,
-  limits: RateLimits = { graceMinutes: null, capDollars: null },
+  limits: RateLimits = NO_LIMITS,
 ): { label: string; value: string }[] {
   const rows = [
     { label: "Applied rate", value: rateText || "—" },
@@ -730,13 +741,14 @@ function commercialBreakdown(
   // Only mention a limit when it changed the number, so the breakdown explains
   // the price rather than listing rules that didn't apply.
   if (limits.graceMinutes) {
-    const free = Math.min(limits.graceMinutes, minutes);
     rows.push({
       label: "Grace",
       value:
         minutes <= limits.graceMinutes
-          ? `first ${limits.graceMinutes} min free — whole stay`
-          : `first ${free} min free, ${minutes - free} min charged`,
+          ? `within the ${limits.graceMinutes} min grace — free`
+          : limits.graceMode === "deduct"
+            ? `first ${limits.graceMinutes} min free, ${minutes - limits.graceMinutes} min charged`
+            : `${limits.graceMinutes} min grace passed — full stay charged`,
     });
   }
   if (limits.capDollars !== null && dollars !== null && dollars >= limits.capDollars) {
