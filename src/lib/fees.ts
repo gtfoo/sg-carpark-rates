@@ -29,11 +29,18 @@ export const HDB_RATES = {
 const DAY_START = 7 * 60; // 07:00
 const DAY_END = 22 * 60 + 30; // 22:30
 
-export type DayType = "weekday" | "saturday" | "sunday-ph";
+/**
+ * "friday" exists because several operators price Friday with the weekend —
+ * ION Orchard, 313@Somerset, Jem, Marina Square and Resorts World Sentosa all
+ * do. HDB does not, and its schedule only ever asks whether a day is
+ * Sunday/PH, so Friday behaves as an ordinary weekday there.
+ */
+export type DayType = "weekday" | "friday" | "saturday" | "sunday-ph";
 
 export function classifyDay(parts: SgtParts, isHoliday: boolean): DayType {
   if (isHoliday || parts.weekday === 0) return "sunday-ph";
   if (parts.weekday === 6) return "saturday";
+  if (parts.weekday === 5) return "friday";
   return "weekday";
 }
 

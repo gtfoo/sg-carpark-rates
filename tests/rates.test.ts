@@ -8,6 +8,8 @@ import {
   rateForDay,
   type ParsedRate,
 } from "../src/lib/sources/mallRates";
+import { classifyDay } from "../src/lib/fees";
+import { toSgt, fromSgt } from "../src/lib/time";
 
 /**
  * Every string here is REAL text from LTA / URA / an operator's site, and all
@@ -187,6 +189,38 @@ test("limits never rescue a rate we couldn't parse", () => {
   const junk = parseRate("rates vary, ask the operator");
   assert.equal(estimateMallFee(junk, 10, { graceMinutes: 30, capDollars: 20 }), null);
   assert.equal(estimateMallFee(junk, 120, { graceMinutes: 30, capDollars: 20 }), null);
+});
+
+test("Friday uses its own rate only when the operator sets one", () => {
+  const none: ParsedRate = { kind: "none" };
+  const weekday = parseRate("$6.50 for 1st hr, $1.10 per sub half hr");
+  const weekend = parseRate("$9.70 for 1st hr, $1.10 per sub half hr");
+  const base = { name: "x", category: "", weekday, saturday: weekend, sundayPh: weekend };
+
+  // ION Orchard, 313@Somerset, Jem, Marina Square and RWS bill Fri with the
+  // weekend; most car parks don't, and those must be unaffected.
+  assert.deepEqual(rateForDay({ ...base, friday: weekend }, "friday"), weekend);
+  assert.deepEqual(rateForDay(base, "friday"), weekday, "no friday column -> weekday");
+  assert.deepEqual(rateForDay({ ...base, friday: none }, "friday"), weekday, "empty -> weekday");
+
+  // The other days are untouched by the new column.
+  assert.deepEqual(rateForDay({ ...base, friday: weekend }, "weekday"), weekday);
+  assert.deepEqual(rateForDay({ ...base, friday: weekend }, "saturday"), weekend);
+});
+
+test("classifyDay separates Friday, and a holiday still wins", () => {
+  // Aug 2026: 7th Fri, 8th Sat, 9th Sun, 10th Mon, 11th Tue.
+  const day = (d: number, holiday = false) =>
+    classifyDay(toSgt(fromSgt(2026, 8, d, 12)), holiday);
+  assert.equal(day(7), "friday");
+  assert.equal(day(8), "saturday");
+  assert.equal(day(9), "sunday-ph");
+  assert.equal(day(10), "weekday");
+  assert.equal(day(11), "weekday");
+  // National Day observed on Mon 10 Aug — a holiday outranks the weekday.
+  assert.equal(day(10, true), "sunday-ph");
+  // A public holiday that lands on a Friday bills as Sunday/PH, not Friday.
+  assert.equal(day(7, true), "sunday-ph");
 });
 
 test("rateForDay falls back the way the datasets expect", () => {

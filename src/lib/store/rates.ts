@@ -10,6 +10,11 @@ export interface RateOverride {
   displayName: string | null;
   /** Free text in the same shape as the LTA dataset, e.g. "$1.20 per half hour". */
   weekdayRate: string | null;
+  /**
+   * Friday, for the operators that price it with the weekend rather than the
+   * working week. NULL means Friday bills as a weekday, which is the norm.
+   */
+  fridayRate: string | null;
   saturdayRate: string | null;
   sundayPhRate: string | null;
   source: RateSource;
@@ -29,6 +34,7 @@ export interface RateOverrideInput {
   matchValue: string;
   displayName?: string | null;
   weekdayRate?: string | null;
+  fridayRate?: string | null;
   saturdayRate?: string | null;
   sundayPhRate?: string | null;
   source?: RateSource;
@@ -45,6 +51,7 @@ interface Row {
   match_value: string;
   display_name: string | null;
   weekday_rate: string | null;
+  friday_rate: string | null;
   saturday_rate: string | null;
   sunday_ph_rate: string | null;
   source: RateSource;
@@ -64,6 +71,7 @@ function toOverride(r: Row): RateOverride {
     matchValue: r.match_value,
     displayName: r.display_name,
     weekdayRate: r.weekday_rate,
+    fridayRate: r.friday_rate,
     saturdayRate: r.saturday_rate,
     sundayPhRate: r.sunday_ph_rate,
     source: r.source,
@@ -94,16 +102,17 @@ export function upsertOverride(input: RateOverrideInput): RateOverride {
   const db = getDb();
   db.prepare(
     `INSERT INTO rate_overrides
-       (match_type, match_value, display_name, weekday_rate, saturday_rate,
-        sunday_ph_rate, source, source_url, verified_at, notes, lat, lng,
-        created_at, updated_at)
+       (match_type, match_value, display_name, weekday_rate, friday_rate,
+        saturday_rate, sunday_ph_rate, source, source_url, verified_at, notes,
+        lat, lng, created_at, updated_at)
      VALUES
-       (@match_type, @match_value, @display_name, @weekday_rate, @saturday_rate,
-        @sunday_ph_rate, @source, @source_url, @verified_at, @notes, @lat, @lng,
-        @now, @now)
+       (@match_type, @match_value, @display_name, @weekday_rate, @friday_rate,
+        @saturday_rate, @sunday_ph_rate, @source, @source_url, @verified_at,
+        @notes, @lat, @lng, @now, @now)
      ON CONFLICT (match_type, match_value) DO UPDATE SET
        display_name   = @display_name,
        weekday_rate   = @weekday_rate,
+       friday_rate    = @friday_rate,
        saturday_rate  = @saturday_rate,
        sunday_ph_rate = @sunday_ph_rate,
        source         = @source,
@@ -122,6 +131,7 @@ export function upsertOverride(input: RateOverrideInput): RateOverride {
         : input.matchValue.trim(),
     display_name: input.displayName ?? input.matchValue,
     weekday_rate: input.weekdayRate ?? null,
+    friday_rate: input.fridayRate ?? null,
     saturday_rate: input.saturdayRate ?? null,
     sunday_ph_rate: input.sundayPhRate ?? null,
     source: input.source ?? "manual",

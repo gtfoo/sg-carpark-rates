@@ -53,6 +53,7 @@ export async function POST(request: Request) {
     matchValue,
     displayName: str(b.displayName),
     weekdayRate: str(b.weekdayRate),
+    fridayRate: str(b.fridayRate),
     saturdayRate: str(b.saturdayRate),
     sundayPhRate: str(b.sundayPhRate),
     source: source as RateSource,

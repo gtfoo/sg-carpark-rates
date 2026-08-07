@@ -1,4 +1,5 @@
 import { fetchAllRecords } from "./datagov";
+import type { DayType } from "../fees";
 
 const LTA_CARPARK_RATES = "d_9f6056bdb6b1dfba57f063593e4f34ae";
 
@@ -42,6 +43,8 @@ export interface MallCarparkRates {
   name: string;
   category: string;
   weekday: ParsedRate;
+  /** Only set by saved rates; the LTA dataset has no Friday column. */
+  friday?: ParsedRate;
   saturday: ParsedRate;
   sundayPh: ParsedRate;
 }
@@ -389,12 +392,21 @@ function grossFee(rate: ParsedRate, minutes: number): number | null {
  * Picks the rate column matching the day. Public holidays bill at the Sunday
  * rate. "Same as Saturday" is a literal value in this dataset, so sunday-ph
  * falls back to the Saturday column when it says that.
+ *
+ * Friday only has its own column where an operator prices it with the weekend;
+ * otherwise it falls back to the weekday rate, which is the common case and
+ * what the LTA dataset assumes (it has no Friday column at all).
  */
 export function rateForDay(
   rates: MallCarparkRates,
-  dayType: "weekday" | "saturday" | "sunday-ph",
+  dayType: DayType,
 ): ParsedRate {
   if (dayType === "weekday") return rates.weekday;
+  if (dayType === "friday") {
+    return !rates.friday || rates.friday.kind === "none"
+      ? rates.weekday
+      : rates.friday;
+  }
   if (dayType === "saturday") {
     return rates.saturday.kind === "none" ? rates.weekday : rates.saturday;
   }

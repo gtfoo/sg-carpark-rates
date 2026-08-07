@@ -19,6 +19,8 @@ interface Researched {
   lat: number;
   lng: number;
   weekday: string;
+  /** Only where the operator bills Friday with the weekend. */
+  friday?: string;
   saturday?: string;
   sundayPh?: string;
   notes: string;
@@ -56,20 +58,19 @@ const RATES: Researched[] = [
     url: "https://www.changiairport.com/en/at-changi/facilities-and-services-directory/airport-parking.html",
   },
   {
-    // RWS bills Fri/Sat/Sun/PH at the weekend rate, but this app's day model is
-    // weekday / Saturday / Sunday-PH — there's nowhere to put "Friday counts as
-    // the weekend", so Friday shows the cheaper weekday rate. Flagged in notes.
+    // RWS bills Fri/Sat/Sun/PH at the weekend rate — the case the friday column
+    // was added for. Mon-Thu is the cheaper schedule.
     match: "RESORT WORLD AT SENTOSA",
     display: "Resorts World Sentosa",
     lat: 1.25523,
     lng: 103.82038,
     weekday: "$6.50 for 1st hr, $1.10 per sub half hr (max cap $13.10)",
+    friday: "$9.70 for 1st hr, $1.10 per sub half hr (max cap $16.30)",
     saturday: "$9.70 for 1st hr, $1.10 per sub half hr (max cap $16.30)",
     sundayPh: "$9.70 for 1st hr, $1.10 per sub half hr (max cap $16.30)",
     notes:
-      "Grace period: 10 mins. RWS charges the weekend rate from FRIDAY; this " +
-      "app prices Friday as a weekday, so a Friday estimate is lower than you " +
-      "will actually pay. Free parking with a minimum spend at some outlets.",
+      "Grace period: 10 mins. Weekend rate applies Friday to Sunday and on " +
+      "public holidays. Free parking with a minimum spend at some outlets.",
     url: "https://www.rwsentosa.com/en/about/getting-here",
   },
   {
@@ -126,6 +127,7 @@ async function main() {
       matchValue: r.match,
       displayName: r.display,
       weekdayRate: r.weekday,
+      fridayRate: r.friday ?? null,
       saturdayRate: r.saturday ?? null,
       sundayPhRate: r.sundayPh ?? null,
       // Read off the operator's own page, so it carries that provenance and a

@@ -1317,6 +1317,9 @@ function formatDuration(mins: number): string {
 function dayTypeLabel(d: SearchResponse["dayType"]): string {
   if (d === "sunday-ph") return "Sunday / public holiday rates";
   if (d === "saturday") return "Saturday rates";
+  // Most car parks bill Friday as a weekday; a few price it with the weekend,
+  // so name it rather than implying every Friday costs more.
+  if (d === "friday") return "Friday rates";
   return "weekday rates";
 }
 

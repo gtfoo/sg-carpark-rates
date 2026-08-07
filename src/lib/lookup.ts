@@ -24,6 +24,13 @@ export const RateExtraction = z.object({
     .string()
     .nullable()
     .describe('e.g. "$1.20 per half hour" or "$2 for 1st hr; $1 per 30 mins"'),
+  fridayRate: z
+    .string()
+    .nullable()
+    .describe(
+      "only when the operator prices Friday differently from Mon-Thu (several " +
+        "malls bill Fri-Sun as the weekend); null if Friday is an ordinary weekday",
+    ),
   saturdayRate: z.string().nullable(),
   sundayPhRate: z.string().nullable(),
   sourceUrl: z
@@ -150,6 +157,7 @@ export async function lookupCarparkRate(args: {
       matchValue: args.postal ?? args.destination,
       displayName: object.carparkName ?? args.destination,
       weekdayRate: object.weekdayRate,
+      fridayRate: object.fridayRate,
       saturdayRate: object.saturdayRate,
       sundayPhRate: object.sundayPhRate,
       source: "web-llm",

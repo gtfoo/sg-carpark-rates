@@ -439,6 +439,7 @@ function feeFromOverride(
     name: o.displayName ?? o.matchValue,
     category: "",
     weekday: band(o.weekdayRate),
+    friday: band(o.fridayRate),
     saturday: band(o.saturdayRate),
     sundayPh: band(o.sundayPhRate),
   };
@@ -698,7 +699,9 @@ function dayLabel(d: DayType): string {
     ? "Sunday / public holiday"
     : d === "saturday"
       ? "Saturday"
-      : "weekday";
+      : d === "friday"
+        ? "Friday"
+        : "weekday";
 }
 
 function hdbBreakdown(
@@ -773,7 +776,9 @@ function rawRateForDay(
   const raw =
     dayType === "sunday-ph"
       ? o.sundayPhRate ?? o.saturdayRate ?? o.weekdayRate ?? ""
-      : dayType === "saturday"
+      : dayType === "friday"
+        ? o.fridayRate ?? o.weekdayRate ?? ""
+        : dayType === "saturday"
         ? o.saturdayRate ?? o.weekdayRate ?? ""
         : o.weekdayRate ?? "";
   return bandForTime(raw, startMod);

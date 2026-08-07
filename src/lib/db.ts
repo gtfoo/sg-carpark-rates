@@ -134,4 +134,17 @@ function migrate(handle: Database.Database): void {
       PRAGMA user_version = 3;
     `);
   }
+
+  // v4: Friday is its own rate. Several operators price Friday with the
+  // weekend rather than the working week — ION Orchard, 313@Somerset, Jem,
+  // Marina Square and Resorts World Sentosa all do — and with only
+  // weekday/Saturday/Sunday columns a Friday estimate read low. Existing rows
+  // keep NULL here, which falls back to the weekday rate, so nothing changes
+  // for a car park that doesn't distinguish Friday.
+  if (version < 4) {
+    handle.exec(`
+      ALTER TABLE rate_overrides ADD COLUMN friday_rate TEXT;
+      PRAGMA user_version = 4;
+    `);
+  }
 }

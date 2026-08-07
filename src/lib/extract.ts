@@ -15,6 +15,7 @@ export interface ExtractResult {
   status: "found" | "not-found" | "error" | "disabled";
   reason?: string;
   weekdayRate?: string | null;
+  fridayRate?: string | null;
   saturdayRate?: string | null;
   sundayPhRate?: string | null;
   carparkName?: string | null;
@@ -133,7 +134,10 @@ export async function extractRate(args: {
         `subsequent-block price. Do NOT put time ranges like "(0000-1759)", ` +
         `caps, or grace periods in the rate string — those go in notes. If one ` +
         `schedule covers all days, put it in weekdayRate and leave the others ` +
-        `null.\n\n` +
+        `null.\n` +
+        `Several malls bill FRIDAY with the weekend ("Fri-Sun & PH"). When the ` +
+        `page does that, put the Friday figure in fridayRate; leave it null if ` +
+        `Friday is grouped with Mon-Thu.\n\n` +
         `Content:\n${text}`,
     });
 
@@ -149,6 +153,7 @@ export async function extractRate(args: {
       found: true,
       status: "found",
       weekdayRate: object.weekdayRate,
+      fridayRate: object.fridayRate,
       saturdayRate: object.saturdayRate,
       sundayPhRate: object.sundayPhRate,
       carparkName: object.carparkName,
