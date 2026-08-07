@@ -11,19 +11,25 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
-  // Emits a self-contained server bundle in .next/standalone, so the VPS only
-  // needs Node — no npm install of the full dependency tree on the box.
-  output: "standalone",
+  // NOT output: "standalone". The droplet serves this with `next start` (see
+  // the systemd unit and scripts/deploy.sh), and Next 16 rejects that pairing:
+  //   ⚠ "next start" does not work with "output: standalone" configuration
+  // The standalone bundle was being built on every deploy and never served —
+  // wasted minutes on a 1 vCPU box. npm ci already puts the full dependency
+  // tree on the server, which better-sqlite3 needs anyway.
+  //
+  // If you ever do switch to `node .next/standalone/server.js`, add it back
+  // AND keep the tracing exclude below.
+
   // better-sqlite3 is a native (.node) addon — it must not be bundled, or the
   // build fails trying to parse the binary. Keep it external so it's required
-  // from node_modules at runtime; standalone output traces the .node file in.
+  // from node_modules at runtime.
   serverExternalPackages: ["better-sqlite3"],
-  // File tracing copies the live SQLite database into
-  // .next/standalone/data/carpark.db. That snapshot is stale the moment it's
-  // taken, and if this app is ever run from the standalone server (as the
-  // sibling apps on the droplet are) it would read and WRITE that copy instead
-  // of the real database — losing every saved rate. The DB is runtime state,
-  // never a build input, so keep the whole directory out of the trace.
+  // The live SQLite database is runtime state, never a build input. File
+  // tracing used to copy it into the build output, where a standalone server
+  // would have read and WRITTEN the stale copy instead of the real database,
+  // losing every saved rate. Harmless now that standalone is off, kept so it
+  // can't come back if standalone is ever re-enabled.
   outputFileTracingExcludes: {
     "/*": ["data/**"],
   },

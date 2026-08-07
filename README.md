@@ -165,9 +165,9 @@ Provenance shows on every result card: "HDB rate schedule (current)",
 ### `better-sqlite3` notes
 
 It's a native addon: `serverExternalPackages: ["better-sqlite3"]` in
-`next.config.ts` keeps it out of the bundle, and `output: "standalone"` traces
-the compiled `.node` file into `.next/standalone` for the VPS — no `npm install`
-needed on the box.
+`next.config.ts` keeps it out of the bundle so it's `require`d from
+`node_modules` at runtime. `npm ci` on the server compiles it for that host —
+which is why the deploy reinstalls whenever `package-lock.json` changes.
 
 ## Time-aware rates
 
@@ -278,21 +278,25 @@ parse-success percentage.
 
 ## Deploying to a VPS
 
-`next.config.ts` sets `output: "standalone"`, so the build emits a
-self-contained server — the VPS does not need the full dependency tree.
+Pushing to `main` deploys: a GitHub Actions job runs `npm test`, then SSHes to
+the box and runs `scripts/deploy.sh`, which resets to `origin/main`, reinstalls
+only when `package-lock.json` changed, builds, and restarts the service.
+
+To do it by hand, or to set the box up the first time:
 
 ```bash
+git clone <repo> && cd carpark-sg
+cp .env.example .env.local     # fill in the keys
 npm ci && npm run build
-
-# copy to the server:
-#   .next/standalone/   (server + minimal node_modules)
-#   .next/static/    -> .next/standalone/.next/static/
-#   public/          -> .next/standalone/public/   (if you add one)
-
-node .next/standalone/server.js     # listens on PORT, default 3000
+npm start                      # next start; PORT via -p, default 3000
 ```
 
-Run it under systemd or pm2, and put a reverse proxy in front.
+Run it under systemd (or pm2) and put a reverse proxy in front. The service
+runs `next start`, not the standalone server — `next.config.ts` explains why,
+and the two are mutually exclusive in Next 16.
+
+The SQLite database lives in `data/` beside the project and is never part of a
+build. Set `CARPARK_DB_PATH` to pin it explicitly.
 
 **HTTPS is not optional.** Home-screen install and browser geolocation both
 require a secure origin, so the app will not be installable over plain HTTP.
