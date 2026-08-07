@@ -95,6 +95,33 @@ test("time bands pick the rate for the arrival hour", () => {
   assert.equal(fee(LASALLE, 120, 3 * 60), 6, "3am wraps to the night band");
 });
 
+test("a semicolon inside one band does not split the rate", () => {
+  // LTA writes a band's tiers with a semicolon. Treating it as a band
+  // separator stranded "$3.90 for 1st hr" with no subsequent price, which
+  // parses as nothing — these all read "not computable" in the app.
+  for (const [raw, expected] of [
+    ["7.00am-5.59pm: $3.90 for 1st hr; $1.95 per sub.½ hr", 7.8],
+    ["6.00am-6.00pm: $3.80 for 1st hr; $2.50 for sub. 30min", 8.8],
+    ["Monday to Thursday 7.00am-7.00am: $3.05 for 1st hr; $1.31 for sub. 30min", 5.67],
+  ] as const) {
+    const d = estimateMallFee(parseRate(bandForTime(raw, 13 * 60)), 120);
+    assert.equal(
+      d === null ? null : Math.round(d * 100) / 100,
+      expected,
+      `"${raw.slice(0, 46)}" should price, not fail`,
+    );
+  }
+});
+
+test("a genuine second band is still split off", () => {
+  // The semicolon here DOES start a new band, because a clock range follows.
+  const ion =
+    "8.00am-5.59pm: $2.62 for 1st hr; $1.91 for sub. 30min; 6pm-11.59pm: $3.82 per entry";
+  const day = estimateMallFee(parseRate(bandForTime(ion, 13 * 60)), 120);
+  assert.equal(day === null ? null : Math.round(day * 100) / 100, 6.44, "1pm: first-then");
+  assert.equal(estimateMallFee(parseRate(bandForTime(ion, 19 * 60)), 120), 3.82, "7pm: per entry");
+});
+
 test("bandForTime leaves single-band strings alone", () => {
   // A semicolon alone must not trigger band selection — this string has two
   // clauses but no time ranges, and splitting it would lose the "1st hr" half.

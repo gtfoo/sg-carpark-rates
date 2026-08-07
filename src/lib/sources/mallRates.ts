@@ -106,9 +106,30 @@ function covers(from: number, to: number, t: number): boolean {
  * so the fee patterns don't read "5pm-11pm" as an amount. Strings without
  * multiple bands are returned untouched.
  */
+/**
+ * Splits a rate into time bands.
+ *
+ * A semicolon does NOT reliably separate bands: LTA writes a single band's
+ * tiers with one — "7.00am-5.59pm: $3.90 for 1st hr; $1.95 per sub.½ hr" — and
+ * cutting there strands "$3.90 for 1st hr" with no subsequent-block price,
+ * which parses as nothing at all. So a segment only starts a NEW band when it
+ * introduces its own clock range before any dollar amount; otherwise it
+ * belongs to the band before it.
+ */
+function splitBands(raw: string): string[] {
+  const bands: string[] = [];
+  for (const part of raw.split(";")) {
+    const beforeMoney = part.split("$")[0] ?? part;
+    const startsBand = timeRangeRe().test(beforeMoney);
+    if (startsBand || bands.length === 0) bands.push(part);
+    else bands[bands.length - 1] += `;${part}`;
+  }
+  return bands.map((s) => s.trim()).filter(Boolean);
+}
+
 export function bandForTime(rawInput: string, minutesOfDay: number): string {
   const raw = repairEncoding(rawInput ?? "");
-  const segments = raw.split(";").map((s) => s.trim()).filter(Boolean);
+  const segments = splitBands(raw);
   if (segments.length < 2) return raw;
 
   for (const seg of segments) {
