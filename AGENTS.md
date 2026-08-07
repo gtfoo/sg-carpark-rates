@@ -39,6 +39,20 @@ git apply ../carpark-anne.patch   # or re-do the branding edits by hand
 git diff > ../carpark-anne.patch  # regenerate against the current commit
 ```
 
+## Rate parsing is guarded by tests — extend them
+
+`npm test` (Node's built-in runner via tsx, no extra dependencies) covers the
+rate parser and the HDB fee engine. Every string in `tests/rates.test.ts` is
+real text from LTA/URA/an operator that once produced a wrong or "not
+computable" fee in the app, and `tests/fees.test.ts` pins the central-area
+boundary and the GST fix that made Tanglin Halt bill $6.54 instead of $2.40.
+
+When a car park prices wrongly: **add the exact rate string to the tests first,
+watch it fail, then fix the parser.** The regexes are interlocking — widening
+one has repeatedly broken another (a block size read as a price once produced a
+$3,600 fee), which is exactly what these tests catch. Deploys are gated on
+them.
+
 ## One agent at a time
 
 This repo has been edited by two AI chat windows at once, which caused

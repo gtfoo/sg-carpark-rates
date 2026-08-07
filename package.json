@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "tsx --test tests/*.test.ts",
     "check-onemap": "tsx scripts/checkOnemap.ts",
     "validate": "tsx scripts/validate.ts",
     "rates-coverage": "tsx scripts/ratesCoverage.ts",

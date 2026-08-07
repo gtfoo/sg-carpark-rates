@@ -13,7 +13,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Runs on GitHub's runners, not the droplet, so it costs the 1 vCPU box
+  # nothing. The deploy waits on it: a rate-parser regression should never
+  # reach production, and every case in tests/ is one that reached it once.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Deploy over SSH
