@@ -1,7 +1,12 @@
 import { fetchHdbCarparks, type HdbCarpark } from "./sources/hdb";
 import { fetchAvailability, type Availability } from "./sources/availability";
 import { publicEpsCarparks, type EpsCarpark } from "./sources/eps";
-import { fetchCarparkLots, lotsFor, type CarparkLots } from "./sources/datamall";
+import {
+  fetchCarparkLots,
+  commercialOnly,
+  lotsFor,
+  type CarparkLots,
+} from "./sources/datamall";
 import {
   fetchMallRates,
   estimateMallFee,
@@ -175,7 +180,7 @@ export async function search(
       getPublicHolidays(),
       // Live lots for commercial/URA car parks. Returns [] when DataMall isn't
       // configured or is down, which just means the cards stay as they were.
-      fetchCarparkLots(),
+      fetchCarparkLots().then(commercialOnly),
     ]);
 
   const isCentral = isProbablyCentral(place.location.lat, place.location.lng);
@@ -234,17 +239,33 @@ export async function search(
   // kept: `ranked` is ordered by distance from the destination, so an EPS entry
   // can be visited before its rated twin and would otherwise survive.
   const DEDUP_M = 40;
-  const ratedPoints: LatLng[] = ranked
+  // Sources pin big developments at different corners — Ngee Ann City's EPS
+  // entry and its saved rate are far enough apart to survive the 40 m test, and
+  // listed twice they showed the same live lot count, plainly one car park. So
+  // a matching NAME also settles it, within a radius wide enough to span a mall.
+  const DEDUP_NAME_M = 300;
+  const rated = ranked
     .filter((c) => c.kind !== "eps")
-    .map(candLocation);
+    .map((c) => ({
+      loc: candLocation(c),
+      name: c.kind === "hdb" ? c.c.address : (c.o.displayName ?? c.o.matchValue),
+    }));
 
   const kept: Candidate[] = [];
   for (const cand of ranked) {
     if (kept.length >= limit) break;
     if (cand.kind === "eps") {
       const loc = cand.c.location;
-      // Same spot as something we can price → skip the unpriced copy.
-      if (ratedPoints.some((p) => haversineMetres(loc, p) < DEDUP_M)) continue;
+      // Same spot, or the same name nearby, as something we can price → skip
+      // the unpriced copy.
+      if (
+        rated.some(({ loc: p, name }) => {
+          const d = haversineMetres(loc, p);
+          return d < DEDUP_M || (d < DEDUP_NAME_M && looseNameMatch(cand.c.name, name));
+        })
+      ) {
+        continue;
+      }
       // Two EPS rows for one car park (duplicate feed entries) → keep the first,
       // which is the nearer of the two given the distance ordering.
       if (
@@ -531,7 +552,7 @@ function overrideResult(
   const dollars = feeFromOverride(o, minutes, dayType, startMod);
   const live =
     o.lat !== null && o.lng !== null
-      ? lotsFor({ lat: o.lat, lng: o.lng }, commercialLots)
+      ? lotsFor({ lat: o.lat, lng: o.lng }, o.displayName ?? o.matchValue, commercialLots)
       : null;
   return {
     id: `override:${o.id}`,
@@ -574,7 +595,7 @@ function epsResult(
   walkM: number | null,
   commercialLots: CarparkLots[] = [],
 ): CarparkResult {
-  const live = lotsFor(c.location, commercialLots);
+  const live = lotsFor(c.location, c.name, commercialLots);
   return {
     id: `eps:${c.id}`,
     name: titleCase(c.name),
@@ -720,7 +741,10 @@ function isHeavyVehicleOnly(name: string): boolean {
 }
 
 function looseNameMatch(a: string, b: string): boolean {
-  const norm = (s: string) => s.replace(/[^A-Z0-9]/g, "");
+  // Uppercase FIRST: the strip below removes anything outside A-Z0-9, so a
+  // mixed-case name would lose its lowercase letters entirely — "Ngee Ann City"
+  // became "NAC" and matched nothing.
+  const norm = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]/g, "");
   const na = norm(a);
   const nb = norm(b);
   return na.length > 3 && nb.length > 3 && (na.includes(nb) || nb.includes(na));

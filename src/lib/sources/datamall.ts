@@ -106,25 +106,71 @@ export async function fetchCarparkLots(): Promise<CarparkLots[]> {
 }
 
 /**
- * Nearest live-lot record to a car park, or null.
+ * The non-HDB records: URA and LTA car parks.
  *
- * Matching is positional because no shared identifier exists. 120 m is
- * deliberately tighter than it sounds: DataMall pins a development's entrance
- * while our sources pin the building, and the two disagree by a block at most.
+ * HDB lots already come from the dedicated data.gov.sg feed, matched by car
+ * park NUMBER — exact, no guessing. HDB is also 94% of this feed (1,992 of
+ * 2,119), so leaving those records in lets a commercial car park positionally
+ * match a housing block across the road and display its lot count. Dropping
+ * them is what makes the positional match trustworthy.
+ */
+export function commercialOnly(all: CarparkLots[]): CarparkLots[] {
+  return all.filter((c) => c.agency.toUpperCase() !== "HDB");
+}
+
+const normalise = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+/**
+ * How confidently do these name the same place?
+ *
+ * "exact" once punctuation is stripped ("The Atrium @ Orchard" =
+ * "The Atrium@Orchard"). "partial" when one contains the other, which catches
+ * "Cathay Cineleisure Orchard" -> "Cineleisure" but also mis-fires on shared
+ * prefixes: "Bugis+" normalises to BUGIS, a substring of BUGISCUBE and
+ * BUGISJUNCTION, which are different malls. Partial matches therefore have to
+ * earn it on distance too.
+ */
+function nameMatch(a: string, b: string): "exact" | "partial" | "none" {
+  const x = normalise(a);
+  const y = normalise(b);
+  if (x.length < 5 || y.length < 5) return "none";
+  if (x === y) return "exact";
+  return x.includes(y) || y.includes(x) ? "partial" : "none";
+}
+
+/** A partial name match is only believable if the two are near-neighbours. */
+const PARTIAL_MATCH_M = 120;
+
+/**
+ * The live-lot record for a car park, or null when nothing matches confidently.
+ *
+ * DataMall shares no identifier with our sources, so this pairs on NAME and
+ * position together. Position alone is not enough and was actively wrong:
+ * Orchard and Tampines pack several car parks within 100 m, which had Century
+ * Square showing Tampines Mall's lots, Grand Hyatt showing Far East Plaza's,
+ * and 22 Bideford Road showing Paragon's. A confidently wrong lot count is
+ * worse than none, so a name disagreement rejects the match outright.
+ *
+ * With the name carrying identity, the distance bound only has to be loose
+ * enough to absorb the two sources pinning different corners of one
+ * development — DataMall marks the entrance, ours the building.
  */
 export function lotsFor(
   location: LatLng,
+  name: string,
   all: CarparkLots[],
-  maxMetres = 120,
+  maxMetres = 300,
 ): CarparkLots | null {
   let best: CarparkLots | null = null;
   let bestD = Infinity;
   for (const c of all) {
+    const match = nameMatch(name, c.development);
+    if (match === "none") continue;
+    const limit = match === "exact" ? maxMetres : PARTIAL_MATCH_M;
     const d = haversineMetres(location, c.location);
-    if (d < bestD && d <= maxMetres) {
-      best = c;
-      bestD = d;
-    }
+    if (d > limit || d >= bestD) continue;
+    best = c;
+    bestD = d;
   }
   return best;
 }
