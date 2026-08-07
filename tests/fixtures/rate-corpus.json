@@ -1,0 +1,3067 @@
+[
+ {
+  "name": "*SCAPE",
+  "rate": "$2.40 for 1st hr; $1.40 for sub 30 mins",
+  "notes": "AI-retrieved from the web — verify before relying on it."
+ },
+ {
+  "name": "10 Raeburn Park",
+  "rate": "7.00am-4.59pm : $2.57 for 1st hr or part thereof, $1.26 sub. 30 min or part thereof.",
+  "notes": "Weekday evening: 5.00pm-6.59am next day: $2.57 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "10 Raeburn Park",
+  "rate": "7am-6.59am next day: $2.57 per entry",
+  "notes": "Weekday evening: 5.00pm-6.59am next day: $2.57 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "100 Pasir Panjang",
+  "rate": "7.00am-7.00pm: $1.80 for 1st hr or part thereof; $0.80 for sub. 1 per 2 hr or part thereof",
+  "notes": "Weekday evening: 7.00pm-7.00am (next day): $3.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "100 Pasir Panjang",
+  "rate": "7.00am-7.00am (next day): $3.50 per entry.",
+  "notes": "Weekday evening: 7.00pm-7.00am (next day): $3.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "1557 Keppel Road",
+  "rate": "7.00am-6.00pm: $5.45 for 1st 2 hrs, $1.26 every sub 30min.",
+  "notes": "Weekday evening: 6.00pm-7.00am (next day): $2.67 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "1557 Keppel Road",
+  "rate": "7.00am-6.00pm: $2.57 for 1st hr, $1.26 every sub. 30 min. 6.00pm-7.00am next day: $2.67 per entry",
+  "notes": "Weekday evening: 6.00pm-7.00am (next day): $2.67 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "1557 Keppel Road",
+  "rate": "7am-7am next day: $2.67 per entry",
+  "notes": "Weekday evening: 6.00pm-7.00am (next day): $2.67 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "18 Robinson",
+  "rate": "12.00am-5.59pm: $3.03 half hourly",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $3.24 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "18 Robinson",
+  "rate": "12.00am to 11.59pm: $3.24 per entry",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $3.24 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "22 Bideford Road",
+  "rate": "7.00am-4.59pm: $3.00 for 1st hr; $1.50 for sub. 30min. 11.00am-3.00pm Peak Hour Surcharge at $1.00 per entry + hourly rate.",
+  "notes": "Weekday evening: 5.00pm-6.59am: $4.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "22 Bideford Road",
+  "rate": "7.00am-4.59pm: $3.00 for 1st hr; $1.50 for sub. 30min. 5.00pm-6.59am: $4.50 per entry.",
+  "notes": "Weekday evening: 5.00pm-6.59am: $4.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "313@Somerset",
+  "rate": "Monday to Thursday 7.00am-7.00am: $3.05 for 1st hr; $1.31 for sub. 30min",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "313@Somerset",
+  "rate": "Friday to Sunday and Public Holiday 7.00am-7.00am: $3.27.00 for 1st hr; $1.64 for sub. 30min",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "34 Boon Leat Terrace",
+  "rate": "7.00am-6.00pm: $2.20 for 1st hr; $1.10 for sub. 30min",
+  "notes": "Weekday evening: 6.00pm-7.00am: $2.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "34 Boon Leat Terrace",
+  "rate": "7.00am-1.00pm: $1.60 for 1st hr; $0.80 for sub. 30min; 1.00pm-7.00am: $2.50 per entry",
+  "notes": "Weekday evening: 6.00pm-7.00am: $2.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "34 Boon Leat Terrace",
+  "rate": "7.00am-7.00am: $2.50 per entry",
+  "notes": "Weekday evening: 6.00pm-7.00am: $2.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "50 Armenian St",
+  "rate": "7.00am-11.00am: $1.31 per 30 min. 11.00am-5.00pm: $1.53 per 30 min.",
+  "notes": "Weekday evening: 5.00pm-7.00am:$0.65 per 30 min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "50 Armenian St",
+  "rate": "7.00am-2.00pm: $0.65 per 30 min. 2.00pm-5.00pm: $0.82 per 30 min. 5.00pm-7.00am:$0.65 per 30 min.",
+  "notes": "Weekday evening: 5.00pm-7.00am:$0.65 per 30 min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "51 Cuppage Road (Formerly Starhub Centre)",
+  "rate": "7.00am-7.00am: $2.80 for 1st hr; $1.20 for sub. 30min or part thereof",
+  "notes": "Weekday evening: 7.00am-7.00am: $2.80 for 1st hr; $1.20 for sub. 30min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "61 Robinson",
+  "rate": "8.00am-5.00pm: $2.40 per 30min",
+  "notes": "Weekday evening: 5.00pm-12.00am: $3.00 per entry. $20.00 per entry after 12midnight. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "61 Robinson",
+  "rate": "7.00am-12.00am: $3.00 per entry",
+  "notes": "Weekday evening: 5.00pm-12.00am: $3.00 per entry. $20.00 per entry after 12midnight. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "745 Lor. 5 Toa Payoh",
+  "rate": "7.30am-7.30am the following day: $1.42 for 1st hr, $0.71 sub 30 min",
+  "notes": "Weekday evening: 7.30am-7.30am the following day: $1.42 for 1st hr, $0.71 sub 30 min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "8 Duke's Road",
+  "rate": "7.00am-7.00am: $2.18 per hour (Capped at $10.68),",
+  "notes": "Weekday evening: 7.00am-7.00am: $2.18 per hour (Capped at $10.68),. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "8 Duke's Road",
+  "rate": "7.00am-7.00am: $2.18 per hour",
+  "notes": "Weekday evening: 7.00am-7.00am: $2.18 per hour (Capped at $10.68),. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Alexandra Retail Centre",
+  "rate": "7:00am-6:30pm: $2.50 per hr or part thereof",
+  "notes": "Weekday evening: 6.30pm-10.00pm: Free; 10.00pm-7.00am: $2.70/hr or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Alexandra Retail Centre",
+  "rate": "7.00am-10.00pm: Free; 10.00pm-7.00am: $2.70/hr or part thereof",
+  "notes": "Weekday evening: 6.30pm-10.00pm: Free; 10.00pm-7.00am: $2.70/hr or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Amara Hotel",
+  "rate": "8.00am-4.59pm: $2.20 per 30 min",
+  "notes": "Weekday evening: 5.00pm-7.59am (next day) : $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Amara Hotel",
+  "rate": "8.00am-7.59am the following day: $3.00 per entry",
+  "notes": "Weekday evening: 5.00pm-7.59am (next day) : $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Amara Hotel Singapore",
+  "rate": "8.00am-4.59pm: $2.20 per 30 mins; 5.00pm-7.59am: $3.00 per entry",
+  "notes": "AI-retrieved — verify. Grace period: 10 mins. Vehicle height limit: 2.1m."
+ },
+ {
+  "name": "AMOY ST",
+  "rate": "$1.20 per 30 mins",
+  "notes": "URA official rates (08.30 AM-05.00 PM), 81 lots."
+ },
+ {
+  "name": "Anchorpoint Shopping Centre",
+  "rate": "7.00am-5.59pm: 1st hour: $1.98/hr or part thereof; 2nd hour: $1.40/hr or part thereof; After 3 hours: $1.00/hr or part thereof",
+  "notes": "Weekday evening: After 6.00pm: $2.98 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Ang Mo Kio Hub",
+  "rate": "$1.70 for 1st hr or part thereof. $0.85 for sub ½ hr or part thereof.",
+  "notes": "Weekday evening: $1.70 for 1st hr or part thereof. $0.85 for sub ½ hr or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Ang Mo Kio Hub",
+  "rate": "$1.80 for 1st hr or part thereof. $0.95 for sub ½ hr or part thereof.",
+  "notes": "Weekday evening: $1.70 for 1st hr or part thereof. $0.85 for sub ½ hr or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "ANGULLIA PARK OFF ST",
+  "rate": "$1.50 per 30 mins",
+  "notes": "URA official rates (11.00 AM-05.00 PM), 268 lots."
+ },
+ {
+  "name": "ANGULLIA PARK OFF ST",
+  "rate": "$0.80 per 30 mins",
+  "notes": "URA official rates (11.00 AM-05.00 PM), 268 lots."
+ },
+ {
+  "name": "Angullia Park Off-Street",
+  "rate": "7.00am-11.00am: $1.30 per 30min (Per min Charging); 11.00am-5.00pm: $1.50 per 30min (Per min Charging)",
+  "notes": "Weekday evening: 5.00pm-10.30pm: $0.80 per 30min (Per min Charging); 10.30pm-7.00am the following day: capped at $5.60. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Angullia Park Off-Street",
+  "rate": "7.00am to 11.00am : $0.70 per 30min; 11.00am to 10.30pm: $0.80 per 30min (Per min Charging); 10.30pm-7.00am the following day: capped at $5.60",
+  "notes": "Weekday evening: 5.00pm-10.30pm: $0.80 per 30min (Per min Charging); 10.30pm-7.00am the following day: capped at $5.60. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "ANTHONY RD OFF ST",
+  "rate": "$0.75 per 30 mins",
+  "notes": "URA official rates (11.00 AM-05.00 PM), 50 lots."
+ },
+ {
+  "name": "Aperia",
+  "rate": "12.00am-6.29pm: $1.64 for 1st hr or part thereof; $1.09 for every sub. 15min or part thereof",
+  "notes": "Weekday evening: 6.30pm-9.59pm: Free Parking; 10pm-11.59pm: $2.55 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Aperia",
+  "rate": "12.00am to 11.59pm: Free first 1 hour*; Per entry charge is $2.55 for subsequent hours; Whole day max cap: $20",
+  "notes": "Weekday evening: 6.30pm-9.59pm: Free Parking; 10pm-11.59pm: $2.55 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "ARMENIAN ST OFF ST",
+  "rate": "$1.40 per 30 mins",
+  "notes": "URA official rates (11.00 AM-02.00 PM), 45 lots."
+ },
+ {
+  "name": "Asia Square",
+  "rate": "7.00am-5.59pm: $1.10 per 10 min or part thereof.",
+  "notes": "Weekday evening: 6.00pm-6.59am: $5.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Asia Square",
+  "rate": "7.00am-6.59am next day: $5.50 per entry.",
+  "notes": "Weekday evening: 6.00pm-6.59am: $5.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Ayer Rajah Industrial Estate",
+  "rate": "7.00am to 6.00pm: $1.00 per 30min or part thereof (per min. charging)",
+  "notes": "Weekday evening: After 6.00pm: $1.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Ayer Rajah Industrial Estate",
+  "rate": "7.00am to 7.00am: $1.00 per entry",
+  "notes": "Weekday evening: After 6.00pm: $1.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Balestier Plaza",
+  "rate": "7.00am-7.00am the following day: $1.64 per hr",
+  "notes": "Weekday evening: 7.00am-7.00am the following day: $1.64 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Balestier Point",
+  "rate": "6.00am-9.00pm:$0.70 per 30min or part thereof.",
+  "notes": "Weekday evening: 9.00pm-6.00am: $7.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bangkok Bank Building",
+  "rate": "7.00am-5.00pm: $2.50 per 30min or part thereof.",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.20 per 30min (Last entry 7.00pm). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bangkok Bank Building",
+  "rate": "7.00am-3.00pm: $2.50 per 30min. 3.00pm-11.00pm: $3.20 per 30min (Last Entry 3.00pm)",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.20 per 30min (Last entry 7.00pm). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bangkok Bank Building",
+  "rate": "Closed",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.20 per 30min (Last entry 7.00pm). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Beach Centre",
+  "rate": "7.00am-6.00pm: $2.16 for 1st 30min; $1.62 per sub.30min",
+  "notes": "Weekday evening: 6.00pm-7.00am the following day: $4.32 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Beach Centre",
+  "rate": "7.00am-7.00am the following day: $4.32 per entry",
+  "notes": "Weekday evening: 6.00pm-7.00am the following day: $4.32 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bedok Mall",
+  "rate": "12.00am-5.59pm: $1.55 for 1st hr, $0.40 for sub. 15min",
+  "notes": "Weekday evening: 6pm-11.59pm: $2.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Berjaya Hotel",
+  "rate": "8.30am-5.00pm: $1.00 per 30min",
+  "notes": "Weekday evening: 5.00pm-10.00pm: $1.00 per hr; After 10.00pm: Free. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Berjaya Hotel",
+  "rate": "8.30am-10.00pm: $1.00 per hr; 10.00pm-8.30pm: Free",
+  "notes": "Weekday evening: 5.00pm-10.00pm: $1.00 per hr; After 10.00pm: Free. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bijou",
+  "rate": "7.00am-6.00pm: $1.28 for 1st hr; $0.32 for sub. 15min or part thereof",
+  "notes": "Weekday evening: 6.01pm-6.59am next day: $2.14 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bijou",
+  "rate": "7.00am-6.59am next day: $2.14 per entry",
+  "notes": "Weekday evening: 6.01pm-6.59am next day: $2.14 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Biopolis 1",
+  "rate": "7.00am-5.00pm: $1.20 per hr",
+  "notes": "Weekday evening: 5.00pm-7.00am: Free parking. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bird Paradise (Formerly Jurong Bird Park)",
+  "rate": "7.00am-7.00pm: $3 for 1st hour; sub. $2/hour (capped at $10/entry)",
+  "notes": "Weekday evening: 7.00am-7.00pm: $3 for 1st hour; sub. $2/hour (capped at $10/entry). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bras Basah Complex",
+  "rate": "7.00am-10.00am: $1.20 per ½ hr. 10.00am-10.30pm: $1.40 per ½ hr.",
+  "notes": "Weekday evening: 10.00am-10.30pm: $1.40 per ½ hr. 10.30pm-7.00am: $0.60 per ½ hr.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bugis Junction",
+  "rate": "12.00am-5.59pm: $2.60 for 1st hr; $0.65 for sub. 15min or part thereof",
+  "notes": "Weekday evening: 6.00pm-11.59pm:Mon-Thu: $3.30 per entry. Fri: $3.30 for 1st 2 hrs; $0.65 for sub. 15 min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bugis Junction",
+  "rate": "$3.30 for 1st 2 hrs; $0.65 for sub. 15 min or part thereof.",
+  "notes": "Weekday evening: 6.00pm-11.59pm:Mon-Thu: $3.30 per entry. Fri: $3.30 for 1st 2 hrs; $0.65 for sub. 15 min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bugis+",
+  "rate": "12.00am-5.59pm: $2.20 for 1st hr; $0.55 for sub. 15 min",
+  "notes": "Weekday evening: 6.00pm-11.59pm: Mon-Thu: $3.30 per entry; Fri: $3.30 for 1st 2hrs; $0.55 for sub. 15 min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bugis+",
+  "rate": "$3.30 for 1st 2hrs; $0.55 for sub. 15 min",
+  "notes": "Weekday evening: 6.00pm-11.59pm: Mon-Thu: $3.30 per entry; Fri: $3.30 for 1st 2hrs; $0.55 for sub. 15 min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bukit Panjang Plaza",
+  "rate": "12.00am-5.59pm: $1.40 for 1st hr; $0.45 for sub. 15 min or part thereof",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $2.75 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bukit Panjang Plaza",
+  "rate": "12.00am-5.59pm: $2.75 for 1st 2 hrs; $0.45 for sub. 15 min or part thereof; 6.00pm-11.59pm: $2.75 per entry",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $2.75 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bukit Timah Plaza (Multi-Storey Car Park)",
+  "rate": "7.30am-5.00pm: $1.65 per hr",
+  "notes": "Weekday evening: 5.01pm-7.29.00am: $2.85 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bukit Timah Plaza (Multi-Storey Car Park)",
+  "rate": "7.30am-5.00pm: $1.80 per hr; 5.01pm-7.29.00am: $2.85 per entry",
+  "notes": "Weekday evening: 5.01pm-7.29.00am: $2.85 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bukit Timah Plaza (Multi-Storey Car Park)",
+  "rate": "7.30am-5.00pm: $2.85 for first (3) hours or part thereof; $1.65 for each subsequent 1 hour or part thereof; 5.01pm-7.29.00am: $2.85 per entry",
+  "notes": "Weekday evening: 5.01pm-7.29.00am: $2.85 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Bukit Timah Shopping Centre",
+  "rate": "7.00am-5.00pm: $1.93 per hr",
+  "notes": "Weekday evening: 5.01pm-7.00am: $3.64 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Burghley Lifestyle Hub",
+  "rate": "7.00am-7.00am the following day: $0.02 per min",
+  "notes": "Weekday evening: 7.00am-7.00am the following day: $0.02 per min capped at $2.14. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Burlington Square",
+  "rate": "7.00am-4.59pm: $0.04 per min.",
+  "notes": "Weekday evening: 5.00pm-6.59am: $2.20 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "CapitaGreen",
+  "rate": "7.00am-5.59pm: $3.20 every 30 min",
+  "notes": "Weekday evening: 6.00pm-6.59am (next day): $3.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "CapitaGreen",
+  "rate": "7.00am-12.59pm: $3.20 every 30 min; 1pm-6.59am (next day): $3.80 per entry",
+  "notes": "Weekday evening: 6.00pm-6.59am (next day): $3.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "CapitaGreen",
+  "rate": "$3.80 per entry",
+  "notes": "Weekday evening: 6.00pm-6.59am (next day): $3.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Capital Square",
+  "rate": "8.00am-6.00pm: $2.40 per 30min",
+  "notes": "Weekday evening: 6.00pm-8.00am: $3.20 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Capital Square",
+  "rate": "8.00am to 8.00am next day: $3.20 per entry",
+  "notes": "Weekday evening: 6.00pm-8.00am: $3.20 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Capital Tower",
+  "rate": "7.00am-5.59pm: $2.90 every 30 min",
+  "notes": "Weekday evening: 6.00pm-6.59am next day: $3.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Capital Tower",
+  "rate": "7.00am-12.59pm: $2.90 every 30 min; 1.00pm-6.59am next day: $3.80 per entry",
+  "notes": "Weekday evening: 6.00pm-6.59am next day: $3.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Capital Tower",
+  "rate": "7.00am-6.59am next day: $3.80 per entry",
+  "notes": "Weekday evening: 6.00pm-6.59am next day: $3.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "CapitaLand Integrated Commercial Trust (CICT)",
+  "rate": "8.00am-5.00pm: $2.05 per 30min",
+  "notes": "Weekday evening: After 5.00pm: $3.10 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "CapitaLand Integrated Commercial Trust (CICT)",
+  "rate": "Charges same as wkdays; $3.10 per entry after 1.00pm",
+  "notes": "Weekday evening: After 5.00pm: $3.10 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "CapitaLand Integrated Commercial Trust (CICT)",
+  "rate": "$3.10 per entry",
+  "notes": "Weekday evening: After 5.00pm: $3.10 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Capitol Piazza",
+  "rate": "11.00am-5.59pm: $2.45 for 1st hr, $0.55 for sub 15 min.",
+  "notes": "Weekday evening: 6.00pm-10.59pm: $3.45 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Capitol Piazza",
+  "rate": "Sat-Mon 11.00am-10.59am: $2.20 for 1st 2 hr, $0.55 for sub 15 min.",
+  "notes": "Weekday evening: 6.00pm-10.59pm: $3.45 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Carlton Hotel",
+  "rate": "7.00am-10.00pm: $3.50 for 1st hr; $1.50 for for sub. ½ hr or part thereof.",
+  "notes": "Weekday evening: 10.01pm-6.59am: $6.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Cathay Cineleisure Orchard",
+  "rate": "7.00am-4.59pm: $2.40 for 1st hr; $1.40 for sub. 30min",
+  "notes": "Weekday evening: 5.00pm-6.59am: $0.04/min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Cathay Cineleisure Orchard",
+  "rate": "7.00am-10.59am: $4.80 per entry; 11.00am-7.00.59pm: $2.50 per hr; 8pm-6.59am: $0.05/min",
+  "notes": "Weekday evening: 5.00pm-6.59am: $0.04/min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Causeway Point",
+  "rate": "6.00am-5.59am: $1.40 for 1st hr; $0.80 for sub. 30min or part thereof.",
+  "notes": "Weekday evening: 6.00am-5.59am: $1.40 for 1st hr; $0.80 for sub. 30min or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Causeway Point",
+  "rate": "6am-5.59am: $1.50 for 1st hr; $0.80 for sub. 30min or part thereof.",
+  "notes": "Weekday evening: 6.00am-5.59am: $1.40 for 1st hr; $0.80 for sub. 30min or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Centennial Tower",
+  "rate": "7.00am-5.59pm: $3.90 for 1st hr; $1.95 per sub.½ hr",
+  "notes": "Weekday evening: 6.00pm-7.00am: $3.00 per entry. Mon-Thurs (Overnight Parking): 12.00am-6.59am: $3.90 for 1st hr; $1.95 per sub.½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Centennial Tower",
+  "rate": "7.00am-1.59am: $2.80 for 1st 2hrs; $1.40 per sub.½ hr. Fri/Sat-Sun/PH (Overnight Parking): 2am-6.59am: $3.90 for 1st hr; $1.95 per sub.½ hr",
+  "notes": "Weekday evening: 6.00pm-7.00am: $3.00 per entry. Mon-Thurs (Overnight Parking): 12.00am-6.59am: $3.90 for 1st hr; $1.95 per sub.½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Central ©",
+  "rate": "6.00am-5.00pm: $2.24 for 1st hr or part thereof; $1.12 for sub. ½ hr or part thereof",
+  "notes": "Weekday evening: 5.00pm-6.00am next day: $3.56 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Central ©",
+  "rate": "6.00am-5.59am the next day: $3.56 per entry",
+  "notes": "Weekday evening: 5.00pm-6.00am next day: $3.56 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Central Mall",
+  "rate": "7.01am-5.00pm: $2.40 for 1st hr; $1.20 for sub. 30min",
+  "notes": "Weekday evening: 5.01pm-7.00am next day: $3.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Central Mall",
+  "rate": "7.01am-7.00am next day: $3.60 per entry",
+  "notes": "Weekday evening: 5.01pm-7.00am next day: $3.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Century Square",
+  "rate": "6.00am-5.59pm: $1.35 for 1st hr; $0.70 every 30min or part thereof.",
+  "notes": "Weekday evening: 6.01pm-5.59am: $2.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Century Square",
+  "rate": "6.00am-5.59pm: $1.60 for 1st hr; $0.70 every 30min or part thereof.; 6.01pm-5.59am: $2.60 per entry",
+  "notes": "Weekday evening: 6.01pm-5.59am: $2.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Changi Airport Hub & Spoke Car Park (Open-air car park betwe",
+  "rate": "S$0.60/15 min block (Limited parking spaces and on a first-come, first-served basis)",
+  "notes": "Weekday evening: S$0.60/15 min block (Limited parking spaces and on a first-come, first-served basis). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Changi Airport T1/Jewel Car Park",
+  "rate": "Short-term Parking (B2M and B2): First 90 min; S$0.65/15 min block Subsequent 30 min or part thereof S$5/30 min General Parking (B3 to B5): S$0.65/15 min block",
+  "notes": "Weekday evening: Short-term Parking (B2M and B2): First 90 min; S$0.65/15 min block Subsequent 30 min or part thereof S$5/30 min General Parking (B3 to B5): S$0.65/15 min block. From LTA OneMotoring —"
+ },
+ {
+  "name": "Changi Airport T2, T3, T4 Car Parks A & B",
+  "rate": "S$0.65/15 min block",
+  "notes": "Weekday evening: S$0.65/15 min block. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Changi Airport Terminal 2 (Car Park 2A & 2B)",
+  "rate": "$0.65 per 15 mins",
+  "notes": "AI-retrieved — verify. 10-minute grace period for pick-up/drop-off. Full parking charges apply if staying beyond 10 minutes from time of entry."
+ },
+ {
+  "name": "Changi Chapel and Museum",
+  "rate": "Daily (6.00am-5.59pm): $1.20 per hr (or part thereof, capped at $12 per day)",
+  "notes": "Weekday evening: 6.00pm onwards: $3 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Changi City Point",
+  "rate": "6.01am-6.00pm: $2.00 for 1st hr; $1.15 for sub. 30min",
+  "notes": "Weekday evening: 6.01pm-6.00am: $2.72 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Changi City Point",
+  "rate": "6.01am-6.00pm: $2.70 for 1st 2hr; $1.30 for sub. 30min; 6.01pm-6.00am: $2.70 per entry",
+  "notes": "Weekday evening: 6.01pm-6.00am: $2.72 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Changi Village Hotel",
+  "rate": "6.00am-5.00pm: $4.00 for 1st hr; $3.00 for sub. hr",
+  "notes": "Weekday evening: Monday - Thursday 6.00pm-5.00am: $6.50 per entry Friday5.00pm-12.00am: $4.00 for 1st hr, $3.00 for sub. hr; 12.00am-5.00am: $6.50 per entry. From LTA OneMotoring — verify before relyi"
+ },
+ {
+  "name": "Changi Village Hotel",
+  "rate": "6.00am-6.00am next day: $4.00 for 1st hr, $3.00 for sub. hr",
+  "notes": "Weekday evening: Monday - Thursday 6.00pm-5.00am: $6.50 per entry Friday5.00pm-12.00am: $4.00 for 1st hr, $3.00 for sub. hr; 12.00am-5.00am: $6.50 per entry. From LTA OneMotoring — verify before relyi"
+ },
+ {
+  "name": "Chijmes",
+  "rate": "8.00am-5.59pm: $0.65 per 15 min.",
+  "notes": "Weekday evening: 6.00pm-10.59pm: Sun-Thurs: $0.71 per 15 min. Fri: $0.76 per 15 min. 11.00pm-7.59am: Sun-Thurs: $0.50 per 15 min. Fri: $0.55 per 15 min.. From LTA OneMotoring — verify before relying o"
+ },
+ {
+  "name": "Chijmes",
+  "rate": "8.00am-5.59pm: $0.71 per 15 min. Fri, Sat, PH Eve, PH: 6.00pm-10.59pm: $0.76 per 15 min. 11.00pm-7.59am: $0.55 per 15 min.",
+  "notes": "Weekday evening: 6.00pm-10.59pm: Sun-Thurs: $0.71 per 15 min. Fri: $0.76 per 15 min. 11.00pm-7.59am: Sun-Thurs: $0.50 per 15 min. Fri: $0.55 per 15 min.. From LTA OneMotoring — verify before relying o"
+ },
+ {
+  "name": "Children's Museum Singapore (formerly Singapore Philatelic M",
+  "rate": "Nearby Parking Spaces: Peranakan Museum, Grand Park City Hall, Capitol Piazza, Peninsula Excelsior Hotel, Funan.",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "China Square Central",
+  "rate": "6.00am-5.59pm: $1.80 per ½ hr or part thereof.",
+  "notes": "Weekday evening: 6.00pm-8.00am next day: $3.00 per entry. (12 midnight-6.00am: Closed). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "China Square Central",
+  "rate": "6.00am-8.00am next day: $3.00 per entry. (12 midnight-6.00am: Closed)",
+  "notes": "Weekday evening: 6.00pm-8.00am next day: $3.00 per entry. (12 midnight-6.00am: Closed). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "China Square Central",
+  "rate": "8.00am-6.00am next day: $3.00 per entry. (12 midnight-6am: Closed)",
+  "notes": "Weekday evening: 6.00pm-8.00am next day: $3.00 per entry. (12 midnight-6.00am: Closed). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Chinatown Heritage Centre",
+  "rate": "Street Parking is available along Mosque Street and Temple Street. Alternatively, you can park at Chinatown Point or Hong Lim Complex, both within walking distance of the Centre.",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Chinatown Point",
+  "rate": "7.01am-5.00pm: $1.96 (with 9% GST) for every 30min or part thereof.",
+  "notes": "Weekday evening: 5.01pm-7.00am: $5.45 (with 9% GST) per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Chinatown Point",
+  "rate": "7.01am-5.00pm: $1.96 (with 9% GST) for every 30min or part thereof. 5.01pm-7.00am: $6.45 (with 9% GST) per entry.",
+  "notes": "Weekday evening: 5.01pm-7.00am: $5.45 (with 9% GST) per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "City Gate",
+  "rate": "7.00am-4.59pm: $2.00 per hr.",
+  "notes": "Weekday evening: 5.00pm-11.59pm: $3.00 per entry; 12.00am-6.59am the following day: $4.36 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "City Gate",
+  "rate": "7.00am-11.59pm: $3.00 per entry; 12.00am-6.59am the following day: $4.36 per entry.",
+  "notes": "Weekday evening: 5.00pm-11.59pm: $3.00 per entry; 12.00am-6.59am the following day: $4.36 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "City Plaza",
+  "rate": "8.00am-5.00pm: $1.20 for 1st hr; $0.70 for next sub. 30min",
+  "notes": "Weekday evening: 5.00pm-8.00am the following day: $1.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "City Plaza",
+  "rate": "8am-8am the following day: $1.50 per entry",
+  "notes": "Weekday evening: 5.00pm-8.00am the following day: $1.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "City Square Mall",
+  "rate": "6.00am-5.59pm: $2.18 for 1st hr or part thereof, $1.09 for every sub 30min or part thereof.",
+  "notes": "Weekday evening: 6pm-5.59am: $3.27 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "City Square Mall",
+  "rate": "6am-5.59pm: $2.18 for 1st hr or part thereof, $1.09 for every sub 30min. 6pm-5.59am: $3.82 per entry.",
+  "notes": "Weekday evening: 6pm-5.59am: $3.27 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Clarke Quay",
+  "rate": "7.00am-6.59am (next morning): 1st hour @ $1.60, $0.55 for subsequent 15 min or part thereof",
+  "notes": "Weekday evening: 7.00am-6.59am (next morning): 1st hour @ $1.60, $0.55 for subsequent 15 min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Clarke Quay",
+  "rate": "7.00am to 6.59am (next morning): $3.00 per entry.",
+  "notes": "Weekday evening: 7.00am-6.59am (next morning): 1st hour @ $1.60, $0.55 for subsequent 15 min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Clarke Quay Central",
+  "rate": "6.00am-5.00pm: $2.24 for 1st hr or part thereof; $1.12 for sub 30min or part thereof.",
+  "notes": "Weekday evening: 5.00pm-6.00am the followng day: $3.56 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Clarke Quay Central",
+  "rate": "6.00am-5.59am the followng day: $3.56 per entry",
+  "notes": "Weekday evening: 5.00pm-6.00am the followng day: $3.56 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Claymore Connect",
+  "rate": "7.00am-6.00pm: $3.50 for 1st hr or part thereof; $1.50 for sub. 30min",
+  "notes": "Weekday evening: Aft 6.00pm: $5.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Claymore Connect",
+  "rate": "$5.50 per entry",
+  "notes": "Weekday evening: Aft 6.00pm: $5.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Coliwoo Hotel Pasir Panjang",
+  "rate": "7.00am-5.00pm: $1.10 per hr",
+  "notes": "Weekday evening: 5.00pm-7.00am: $1.10 per hr (Capped at $3.03). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Compass One",
+  "rate": "7.00am-11.00pm: $1.50 for 1st hr; $0.80 for sub 30min period.",
+  "notes": "Weekday evening: 7.00am-11.00pm: $1.50 for 1st hr; $0.80 for sub 30min period.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Concorde Hotel",
+  "rate": "7.00am-6.00pm: $2.14 for 1st hr; $1.39 for sub. 30min",
+  "notes": "Weekday evening: After 6.00pm: $3.75 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Concorde Hotel",
+  "rate": "$3.75 per entry",
+  "notes": "Weekday evening: After 6.00pm: $3.75 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Connexion",
+  "rate": "7.00am-5.59pm: $3.30 for 1st hr, $1.65 for sub 30 min.",
+  "notes": "Weekday evening: 6.00pm-6.59am: $4.40 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Conrad Centennial Hotel",
+  "rate": "7.00am-5.59pm: $3.90 for 1st hr; $1.95 per sub.½ hr (Millenia Singapore - Basement Carpark)",
+  "notes": "Weekday evening: 6.00pm-7.00am: $3 per entry. Mon-Thurs (Overnight Parking): 12am-6.59am: $3.90 for 1st hr; $1.95 per sub.½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Conrad Centennial Hotel",
+  "rate": "7.00am-1.59am: $2.80 for 1st 2hrs; $1.40 per sub.hr. Fri/Sat-Sun/PH (Overnight Parking): 2am-6.59am: $3.90 for 1st hr; $1.95 per sub.½ hr",
+  "notes": "Weekday evening: 6.00pm-7.00am: $3 per entry. Mon-Thurs (Overnight Parking): 12am-6.59am: $3.90 for 1st hr; $1.95 per sub.½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Copthorne King's Hotel",
+  "rate": "7.00am-12.00am: $4.00 for 1st hr; $1.50 for sub ½ hr",
+  "notes": "Weekday evening: 12.00am-7.00am (next day): $4 for 1st hr; $2 for sub ½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Coronation Shopping Plaza",
+  "rate": "Daily(7.00am-7.00am): $2.30 per hr",
+  "notes": "Weekday evening: Daily(7.00am-7.00am): $2.30 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "CPF Building Robinson Road",
+  "rate": "6.00am-5.00pm:$1.50 per ½ hr; $2.00 for sub ½ hr",
+  "notes": "Weekday evening: After 5.00pm: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Creative Technologies",
+  "rate": "$2.14 for 1st hr; $1.60 per 30 mins",
+  "notes": "AI-retrieved from the web — verify before relying on it."
+ },
+ {
+  "name": "Creative Technologies",
+  "rate": "Free parking",
+  "notes": "AI-retrieved from the web — verify before relying on it."
+ },
+ {
+  "name": "D'Resort",
+  "rate": "Mon-Thu (excluding PH, Eve of PH & Sch Holiday) $0.026/min; Max/day: $17; Fri-Sun (Including PH, Eve of PH & Sch Holiday) $0.035/min; Max/day: $21.",
+  "notes": "Weekday evening: Mon-Thu (excluding PH, Eve of PH & Sch Holiday) $0.026/min; Max/day: $17; Fri-Sun (Including PH, Eve of PH & Sch Holiday) $0.035/min; Max/day: $21.. From LTA OneMotoring — verify befo"
+ },
+ {
+  "name": "D'Resort",
+  "rate": "Fri-Sun (Including PH, Eve of PH & Sch Holiday) $0.035/min; Max/day: $21.",
+  "notes": "Weekday evening: Mon-Thu (excluding PH, Eve of PH & Sch Holiday) $0.026/min; Max/day: $17; Fri-Sun (Including PH, Eve of PH & Sch Holiday) $0.035/min; Max/day: $21.. From LTA OneMotoring — verify befo"
+ },
+ {
+  "name": "Delfi Orchard",
+  "rate": "8.00am-6.00pm: $3.64 for 1st hr; $2.35 for next sub. 30min",
+  "notes": "Weekday evening: 6.00pm-11.00pm: $5.35 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Delfi Orchard",
+  "rate": "$5.35 every 4 hrs",
+  "notes": "Weekday evening: 6.00pm-11.00pm: $5.35 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Devan Nair Institute for Employment and Employability",
+  "rate": "6.00am-12 midnight: $0.45 per 15min. No parking after 12 midnight.",
+  "notes": "Weekday evening: 6.00am-12 midnight: $0.45 per 15min. No parking after 12 midnight.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Downtown East",
+  "rate": "Mon-Thu (excluding PH, Eve of PH & Sch Hol) $0.026/min; Max/day: $15 Free weekday 12.00pm-2.00pm parking; Fri-Sat (Including PH, Eve of PH & Sch Hol) $0.028 per min; 5.00pm-12.00am: $3.40 per entry.",
+  "notes": "Weekday evening: Mon-Thu (excluding PH, Eve.00 of PH & School Holiday) 5.00pm-12.00am: $2.40 per entry. Max/day:$15; Fri: $3.40 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Downtown East",
+  "rate": "Fri-Sat (Including PH, Eve of PH & School Holiday) $0.028 per min; 5.00pm-12.00am: $3.40 per entry. Max/day: $19.",
+  "notes": "Weekday evening: Mon-Thu (excluding PH, Eve.00 of PH & School Holiday) 5.00pm-12.00am: $2.40 per entry. Max/day:$15; Fri: $3.40 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Dunearn Village (Formerly Link@896)",
+  "rate": "Daily: $3.05 for the 1st hour; $1.53 sub. 30min or part thereof",
+  "notes": "Weekday evening: Daily: $3.05 for the 1st hour; $1.53 sub. 30min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "East Coast Park E1/E2/E3 Off-Street",
+  "rate": "7.00am-10.30pm: 60¢ per 30min (capped at $5.00 for 10.30pm-7.00am)",
+  "notes": "Weekday evening: 7.00am-10.30pm: 60¢ per 30min (capped at $5.00 for 10.30pm-7.00am). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Eastpoint Mall",
+  "rate": "Daily: $1.30 for 1st hr or part thereof, $0.65 for sub. 30min or part thereof.",
+  "notes": "Weekday evening: Daily: $1.30 for 1st hr or part thereof, $0.65 for sub. 30min or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Elizabeth Hotel",
+  "rate": "7.00am-6.00pm: $4.00 for 1st hr; $2.00 for sub. 30min",
+  "notes": "Weekday evening: After 6.00pm: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Elizabeth Hotel",
+  "rate": "$5.00 per entry",
+  "notes": "Weekday evening: After 6.00pm: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Far East Plaza",
+  "rate": "8.00am-5.00pm: $2.00 for 1st hr; $1.50 for sub. 30min",
+  "notes": "Weekday evening: Aft 5.00pm: $3.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Far East Shopping Centre",
+  "rate": "$3.00 for 1st hr; $1.50 for sub. 30min or part thereof.",
+  "notes": "Weekday evening: 6.00pm-12.00am: $3.50 per entry; 12.00am-8.00am: $5.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Far East Square",
+  "rate": "6.00am-5.59pm: $4.36 for 1st hr; $1.09 sub 15 min",
+  "notes": "Weekday evening: 6.00pm-12.00am: $3.27 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Far East Square",
+  "rate": "$3.27 per entry.",
+  "notes": "Weekday evening: 6.00pm-12.00am: $3.27 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Far Eastern Bank Building",
+  "rate": "7.00am-6.00pm: $2.50 per 30min",
+  "notes": "Weekday evening: 6.30pm-7.00am: $3.20 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Far Eastern Bank Building",
+  "rate": "7.00am-1.00pm: $2.50 per 30min; 1.00pm-7.00am: $3.20 per entry",
+  "notes": "Weekday evening: 6.30pm-7.00am: $3.20 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Fortune Centre",
+  "rate": "7.00am-5.00pm: $3.25 per hr",
+  "notes": "Weekday evening: 5.00pm-7.00am next day: $5.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Forum The Shopping Mall",
+  "rate": "6.00am-5.00pm: $2.60 for 1st hr; $1.30 for sub. 30min or part thereof.",
+  "notes": "Weekday evening: Aft 5.00pm: $3.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Forum The Shopping Mall",
+  "rate": "6.00am-5.00pm: $2.80 for 1st hr; $1.50 for sub. 30min or part thereof; Aft 5.00pm: $3.50 per entry",
+  "notes": "Weekday evening: Aft 5.00pm: $3.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Four Seasons Hotel",
+  "rate": "6.00am-6.00pm: $6.00 for 1st hr; $3.00 for sub. 30min",
+  "notes": "Weekday evening: After 6.00pm: $6.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Fraser Residence River Promenade",
+  "rate": "7.01am-6.00pm: $4.00 for 1st hr; $2.50 for sub hr or part thereof.",
+  "notes": "Weekday evening: 6.01pm-7.00am: $4.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Fraser Residence River Promenade",
+  "rate": "7.01am-6.00pm: $4.50 per entry. 6.01pm-7.00am: $4.50 per entry",
+  "notes": "Weekday evening: 6.01pm-7.00am: $4.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Fu Lu Shou Complex",
+  "rate": "8.00am to 5.00pm: $1.20 per 30min",
+  "notes": "Weekday evening: 5.00pm-11pm: $2.20 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Fullerton Hotel",
+  "rate": "7.01am-6.00pm: $1.30 per 10 min",
+  "notes": "Weekday evening: 6.01pm-8pm: $6.90 per entry. 8.01am-12am: $1.30 per 10 min. 12.01am-7.00am-$8 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Fullerton Hotel",
+  "rate": "7.01am-12am: $6.90 per entry; 12.01am-7.00am-$8 per entry",
+  "notes": "Weekday evening: 6.01pm-8pm: $6.90 per entry. 8.01am-12am: $1.30 per 10 min. 12.01am-7.00am-$8 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Funan",
+  "rate": "12.00am-5.59pm: $2.40 for 1st hr, $0.65 for sub 15min.",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $3.30 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Funan",
+  "rate": "12.00am-2.59pm: Every 15min of part thereof at $0.65. 3am-5.59pm: $2.60 for 1st 2hr, $0.65 for sub 15min or part thereof . 6.00pm to 11.59pm: $3.30 per entry.",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $3.30 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Furama City Centre Singapore",
+  "rate": "5.59am-6.00pm: $1.70 per 30min",
+  "notes": "Weekday evening: 6.00pm-5.59am the followng day: $3.21 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Furama City Centre Singapore",
+  "rate": "5.59am-6.00pm: $3.21 per entry",
+  "notes": "Weekday evening: 6.00pm-5.59am the followng day: $3.21 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Furama Riverfront Singapore",
+  "rate": "7.00am-5.00pm: $1.07 per ½ hr",
+  "notes": "Weekday evening: 5.00pm-7.00am the followng day: $6.42 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Fusionopolis 1 & 2",
+  "rate": "7.00am-6.00pm: $1.00 per 30 min",
+  "notes": "Weekday evening: 6.00pm-7.00am : $1.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Fusionopolis 1 & 2",
+  "rate": "7.00am-7.00am: $1.00 per entry",
+  "notes": "Weekday evening: 6.00pm-7.00am : $1.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Genting Centre",
+  "rate": "7.00am-7.00pm: $3.00 for 1st hr, $2.00 for sub 30min.",
+  "notes": "Weekday evening: 7.00pm-7.00am the followng day: $3.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Genting Centre",
+  "rate": "7.00am-7.00pm: $3.00 per entry. After 7.00pm: $3.00 per entry.",
+  "notes": "Weekday evening: 7.00pm-7.00am the followng day: $3.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Genting Hotel Jurong",
+  "rate": "Mon-Thus: $3.00 per hr or part thereof.",
+  "notes": "Weekday evening: Mon-Thus: $3.00 per hr or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Genting Hotel Jurong",
+  "rate": "Fri-Sun: $4.00 per hr.",
+  "notes": "Weekday evening: Mon-Thus: $3.00 per hr or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Gillman Barracks",
+  "rate": "8.30am-5.00pm: $0.60 per 30min for 1st 2hr, $3.00 per hr from the 3rd hr",
+  "notes": "Weekday evening: 5.00pm-8.30am: Free parking. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Gillman Barracks",
+  "rate": "Free Parking",
+  "notes": "Weekday evening: 5.00pm-8.30am: Free parking. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Golden Landmark Shopping Complex",
+  "rate": "8.00am-5.00pm: $2.35 for 1st hr $1.07 for sub 30min or part thereof",
+  "notes": "Weekday evening: 5.00pm-8.00am: $2.68 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Golden Landmark Shopping Complex",
+  "rate": "8.00am-8.00am the following day: $2.68 per entry.",
+  "notes": "Weekday evening: 5.00pm-8.00am: $2.68 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Golden Mile Tower",
+  "rate": "7.00am-7.00pm: $2.82 per hr",
+  "notes": "Weekday evening: 7.00pm-7.00am the following day: $2.31 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Goldhill Plaza (1 Goldhill Plaza & 51 Goldhill Plaza)",
+  "rate": "7.00am-5.30pm: $2.00 for 1st hr; $0.60 per sub. 15min",
+  "notes": "Weekday evening: 5.30pm-12.00am: $4.00 per entry (Additional $4.00 after midnight). 12.00am-7.00am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Goldhill Plaza (1 Goldhill Plaza & 51 Goldhill Plaza)",
+  "rate": "7.00am-5.30pm: $3.00 for 1st hr; $0.60 per sub. 15min. 5.30pm-12.00am: $4.00 per entry (Additional $4.00 after midnight); 12.00am-7.00am: $4.00 per entry.",
+  "notes": "Weekday evening: 5.30pm-12.00am: $4.00 per entry (Additional $4.00 after midnight). 12.00am-7.00am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Goodwood Park Hotel",
+  "rate": "8.00am-6.59pm: $5.05 for 1st hr; $2.53 for sub. 30min",
+  "notes": "Weekday evening: 6.00pm-8.00am: $6.06 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Goodwood Park Hotel",
+  "rate": "8.00am-7.59am: $6.06 per entry",
+  "notes": "Weekday evening: 6.00pm-8.00am: $6.06 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "GR.iD",
+  "rate": "7.00am-5.59pm: $3.20 for 1st hr, $1.80 sub 30min",
+  "notes": "Weekday evening: 6.00pm-10.59pm: $4.50 per entry. 11pm-6.59am: $5.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "GR.iD",
+  "rate": "7am-11.59pm: $4.50 per entry. 12.00am-6.59am: $5.50 per entry.",
+  "notes": "Weekday evening: 6.00pm-10.59pm: $4.50 per entry. 11pm-6.59am: $5.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Grand Copthorne Waterfront Hotel",
+  "rate": "7.00am-5.00pm: $3.75 for 1st hr; $2.14 for sub. hr",
+  "notes": "Weekday evening: 5.00pm-7.00am next day: $4.28 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Grand Copthorne Waterfront Hotel",
+  "rate": "7.00am to 7.00am next day: $5.00 per entry",
+  "notes": "Weekday evening: 5.00pm-7.00am next day: $4.28 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Grand Hyatt Singapore",
+  "rate": "4.00am-5.59pm: $4.00 for 1st hr; $2.00 for next sub. 30min",
+  "notes": "Weekday evening: 6.00pm-3.59am: $6.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Grand Mercure Roxy Hotel",
+  "rate": "Daily: $1.60 per hr",
+  "notes": "Weekday evening: Daily: $1.60 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Grand Park City Hall Hotel",
+  "rate": "8.00am-5.00pm: $3.28 for 1st hr; $1.55 for sub. 30 min",
+  "notes": "Weekday evening: 5.00pm-8.00am next day: $5.35 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Great Eastern Centre",
+  "rate": "8.00am-5.00pm: $1.80 per 30min (Car park at China square central; B2 closed from 12.00am-6.00am daily)",
+  "notes": "Weekday evening: 5.00pm-8.00am the following day: $3.30 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Great Eastern Centre",
+  "rate": "8.00am-8.00am the following day: $3.30 per entry",
+  "notes": "Weekday evening: 5.00pm-8.00am the following day: $3.30 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Great World City",
+  "rate": "6.01am-5.00pm: $1.80 per hr + GST; $0.90 + GST every sub 30min",
+  "notes": "Weekday evening: 5.01pm-6.00am: $3.50 per entry + GST. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Great World City",
+  "rate": "6.01am to 6.00am next day: $1.80 per hr + GST; $0.90 + GST every sub 30min. (Max. of $6 per entry + GST)",
+  "notes": "Weekday evening: 5.01pm-6.00am: $3.50 per entry + GST. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Greenwich V",
+  "rate": "6.00am-5.59pm: $1.53 for 1st hr; $0.38 for sub. 15 min.",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.29 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Guoco Midtown",
+  "rate": "Car Park A: 7.00am-4.59pm: $2.80 for 1st hr; $1.40 for sub. 30 min. Car Park B: 7.00am-4.59pm: $2.40 for 1st hr; $1.20 for sub. 30 min.",
+  "notes": "Weekday evening: Car Park A: 5.00pm-6.59am: $3.20 per entry. Car Park B: 5.00pm-6.59am: $3.60 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Guoco Midtown",
+  "rate": "Car Park A & B: 7.00am-6.59am (next day): $1.20 per 30 min; capped at $3.20 per day.",
+  "notes": "Weekday evening: Car Park A: 5.00pm-6.59am: $3.20 per entry. Car Park B: 5.00pm-6.59am: $3.60 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Guoco Midtown II",
+  "rate": "7.00am-6.59am: $2.80 for 1st hr; $1.40 for every sub. 30 min.",
+  "notes": "Weekday evening: 7.00am-6.59am: $2.80 for 1st hr; $1.40 for every sub. 30 min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Guoco Midtown II",
+  "rate": "7.00am-6.59am: $1.40 per 30 min.",
+  "notes": "Weekday evening: 7.00am-6.59am: $2.80 for 1st hr; $1.40 for every sub. 30 min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Guoco Tower",
+  "rate": "7.00am-4.59pm: $4.10 per 30 min for Carpark A. $2.50 per 30 min for Carpark B.",
+  "notes": "Weekday evening: 5.00pm-6.59am: $3.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Guoco Tower",
+  "rate": "7.00am-6.59am (the next day): $3.50 per entry",
+  "notes": "Weekday evening: 5.00pm-6.59am: $3.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Harbourfront Centre",
+  "rate": "7.00am-6.00pm: $1.60 for 1st hr; $0.80 for sub. 30 min",
+  "notes": "Weekday evening: 6.00pm-4.00am: $3.20 per entry; 4.00am-7.00am: $2.50 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Harbourfront Centre",
+  "rate": "7.00am-6.00pm: $1.80 for 1st hr; $0.90 for sub. 30 min. 6.00pm-4.00am: $3.50 per entry; 4.00am-7.00am: $2.50 per hr.",
+  "notes": "Weekday evening: 6.00pm-4.00am: $3.20 per entry; 4.00am-7.00am: $2.50 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Havelock 2",
+  "rate": "7.00am-5.59pm: $1.60 per 30min",
+  "notes": "Weekday evening: 6.00pm-6.59am: $3.20 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Havelock 2",
+  "rate": "7.00am-6.59am next day: $3.20 per entry.",
+  "notes": "Weekday evening: 6.00pm-6.59am: $3.20 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Haw Par Villa",
+  "rate": "Parking is available at ORTO (27 West Coast Highway, Singapore 117 867)",
+  "notes": "Weekday evening: Parking is available at ORTO (27 West Coast Highway, Singapore 117 867). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hay Dairies Goat Farm",
+  "rate": "Daily free: 7.00am-7.00pm (Sungei Buloh Wetland Reserve Neo Tiew Crescent Entrance carpark)",
+  "notes": "Weekday evening: Daily free: 7.00am-7.00pm (Sungei Buloh Wetland Reserve Neo Tiew Crescent Entrance carpark). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Heartland Mall",
+  "rate": "7.00am-10.30pm: $1.00 per hr",
+  "notes": "Weekday evening: After 10.30pm: $2.00 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "hillV2",
+  "rate": "Daily: $1.53 for 1st hr; $0.92 for every sub. 30min",
+  "notes": "Weekday evening: Daily: $1.53 for 1st hr; $0.92 for every sub. 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hilton Singapore Orchard",
+  "rate": "6.01am-5.59pm: $3.80 for 1st hr; $2.50 for sub. 30 min",
+  "notes": "Weekday evening: 6.00pm-6.00am next day: $7.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Holiday Inn Express Singapore",
+  "rate": "7.00am-7.00am: $3.00 per 30min",
+  "notes": "Weekday evening: 7.00am-7.00am: $3.00 per 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Holiday Inn Express Singapore Katong",
+  "rate": "6.01am-10.00am: $0.50 for 1st hr, $0.20 per 15min; 10.01am-6.00pm: $1.00 for 1st hr; $0.30 for sub. 15min; Free parking from 12.00pm to 2.00pm except on PH",
+  "notes": "Weekday evening: 6.01pm-10.00pm: $2.00 for 1st hr, $0.50 per 15min; 10.01pm-6.00am: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Holiday Inn Express Singapore Katong",
+  "rate": "6.01am-10.00am: $0.60 for 1st hr, $0.40 per 15min; 10.01am-9.00pm: $2.00 for 1st hr, $0.50 per 15min. 9.01pm-6.00am: $2.50 per entry",
+  "notes": "Weekday evening: 6.01pm-10.00pm: $2.00 for 1st hr, $0.50 per 15min; 10.01pm-6.00am: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Holiday Inn Singapore Atrium",
+  "rate": "7.00am-7.00pm: S$2.00 per hr",
+  "notes": "Weekday evening: 7.00am-7.00pm: S$2.00 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Holiday Inn Singapore Orchard City Centre",
+  "rate": "12.00am-2.59pm: $4.00 per hr; 3.00pm-11.59pm: $1.80 per hr. Capped at $13.90/day",
+  "notes": "Weekday evening: 3.00pm-11.59pm: $1.80 per hr. Capped at $13.90/day. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Holiday Inn Singapore Orchard City Centre",
+  "rate": "12.00am-2.59pm: $4.00 per hr; 3.00pm-11.59pm: $1.80 per hr. Capped at $4.90/day",
+  "notes": "Weekday evening: 3.00pm-11.59pm: $1.80 per hr. Capped at $13.90/day. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Holland Road Shopping Centre",
+  "rate": "Mon-Thurs: 12.00am-9.00pm: $2.40 per 30min or part thereof",
+  "notes": "Weekday evening: Mon-Thurs: 9.00pm-12.00am: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Holland Road Shopping Centre",
+  "rate": "Friday/Saturday & eve of PH: 12.00am-9.00pm: $2.40 per 30min or part thereof; 9.00pm-12.00am: $6.00 per entry.",
+  "notes": "Weekday evening: Mon-Thurs: 9.00pm-12.00am: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hong Leong Building",
+  "rate": "7.00am-5.59pm: $3.00 per 30min",
+  "notes": "Weekday evening: 6.00pm-6.59am next day: $2.00 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hong Leong Building",
+  "rate": "7.00am-12.59pm: $3.00 per 30min; 1.00pm-6.59am: $2.00 per hr",
+  "notes": "Weekday evening: 6.00pm-6.59am next day: $2.00 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hong Leong Building",
+  "rate": "7.00am-6.59am next day: $2.00 per hr",
+  "notes": "Weekday evening: 6.00pm-6.59am next day: $2.00 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hotel Grand Pacific",
+  "rate": "7.00am-5.00pm: $1.50 per 30 min.",
+  "notes": "Weekday evening: 5.00pm-7.00am next day: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hotel Grand Pacific",
+  "rate": "7.00am to 7.00am next day: $4.00 per entry",
+  "notes": "Weekday evening: 5.00pm-7.00am next day: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hotel Indigo Singapore Katong",
+  "rate": "6.01am-10.00am: $0.48 for 1st hr, $0.12 per 15min; 10.01am-6.00pm: $0.96 for 1st hr; $0.24 for sub. 15min; Free parking from 12.00pm to 2.00pm except on PH",
+  "notes": "Weekday evening: 6.01pm-10.00pm: $1.00 for 1st hr, $0.25 per 15min; 10.01pm-6.00am: $0.32 for 1st hr, $0.08 per 15min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hotel Indigo Singapore Katong",
+  "rate": "6.01am-10.00am: $0.54 for 1st hr; $0.16 per 15min; 10.01am-9.00pm: $1.28 for 1st hr; $0.65 per 15min. 9.01pm-6.00am: $0.54 for 1st hr, $0.16 per 15min",
+  "notes": "Weekday evening: 6.01pm-10.00pm: $1.00 for 1st hr, $0.25 per 15min; 10.01pm-6.00am: $0.32 for 1st hr, $0.08 per 15min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hougang Green Shopping Mall",
+  "rate": "7.00am-4.59pm: $1.30 for 1st hr; $0.70 for next sub. 30min.",
+  "notes": "Weekday evening: 5.00pm-11.59pm: $3.00 per entry; 12.00am-6.59am the following day: $5.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hougang Green Shopping Mall",
+  "rate": "7.00am-11.59pm: $3.00 per entry; 12.00am-6.59am the following day: $5.00 per entry.",
+  "notes": "Weekday evening: 5.00pm-11.59pm: $3.00 per entry; 12.00am-6.59am the following day: $5.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hougang Mall",
+  "rate": "6.00am-6.00pm: $1.35 for 1st hr; $0.95 sub.30min or part thereof",
+  "notes": "Weekday evening: 6.00pm-6.00am: $2.25 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hougang Mall",
+  "rate": "6am-6pm: $1.50 for 1st hr; $1.15 sub.30min or part thereof; 6pm-6am: $2.25 per entry",
+  "notes": "Weekday evening: 6.00pm-6.00am: $2.25 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hougang1",
+  "rate": "6.00am-5.59pm: $1.64 for 1st hr; $0.41 for sub. 15 min.",
+  "notes": "Weekday evening: 6.00pm-12am: $2.45 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hougang1",
+  "rate": "6am-5.59pm: $1.74 for 1st hr; $0.44 for sub. 15 min. 6pm-12am: $2.62 per entry.",
+  "notes": "Weekday evening: 6.00pm-12am: $2.45 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hub Synergy Point",
+  "rate": "7.00am-6.00pm: $2.60 per hr",
+  "notes": "Weekday evening: 6.00pm-12.00am: $1.00 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hub Synergy Point",
+  "rate": "7.00am-2.00pm: $1.00 per 30min; 2.00pm-12.00am: $1.00 per hr",
+  "notes": "Weekday evening: 6.00pm-12.00am: $1.00 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hub Synergy Point",
+  "rate": "7.00am-12.00am next day: $1.00 per hr",
+  "notes": "Weekday evening: 6.00pm-12.00am: $1.00 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "i12 Katong",
+  "rate": "6.00am-9:59am: $0.61 for 1st hr; $0.25 for sub. 15min; 10am-5:59pm: $1.09 for 1st hr, $0.32 for sub. 15min",
+  "notes": "Weekday evening: 6pm-5:59am: $3.08 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "i12 Katong",
+  "rate": "6.00am- 9:59am: $0.71 for 1st hr, $0.45 for sub 15 min; 10am- 5:59pm: $1.50 for 1st 30min; $0.66 for sub. 15min; 6pm-5:59am: $3.20 per entry",
+  "notes": "Weekday evening: 6pm-5:59am: $3.08 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Ibis Singapore On Bencoolen Hotel",
+  "rate": "8.00am-5.00pm: $1.50 per 30min.",
+  "notes": "Weekday evening: 5.00pm-8.00am: $1.50 per 30min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Icon Village",
+  "rate": "7.00am-5.00pm: $1.64 per ½ hr or part thereof.",
+  "notes": "Weekday evening: 5.00pm-7.00am next day: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Icon Village",
+  "rate": "7.00am-1.00pm:$1.64 per ½ hr or part thereof. 1.00pm-7.00am next day: $3.27 per entry",
+  "notes": "Weekday evening: 5.00pm-7.00am next day: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Icon Village",
+  "rate": "7.00am-7.00am next day: $3.27 per entry",
+  "notes": "Weekday evening: 5.00pm-7.00am next day: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "IKEA (Alexandra)",
+  "rate": "Daily: $0.06 per minute",
+  "notes": "Weekday evening: Daily: $0.06 per minute. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "IKEA (Tampines)",
+  "rate": "Daily 7.00am-11.00pm: free",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "IMM Building",
+  "rate": "First hour - Free (first entry only, excluding public holidays) Second hour of first entry or first hour of subsequent same-day entry - $1.20 sub. 15min - $0.40",
+  "notes": "Weekday evening: First hour - Free (first entry only, excluding public holidays) Second hour of first entry or first hour of subsequent same-day entry - $1.20 sub. 15min - $0.41. From LTA OneMotoring "
+ },
+ {
+  "name": "IMM Building",
+  "rate": "First 1 hour - $1.20 (first entry only) sub. 15min - $0.40",
+  "notes": "Weekday evening: First hour - Free (first entry only, excluding public holidays) Second hour of first entry or first hour of subsequent same-day entry - $1.20 sub. 15min - $0.41. From LTA OneMotoring "
+ },
+ {
+  "name": "Income At Raffles",
+  "rate": "2.00am-6.30pm: $3.20 per 30min",
+  "notes": "Weekday evening: 6.30pm-2.00am the following day: $3.70 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Income At Raffles",
+  "rate": "2.00am-2.00pm: $3.20 per 30min; 2.00pm-2.00am the following day: $3.70 per entry.",
+  "notes": "Weekday evening: 6.30pm-2.00am the following day: $3.70 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Income At Raffles",
+  "rate": "2.00am-6.29am: $3.20 per 30min; 6.30am-2.00am the following day: $3.70 per entry.",
+  "notes": "Weekday evening: 6.30pm-2.00am the following day: $3.70 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Inter-continental Singapore Hotel",
+  "rate": "12.00am-5.59pm: $2.60 for 1st hr; $0.43 for sub. 10min or part thereof",
+  "notes": "Weekday evening: 6.00pm-11.59pm:Mon-Thu: $3.30 per entry. Fri: $3.30 for 1st 2 hrs; $0.35 for sub. 10 min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Inter-continental Singapore Hotel",
+  "rate": "$3.30 for 1st 2 hrs; $0.35 for sub. 10 min or part thereof.",
+  "notes": "Weekday evening: 6.00pm-11.59pm:Mon-Thu: $3.30 per entry. Fri: $3.30 for 1st 2 hrs; $0.35 for sub. 10 min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "InterContinental Singapore Robertson Quay",
+  "rate": "7.00am-6.00pm: $3.50 for 1st hr, $2.00 for next sub hr.",
+  "notes": "Weekday evening: 6.00pm-10.00pm: $5.00 per entry. 10.00pm-7.00am the following day: $2.00 for next sub 30 min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "International Building",
+  "rate": "7.00am-6.00pm: $3.00 for 1st hr; $1.50 for sub. 30min or part thereof",
+  "notes": "Weekday evening: 6.00pm-7.00am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "International Plaza",
+  "rate": "7.00am-5.00pm: $2.20 per 30 min",
+  "notes": "Weekday evening: 5.00pm-7.00am the following day: $3 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "International Plaza",
+  "rate": "7.00am-3pm: $2.20 per 30 min; 3pm-7.00am the following day: $3 per entry",
+  "notes": "Weekday evening: 5.00pm-7.00am the following day: $3 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "International Plaza",
+  "rate": "7am-7am the following day: $3 per entry",
+  "notes": "Weekday evening: 5.00pm-7.00am the following day: $3 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "ION Orchard",
+  "rate": "Monday to Thursday 8.00am-4.59pm: $2.73 for 1st hr; $1.31 for sub. 30min or part thereof",
+  "notes": "Weekday evening: Monday to Thursday 5.00pm-11.59pm: $3.05 per entry; 12.00am-7.59am $1.09 per hr or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "ION Orchard",
+  "rate": "Friday to Sunday and Public Holiday 8.00am-5.59pm: $2.62 for 1st hr; $1.91 for sub. 30min or part thereof; 6pm-11.59pm: $3.82 per entry; 12.00am-7.59am $1.09 per hour or part thereof",
+  "notes": "Weekday evening: Monday to Thursday 5.00pm-11.59pm: $3.05 per entry; 12.00am-7.59am $1.09 per hr or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Jem",
+  "rate": "Mon-Thurs: 12.00am - 5.59pm: $2.18 1st hr; $0.55 sub. 15min",
+  "notes": "Weekday evening: Mon-Thurs: After 6.00pm: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Jem",
+  "rate": "Friday/Saturday & eve of PH: 12.00am-5.59pm: $2.73 1st hr; $0.65 sub. 15min; After 6.00pm: $3.27 per entry",
+  "notes": "Weekday evening: Mon-Thurs: After 6.00pm: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Jewel Changi Airport / Terminal 1 (General Parking B3 to B5)",
+  "rate": "$0.04 per min",
+  "notes": "AI-retrieved — verify. 10-minute grace period. Complimentary 2 hours free parking daily available with min. S$80 spend at Jewel Changi Airport for Changi Rewards members (excludes eve of and Public Ho"
+ },
+ {
+  "name": "Junction 10",
+  "rate": "$1.31 for 1st hr or part thereof; $0.38 for every sub. 15min or part thereof",
+  "notes": "Weekday evening: $1.31 for 1st hr or part thereof; $0.38 for every sub. 15min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Junction 10",
+  "rate": "$2.83 for 1st 2 hr or part thereof; $0.38 for every sub. 15min or part thereof",
+  "notes": "Weekday evening: $1.31 for 1st hr or part thereof; $0.38 for every sub. 15min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Junction 8",
+  "rate": "12.00am-5.59pm - $1.35 for 1st hr; $0.45 for sub. 15 min",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $2.65 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Junction 8",
+  "rate": "12.00am-5.59pm - $2.65 for 1st 2hr; $0.45 for sub. 15 min. 6.00pm-11.59pm: $2.65 per entry",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $2.65 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Jurong Lake Gardens (North & South Carparks)",
+  "rate": "$0.60 per 30 mins (8:30am-12pm, 2pm-5am); Free 5am-8:30am & 12pm-2pm",
+  "notes": "AI-retrieved — verify. Overnight parking between 10:30pm and 7:00am capped at $5.00."
+ },
+ {
+  "name": "Jurong Lake Gardens (North & South Carparks)",
+  "rate": "$0.60 per 30 mins (8:30am-5am); Free 5am-8:30am",
+  "notes": "AI-retrieved — verify. Overnight parking between 10:30pm and 7:00am capped at $5.00."
+ },
+ {
+  "name": "Jurong Point Shopping Centre",
+  "rate": "7.00am -10.00pm: 1st hr at $1.50; $0.75 every sub. 30min or part thereof",
+  "notes": "Weekday evening: 10.00pm-7.00am: 1st hr at $1.20; $0.60 every sub. 30min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Jurong Point Shopping Centre",
+  "rate": "7.00am -10.00pm: 1st hr at $1.80; $0.90 every sub. 30min or part thereof; 10.00pm-7.00am: 1st hr at $1.20; $0.60 every sub. 30min or part thereof",
+  "notes": "Weekday evening: 10.00pm-7.00am: 1st hr at $1.20; $0.60 every sub. 30min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Katong Shopping Centre",
+  "rate": "7.00am-5.59pm: $1.20/30min",
+  "notes": "Weekday evening: Aft 6.00pm: $2.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Katong Shopping Centre",
+  "rate": "$2 per entry",
+  "notes": "Weekday evening: Aft 6.00pm: $2.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Katong Square",
+  "rate": "6.01am-10.00am: $0.50 for 1st hr, $0.20 for sub. 15min; 10.01am-6.00pm: $1.00 for 1st hr; $0.30 for sub. 15min.",
+  "notes": "Weekday evening: 6.01pm-10.00pm: $2.00 for 1st hr; $0.50 for sub. 15 min; 10.01pm-6.00am: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Katong Square",
+  "rate": "6.01am-10.00am: $0.60 for 1st hr; $0.40 for sub. 15min; 10.01am-9.00pm: $2.00 for 1st hr; $0.50 for sub. 15min; 9.01pm-6.00am: $2.50 per entry.",
+  "notes": "Weekday evening: 6.01pm-10.00pm: $2.00 for 1st hr; $0.50 for sub. 15 min; 10.01pm-6.00am: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Katong V",
+  "rate": "$1.64 for the first 1 hour; $0.41 for sub. 15min",
+  "notes": "Weekday evening: Per Entry: $2.45 (6.00pm to midnight). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Keck Seng Tower",
+  "rate": "8.00am-6.00pm: $2.50 per ½ hr",
+  "notes": "Weekday evening: 6.00pm-10pm: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Keck Seng Tower",
+  "rate": "8.00am-2pm: $2.50 per ½ hr; 2pm-10pm: $2.50 per entry",
+  "notes": "Weekday evening: 6.00pm-10pm: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Keppel Bay Tower / Harbourfront Tower One",
+  "rate": "7.00am-7.00pm: $1.03 per ½ hr",
+  "notes": "Weekday evening: 7.00pm-1am: $3.10 per entry; 1am-7.00am: $3.10 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "KINEX Mall",
+  "rate": "2.00am-6.00pm:$1.80 for the first hour; $0.50 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-2.00am: $2.40 per entry (Grace Period: 10 min). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "klapsons, The Boutique Hotel",
+  "rate": "6.30am-6.30pm: $3 for 1st 3hr, $1.50 for next sub 30min",
+  "notes": "Weekday evening: 6.30pm-6.30am the following day - $4.00. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "klapsons, The Boutique Hotel",
+  "rate": "After 2pm - $4.00",
+  "notes": "Weekday evening: 6.30pm-6.30am the following day - $4.00. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "klapsons, The Boutique Hotel",
+  "rate": "$4.00",
+  "notes": "Weekday evening: 6.30pm-6.30am the following day - $4.00. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Kranji Green",
+  "rate": "7.00am-7.00am: $0.60 per ½ hr.",
+  "notes": "Weekday evening: 7.00am-7.00am:. $0.60 per ½ hr.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Labrador Secret Tunnel (Labrador Park)",
+  "rate": "Free daily",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Landmark Village Hotel",
+  "rate": "8.00am-5.00pm:$2.35 for 1st hr $1.07 for sub 30min.",
+  "notes": "Weekday evening: 5.00pm-8.00am the following day: $2.68 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Landmark Village Hotel",
+  "rate": "8.00am to 8.00am next day: $2.68 per entry.",
+  "notes": "Weekday evening: 5.00pm-8.00am the following day: $2.68 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Liat Towers",
+  "rate": "6.00am-10.00pm: $3.00 for 1st hr; $1.50 sub. 30min",
+  "notes": "Weekday evening: 10.00pm-6.00am(next morning): $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Liat Towers",
+  "rate": "6.00am-10.00pm: $2.80 for 1st hr; $1.40 sub. 30min; 10.00pm-6.00am(next morning): $4.00 per entry",
+  "notes": "Weekday evening: 10.00pm-6.00am(next morning): $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Liat Towers",
+  "rate": "6.00am-10.00pm: $2.20 for 1st hr; $1.10 sub. 30min; 10.00pm-6.00am(next morning): $4.00 per entry",
+  "notes": "Weekday evening: 10.00pm-6.00am(next morning): $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Lifelong Learning Institute",
+  "rate": "6.00am-6.00pm: $1.15 per 30min; 12.00am-6.00am next day: $12 per entry",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Lifelong Learning Institute",
+  "rate": "6.00am-1.00pm: $1.15 per 30 min block; 1.00pm-12.00am: $3 per entry; 12.00am-6.00am next day: $12 per entry",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Lifelong Learning Institute",
+  "rate": "6am-12am: $3 per entry; 12am-6am next day: $12 per entry",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Liner @ Tuas",
+  "rate": "7.00am -6.00pm: $0.76 per 30min.",
+  "notes": "Weekday evening: 6.01pm-12.00am: $3.27 per parking session. 12.00am- 6.59am-:$5.45 per parking session.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Lot One",
+  "rate": "12.00am-5.59pm: $1.35 for 1st hr; $0.45 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $2.65 per entry;. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Lot One",
+  "rate": "3.00am-5.59pm: $2.65 for 1st 2-hrs; $0.45 for sub. 15 min; 6.00pm-11.59pm: $2.65 per entry; 12.00am-2.59am: Sub. 15min or part thereof at $0.45",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $2.65 per entry;. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Lucky Plaza",
+  "rate": "7.00am-4.59pm: $2.20 for 1st hr; $1.74 sub. 30min",
+  "notes": "Weekday evening: Aft 5.00pm: $3.94/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Lucky Plaza",
+  "rate": "Sunday 7.00am-9.59pm: $2.20 for 1st hr; $1.74 sub. 30min; 10.00pm-6.59am: $3.94/entry. PH: $4.44/entry (Does not apply if PH falls on Sunday)",
+  "notes": "Weekday evening: Aft 5.00pm: $3.94/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "M Hotel",
+  "rate": "7.00am-6.00pm: $2.80 per 30min",
+  "notes": "Weekday evening: 6.00pm-7.00am next day: $5.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "M Hotel",
+  "rate": "7.00am-1.00pm: $2.80 per 30min; after 1.00pm-7.00am next day: $5.80 per entry",
+  "notes": "Weekday evening: 6.00pm-7.00am next day: $5.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "M Hotel",
+  "rate": "7.00am-7.00am next day: $5.80 per entry",
+  "notes": "Weekday evening: 6.00pm-7.00am next day: $5.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Mandarin Gallery",
+  "rate": "6.00am-6.00pm: $3.80 for 1st hr; $2.50 for sub. 30min",
+  "notes": "Weekday evening: $7.00/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Mandarin Oriental Hotel",
+  "rate": "Mon-Thu: 7.00am-5.00pm: $3.27 for 1st 2hrs; $1.64 per ½ hr for sub. ½ hr (Car Park at Marina Square)",
+  "notes": "Weekday evening: Mon-Thu: 5.00pm-11.00pm: $2.25 per entry; 11.00pm-7.00am: $1.12 per ½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Mandarin Oriental Hotel",
+  "rate": "Fri/Sat-Sun/PH: 7.00am-2.00am :$2.44 for 1st 2 hrs; $1.22 per hr for sub. 2hrs; $1.43 per ½ hr for sub. ½ hr after 4 hrs of parking. 2.00am-7.00am: $1.12 per ½ hr",
+  "notes": "Weekday evening: Mon-Thu: 5.00pm-11.00pm: $2.25 per entry; 11.00pm-7.00am: $1.12 per ½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Manulife Tower",
+  "rate": "6.00am-6.00pm: $2.60 per 30min",
+  "notes": "Weekday evening: 6.00pm-6.00am next day: $3.20 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Manulife Tower",
+  "rate": "6.00am-8.00pm: $3.20 per entry car park closed at 8.00pm",
+  "notes": "Weekday evening: 6.00pm-6.00am next day: $3.20 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Mapex Building",
+  "rate": "7.00am-7.00pm: $1.53 per hr",
+  "notes": "Weekday evening: 7.00pm-7.00am: $4.58 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Marina Barrage",
+  "rate": "5.00am-6.00pm: $0.025 per min for the 1st 5hr, $0.05 per min for next sub. hr",
+  "notes": "Weekday evening: 6.01pm-12.00am: $0.02 per min; 12.01am-4.59am: $0.05 per min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Marina Bay Financial Centre Tower 1",
+  "rate": "6.00am-6.00pm: $1.20 per 10 min block or part thereof",
+  "notes": "Weekday evening: 6.00pm-6.00am the next day: $3.27 for 1st 4hrs; $0.31 for sub. 10 min block or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Marina Bay Financial Centre Tower 1",
+  "rate": "6.00am-6.00am the next day: $3.27 for 1st 4hrs; $0.31 for sub. 10 min block or part thereof",
+  "notes": "Weekday evening: 6.00pm-6.00am the next day: $3.27 for 1st 4hrs; $0.31 for sub. 10 min block or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Marina Bay Link Mall",
+  "rate": "6.00am-6.00pm: $1.18 per 10 min block or part thereof",
+  "notes": "Weekday evening: 6.00pm-6.00am the next day: $3.21 for 1st 4hrs; $0.30 for sub. 10 min block or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Marina Bay Link Mall",
+  "rate": "6.00pm-6.00am the next day: $3.21 for 1st 4hrs; $0.30 for sub. 10 min block or part thereof",
+  "notes": "Weekday evening: 6.00pm-6.00am the next day: $3.21 for 1st 4hrs; $0.30 for sub. 10 min block or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Marina Bay Sands",
+  "rate": "$14 for 1st hr, $1.50 for every sub ½ hr. Max charge: $32 per 24 hours",
+  "notes": "Weekday evening: $14 for 1st hr, $1.50 for every sub ½ hr. Max charge: $32 per 24 hours. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Marina One",
+  "rate": "6.00am-5.59pm: $3.00 per 30 min",
+  "notes": "Weekday evening: 6.00pm-5.590am (next day): $3.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Marina One",
+  "rate": "6.00pm-5.590am (next day): $3.50 per entry.",
+  "notes": "Weekday evening: 6.00pm-5.590am (next day): $3.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Marina South Pier",
+  "rate": "$2.40 for 1st 2 hrs, $3.60 per add'l hr (7:00 AM-10:30 PM); $3.60 per entry (10:30 PM-7:00 AM)",
+  "notes": "AI-retrieved — verify. 10 mins grace period."
+ },
+ {
+  "name": "Marina Square",
+  "rate": "Mon-Thu: 7.00am-5.00pm: $3.27 for 1st 2hrs; $1.64 per ½ hr for sub. ½ hr",
+  "notes": "Weekday evening: Mon-Thu: 5.00pm-11.00pm: $2.25 per entry; 11.00pm-7.00am: $1.12 per ½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Marina Square",
+  "rate": "Fri/Sat-Sun/PH: 7.00am-2am :$2.44 for 1st 2 hrs; $1.22 per hr for sub. 2hrs; $1.43 per ½ hr for sub. ½ hr after 4 hrs of parking. 2am-7.00am: $1.12 per ½ hr",
+  "notes": "Weekday evening: Mon-Thu: 5.00pm-11.00pm: $2.25 per entry; 11.00pm-7.00am: $1.12 per ½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Mediapolis",
+  "rate": "Mon-Thurs: $0.60 per 30min",
+  "notes": "Weekday evening: Mon-Thurs: $0.60 per 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Mediapolis",
+  "rate": "Fri/Sat/Sun/PH: 10.00pm-6.00pm: $0.60 per 30min; 6.00pm-10.00pm: $4.00 per entry",
+  "notes": "Weekday evening: Mon-Thurs: $0.60 per 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Millenia Walk (Surface parking @ L1)",
+  "rate": "7.00am-5.59pm: $7.40 for 1st ½ hr; $2.80 every sub. ½ hr.",
+  "notes": "Weekday evening: 6.00pm-6.59am: $7.40 for 1st 2hrs; $2.80 every sub. ½ hr.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Millenia Walk (Surface parking @ L1)",
+  "rate": "7.00am-7.00am (next day): $7.40 for 1st 2hrs; $2.80 every sub. ½ hr",
+  "notes": "Weekday evening: 6.00pm-6.59am: $7.40 for 1st 2hrs; $2.80 every sub. ½ hr.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Mount Elizabeth Hospital",
+  "rate": "6.30am-6.30pm: $3.20 per ½ hr.",
+  "notes": "Weekday evening: 6.30pm-6.30am (next morning): $6.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Mustafa Centre",
+  "rate": "7.00am-1.30am the followng day: $1.00 per 30min",
+  "notes": "Weekday evening: 7.00am-1.30am the followng day: $1.00 per 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "NAFA",
+  "rate": "7.00am-4.59pm: $0.046 per min.",
+  "notes": "Weekday evening: 5.00pm-9.59pm: $0.044 per min. 10pm-6.59am: $2.62 per entry​.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "National Gallery",
+  "rate": "7.00am-6.00pm: $1.40 per 30min.",
+  "notes": "Weekday evening: 6.00pm-1.00am: $3.30 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "National Museum of Singapore",
+  "rate": "Car park is currently closed - Alternate parking facilities are available at Singapore Management University, the Lazada One building, Fort Canning Park and YMCA.",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Neil Road Off-Street",
+  "rate": "7.00am-5.00pm: $1.20 per 30 min",
+  "notes": "Weekday evening: 5.00pm-7.00am the next day: $0.60 per 30 min. Charges capped at $5.60 for parking from 10.30pm-7.00am the next day. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Neil Road Off-Street",
+  "rate": "7.00am-7.00am the next day: $0.60 per 30 min. Charges capped at $5.60 for parking from 10.30pm-7.00am the next day",
+  "notes": "Weekday evening: 5.00pm-7.00am the next day: $0.60 per 30 min. Charges capped at $5.60 for parking from 10.30pm-7.00am the next day. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Nex Mall",
+  "rate": "$1.50 for 1st hr or part thereof; $0.75 for sub. ½ hr or part thereof.",
+  "notes": "Weekday evening: $1.50 for 1st hr or part thereof; $0.75 for sub. ½ hr or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Nex Mall",
+  "rate": "$1.60 for 1st hr or part thereof;; $0.80 for sub. ½ hr or part thereof.",
+  "notes": "Weekday evening: $1.50 for 1st hr or part thereof; $0.75 for sub. ½ hr or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Ngee Ann City",
+  "rate": "12.01am-12.00pm & 2.01pm-5.00pm: $1.20 every 30min or part thereof; 12.01pm-2.00pm: $1.70 every 30min or part thereof",
+  "notes": "Weekday evening: 5.01pm-7.00pm: $1.70 every 30min or part thereof; Aft 7.00pm: $4.00/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Ngee Ann City",
+  "rate": "12.01am-12.00pm & 2.01pm-5.00pm: $2.40 for 1st hr; $1.50 every sub. 30min or part thereof; 12.01pm-2.00pm & 5.01pm-7.00pm: $3.40 for 1st hr; $2 every sub. 30min or part thereof; Aft 7pm: $4 per entry.",
+  "notes": "Weekday evening: 5.01pm-7.00pm: $1.70 every 30min or part thereof; Aft 7.00pm: $4.00/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "North Bridge Centre",
+  "rate": "8.00am-4.59pm: $3.34 per hr",
+  "notes": "Weekday evening: 5.00pm-7.59am the following day: $4.45 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "North Bridge Centre",
+  "rate": "8.00am-7.59am the following day: $4.45 per entry",
+  "notes": "Weekday evening: 5.00pm-7.59am the following day: $4.45 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Northpoint City",
+  "rate": "6.00am-5.59am: $1.40 for 1st hr; $0.80 for sub. 30min.",
+  "notes": "Weekday evening: 6.00am-5.59am: $1.50 for 1st hr; $0.80 for sub. 30min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Northpoint City",
+  "rate": "6am-5.59am: $1.50 for 1st hr; $0.80 for sub. 30min.",
+  "notes": "Weekday evening: 6.00am-5.59am: $1.50 for 1st hr; $0.80 for sub. 30min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Novotel Clarke Quay",
+  "rate": "7.00am-5.00pm: $1.07 per hr",
+  "notes": "Weekday evening: 5.00pm-7.00am: $3.21 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Novotel Clarke Quay",
+  "rate": "7.00am-1pm: $1.07 per hr; 1pm-7.00am next day: $3.21 per entry",
+  "notes": "Weekday evening: 5.00pm-7.00am: $3.21 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Novotel Clarke Quay",
+  "rate": "$3.21 per entry",
+  "notes": "Weekday evening: 5.00pm-7.00am: $3.21 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "NTU@one-north",
+  "rate": "$1.20 per half hour",
+  "notes": "basement, EPS gantry"
+ },
+ {
+  "name": "NTU@one-north",
+  "rate": "Free",
+  "notes": "basement, EPS gantry"
+ },
+ {
+  "name": "NTUC Income Centre",
+  "rate": "6.30am-5.00pm: $1.10 per every 30min",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.00 per entry. After 11.00pm - closed. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "NTUC Income Centre",
+  "rate": "12.00am-12.00am the following day: $3.00 per 4 hr block.",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.00 per entry. After 11.00pm - closed. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "NTUC Income Tampines Junction",
+  "rate": "6.00am-6.00pm: $1.00 per 30min",
+  "notes": "Weekday evening: 6.00pm-6.00am next day: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "NTUC Income Tampines Junction",
+  "rate": "6.00am-6.00am next day: $3.00 per entry",
+  "notes": "Weekday evening: 6.00pm-6.00am next day: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "NTUC Prinsep House",
+  "rate": "7.00am-7.00pm: $1.25 per 30min",
+  "notes": "Weekday evening: 7.01pm-6.59am: $3.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "NTUC Prinsep House",
+  "rate": "7.00am-5.00pm: $1.25 per 30min; 5.01pm-6.59am: $3.50 per entry",
+  "notes": "Weekday evening: 7.01pm-6.59am: $3.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "NTUC Prinsep House",
+  "rate": "7.00am-6.59am: $3.50 per entry",
+  "notes": "Weekday evening: 7.01pm-6.59am: $3.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "NUH",
+  "rate": "Daily: $0.0375 per min",
+  "notes": "Weekday evening: Daily: $0.0375 per min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Oasia Hotel Novena",
+  "rate": "6.00am-6.00pm: $2.50 for 1st hr, $1.20 for sub 30min or part thereof.",
+  "notes": "Weekday evening: 6.00pm-6.00am the following day: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Oasia Hotel Novena",
+  "rate": "6am to 6am the following day :$3.00/entry",
+  "notes": "Weekday evening: 6.00pm-6.00am the following day: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "OCBC Centre",
+  "rate": "6.00pm-12.00am: $3.30 per entry; 12.00am-6.00am: $3.30 per hr.",
+  "notes": "Weekday evening: 6.00pm-12.00am: $3.30 per entry; 12.00am-6.00am the followng day: $3.30 per hr.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Odeon 331/333",
+  "rate": "7.00am-6.00pm: $2.50 for 1st hr; $1.25 for every sub ½ hr",
+  "notes": "Weekday evening: 6.00pm-7.00am: $5 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One Fullerton",
+  "rate": "7.01am-12.00am: $6.90 per entry; 12.01am-7.00am-$8 per entry",
+  "notes": "Weekday evening: 6.01pm-8.00pm: $6.90 per entry. 8.01pm-12.00am: $1.30 per 10min. 12.01am-7.00am: $8 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One George Street",
+  "rate": "7.00am-1.00pm: $2.50 per 30min; 1.00pm-7.00am the following day: $3.60 per entry.",
+  "notes": "Weekday evening: 6.00pm-7.00am: $3.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One George Street",
+  "rate": "7.00am-7.00am the following day: $3.60 per entry.",
+  "notes": "Weekday evening: 6.00pm-7.00am: $3.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One Holland Village",
+  "rate": "7.00am-6.00pm: $2.18 for the first 1 hour; $0.55 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-7.00am: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One Holland Village",
+  "rate": "6.00pm-7.00am: $3.43 per entry; 7.00am-6.00pm: $2.29 for the first 1 hour; $0.57 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-7.00am: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One Raffles Place",
+  "rate": "7.00am-5.00pm : $3.27 per ½ hr",
+  "notes": "Weekday evening: 5.00pm-6.59am next day: $3.82 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One Raffles Place",
+  "rate": "7.00am-6.59am next day: $3.82 per entry",
+  "notes": "Weekday evening: 5.00pm-6.59am next day: $3.82 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One Raffles Quay",
+  "rate": "6.00am-6.00pm: $1.18 per 10min",
+  "notes": "Weekday evening: 6.00pm-6.00am next day: $3.21 for 1st 4hrs; $0.30 for sub.10min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One Raffles Quay",
+  "rate": "6.00pm-6.00am next day: $3.21 for 1st 4hrs; $0.30 for sub.10min",
+  "notes": "Weekday evening: 6.00pm-6.00am next day: $3.21 for 1st 4hrs; $0.30 for sub.10min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One Shenton",
+  "rate": "7.00am-6.59pm: $5.00 for 1st hr; $0.10 for next sub. min.",
+  "notes": "Weekday evening: 7.00pm-6.59am the following day: $3.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One Shenton",
+  "rate": "7.00am-6.59am the following day: $3.50 per entry.",
+  "notes": "Weekday evening: 7.00pm-6.59am the following day: $3.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "One-North Residences (visitor)",
+  "rate": "$1.07 per half hour",
+  "notes": "visitor lots, first 15 min free not modelled"
+ },
+ {
+  "name": "Orchard Building",
+  "rate": "6.30am-10.00pm: $2.80 per 1st hr; $1.40 for sub. 30min",
+  "notes": "Weekday evening: 10.00pm to 6.00am the following day: $3.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Orchard Building",
+  "rate": "6.30am-10.00pm: $2.40 per 1st hr; $1.20 for sub. 30min; 10.00pm to 6.00am the following day: $3.60 per entry",
+  "notes": "Weekday evening: 10.00pm to 6.00am the following day: $3.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Orchard Central",
+  "rate": "12.00am-5.59pm: $2.73 for 1st hr; $0.68 for sub. 15 minutes",
+  "notes": "Weekday evening: 6pm-11.59pm: $4.09/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Orchard Central",
+  "rate": "12.00am-5.59pm: $2.94 for 1st hr; $0.74 for sub. 15 minutes; 6pm-11.59pm: $4.41/entry",
+  "notes": "Weekday evening: 6pm-11.59pm: $4.09/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Orchard Grand Court",
+  "rate": "7.00am-5.59pm:$3.00 for 1st hr; $1.50 for next sub. 30min",
+  "notes": "Weekday evening: 6.00pm-6.59am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Orchard Grand Court",
+  "rate": "7.00am-7.00am the following day: $4.00 per entry",
+  "notes": "Weekday evening: 6.00pm-6.59am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Orchard Hotel Singapore",
+  "rate": "7.00am-6.00pm: $3.50 for 1st hr; $1.50 for sub. 30min",
+  "notes": "Weekday evening: After 6.00pm: $5.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Orchard Plaza",
+  "rate": "Daily: $1.67 per 30min",
+  "notes": "Weekday evening: Daily: $1.67 per 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Orchard Rendezvous Hotel (Formerly known as Orchard Parade H",
+  "rate": "7.00am-6.00pm: $5.00 for 1st hr; $1.50 for sub. 30min",
+  "notes": "Weekday evening: 6.00pm to 7.00am the following day: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Orchard Towers",
+  "rate": "$4.00 for 1st hr; $2.00 for sub. 30min (Max Cap $16.00)",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "orchardgateway",
+  "rate": "12.00am-5.59pm: $2.40 for 1st 1hr or part thereof; $1.53 for sub. 30min or part thereof",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $2.51 for 1st 1hr or part thereof; $1.64 for sub. 30min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "orchardgateway",
+  "rate": "$2.51 for 1st 1hr or part thereof; $1.64 for sub. 30min or part thereof",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $2.51 for 1st 1hr or part thereof; $1.64 for sub. 30min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "OUE Bayfront",
+  "rate": "7.00am-5.59pm: $1.09 per 10min block or part thereof (S$6.54 per hour).",
+  "notes": "Weekday evening: 6.00pm-6.59am next day: $3.84 per entry. 6.00pm to 11.59pm (if next day is PH) - S$3.84 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "OUE Bayfront",
+  "rate": "7.00am-2.59pm: $1.09/10min block. 3.00pm-11.59am next day: $3.84 per entry.",
+  "notes": "Weekday evening: 6.00pm-6.59am next day: $3.84 per entry. 6.00pm to 11.59pm (if next day is PH) - S$3.84 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "OUE Bayfront",
+  "rate": "$3.84 per entry",
+  "notes": "Weekday evening: 6.00pm-6.59am next day: $3.84 per entry. 6.00pm to 11.59pm (if next day is PH) - S$3.84 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "OUE Downtown 1",
+  "rate": "7.00am-4.59pm: $2.70 per 30 min",
+  "notes": "Weekday evening: 5.00pm-6.59am the following day: $2.70 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "OUE Downtown 1",
+  "rate": "7.00am-6.59am the following day: $2.70 per entry",
+  "notes": "Weekday evening: 5.00pm-6.59am the following day: $2.70 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Pacific Plaza",
+  "rate": "12.00am-5.59pm: $3.05 for 1st hr; $0.76 for sub. 15 minutes",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $4.58/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Pacific Plaza",
+  "rate": "12.00am-5.59pm: $3.05 for 1st hr; $0.76 for sub. 15 minutes; 6.00pm-11.59pm: $4.58/entry",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $4.58/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Palais Renaissance",
+  "rate": "7.00am-5.00pm: $3.85 for 1st hr or part thereof; $1.95 for sub. 30min or part thereof",
+  "notes": "Weekday evening: 5.00pm-1am: $4.60/entry; 1.00am - 7.00am: $1.80/hr or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Palais Renaissance",
+  "rate": "7am-1am: $4.60/4hr; 1am-7am: $1.80/hr or part thereof",
+  "notes": "Weekday evening: 5.00pm-1am: $4.60/entry; 1.00am - 7.00am: $1.80/hr or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Pan Pacific Orchard",
+  "rate": "$6.00 for 1st hr; $3.00 for sub. 30min",
+  "notes": "Weekday evening: $6.00 for 1st hr; $3.00 for sub. 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Pan Pacific Serviced Suites Orchard",
+  "rate": "8.00am-8.00am: $4.28 per hr; $2.14 per sub. 30min",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Paragon Shopping Centre",
+  "rate": "3.00am-4.59pm: $3.00 for 1st hr; $1.60 for sub. 30min; Peak Hr Surcharge of $2.10 from 11am-3pm.",
+  "notes": "Weekday evening: 5.00pm-2.59am: $4.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Paragon Shopping Centre",
+  "rate": "3am-4.59pm: $3.00 for 1st hr; $1.60 for sub. 30min. 5.00pm-2.59am: $4.60 per entry",
+  "notes": "Weekday evening: 5.00pm-2.59am: $4.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Parklane Shopping Mall",
+  "rate": "7.00am-7.00pm: $3.30 for 1st hr; $1.80 for sub. 30min.",
+  "notes": "Weekday evening: 7.00pm-7.00am the followng day: $3.30 for 1st hr; $1.80 for sub. 30min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Parklane Shopping Mall",
+  "rate": "Carpark Closed",
+  "notes": "Weekday evening: 7.00pm-7.00am the followng day: $3.30 for 1st hr; $1.80 for sub. 30min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Parkroyal On Beach Road",
+  "rate": "7.00am-4.59pm: Multi Storey Carpark - $2.50 for 1st hr; $1.50 for sub. 30min. Hotel Driveway - $6.00 for 1st hr; $2.00 for sub. 30min.",
+  "notes": "Weekday evening: 5.00pm-6.59am the followng day: Multi Storey Carpark - $2.50 per entry. Hotel Driveway - $6.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Parkroyal On Beach Road",
+  "rate": "7am-12.59pm: Multi-Storey Carpark-$2.50 for 1st hr; $1.50 for sub. 30min. Hotel Driveway-$6 for 1st hr; $2 for sub. 30min. 1pm-7am: Multi-Storey Carpark-$2.50 per entry; Hotel Driveway-$6 per entry.",
+  "notes": "Weekday evening: 5.00pm-6.59am the followng day: Multi Storey Carpark - $2.50 per entry. Hotel Driveway - $6.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Parkroyal On Beach Road",
+  "rate": "Multi-Storey Carpark - $2.50 per entry. Hotel Driveway - $6.00 per entry.",
+  "notes": "Weekday evening: 5.00pm-6.59am the followng day: Multi Storey Carpark - $2.50 per entry. Hotel Driveway - $6.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "PARKROYAL On Kitchener Road",
+  "rate": "6.00am-5.59pm: $2.00 for 1st hr; $0.80 for sub 30min and part thereof.",
+  "notes": "Weekday evening: 6.00pm-5.59am: $3.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "PARKROYAL On Kitchener Road",
+  "rate": "6.00am-5.59pm (next day): $3.50 per entry",
+  "notes": "Weekday evening: 6.00pm-5.59am: $3.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "PARKROYAL On Pickering",
+  "rate": "8.00am-5.00pm: $5.00 for 1st hr; $2.50 for sub. 30min.",
+  "notes": "Weekday evening: 5.00pm-8.00am the following day: $5.00 for 1st hr; $2.50 for sub. 30min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Parkway Parade",
+  "rate": "2.00am-5.59pm: $1.75 first hour; $0.44 for sub. 15min (or part thereof)",
+  "notes": "Weekday evening: 6.00pm-1.59am: $3.49/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Parliament House",
+  "rate": "8.00am-6.00pm: $1.42 per 30 min",
+  "notes": "Weekday evening: 6.01pm-7.59am the following day: $3.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Parliament House",
+  "rate": "8.00am-7.59am the following day:: $3.60 per entry",
+  "notes": "Weekday evening: 6.01pm-7.59am the following day: $3.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Paya Lebar Green",
+  "rate": "6.00am-6.00pm: $2.30 per hr.",
+  "notes": "Weekday evening: 6.00pm-6.00am next day: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Paya Lebar Green",
+  "rate": "6.00am-1.00pm: $2.30 per hr. 1.00pm-6.00am next day: $3.00 per entry",
+  "notes": "Weekday evening: 6.00pm-6.00am next day: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "PENANG RD OFF ST",
+  "rate": "$0.70 per 30 mins",
+  "notes": "URA official rates (07.00 AM-05.00 PM), 19 lots."
+ },
+ {
+  "name": "Penang Road Off-Street",
+  "rate": "7.00am-5.00pm $1.20 per 30min (Per min Charging)",
+  "notes": "Weekday evening: 5.00pm-7.00am $0.70 per 30min (Per min Charging); Parking charges capped at $5.60 from 10.30pm-7.00am the following day. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Penang Road Off-Street",
+  "rate": "7.00am-7.00am: $0.70 per 30min (Per min Charging; Parking charges capped at $5.60 from 10.30pm to 7.00am the following day",
+  "notes": "Weekday evening: 5.00pm-7.00am $0.70 per 30min (Per min Charging); Parking charges capped at $5.60 from 10.30pm-7.00am the following day. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Peninsula Excelsior Hotel",
+  "rate": "6.00am-5.59pm: $3.50 for 1st hr; $2.00 for sub 30min",
+  "notes": "Weekday evening: 6.00pm-5.59am next day: $6.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Peninsula Excelsior Hotel",
+  "rate": "6.00am-5.59pm: $4.00 for 1st hr; $2.50 for sub 30min. 6.00pm-5.59am next day: $6.00 per entry",
+  "notes": "Weekday evening: 6.00pm-5.59am next day: $6.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "People's Park Centre",
+  "rate": "7.00am-7.00pm: $3.80 per hr",
+  "notes": "Weekday evening: 7.00pm-7.00am next day: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "People's Park Complex",
+  "rate": "12am-6pm: $3.38 for 1st hr; $0.84 for sub. 30min.",
+  "notes": "Weekday evening: 6.00pm-12am: $5.07 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Perennial Business City (formerly known as Big Box)",
+  "rate": "12.01am-5.00pm: $1.63 1st hr; $0.82 sub. 30min",
+  "notes": "Weekday evening: 5.01pm-12.00am: $2.73 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Plaza Singapura",
+  "rate": "12.00am-5.59pm: $1.95 for 1st hr; $0.55 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm–11.59pm: $3.25 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Plaza Singapura",
+  "rate": "12.00am-2.59am: $0.55/15 min; 3am-5.59pm: $3.25 for 1st 2hr; $0.55 for every sub. 15min. 6.00pm–11.59pm: $3.25 per entry",
+  "notes": "Weekday evening: 6.00pm–11.59pm: $3.25 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Prosper Industrial Building",
+  "rate": "8.00am-8.00am (next day): $0.87 per 30 min",
+  "notes": "Weekday evening: 8.00am-8.00am (next day): $0.87 per 30 min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Pullman Singapore Orchard",
+  "rate": "6.00am-5.59pm: $2.50 for 1st hr; $1.60 per 30min.",
+  "notes": "Weekday evening: Effective from 1 Jan 2026: 6.00pm-10.59pm:$2.90 for 1st hr; $1.90 per 30min; 11.00pm-5.59am: $5.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Pullman Singapore Orchard",
+  "rate": "Effective from 1 Jan 2026: 6.00am-10.59pm:$2.90 for 1st hr; $1.90 per 30min; 11.00pm-5.59am: $5.00 per entry.",
+  "notes": "Weekday evening: Effective from 1 Jan 2026: 6.00pm-10.59pm:$2.90 for 1st hr; $1.90 per 30min; 11.00pm-5.59am: $5.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Queensway Shopping Centre",
+  "rate": "8.00am-5.59pm: $1.92 for 1st hr; $1.71 for sub. 30min",
+  "notes": "Weekday evening: After 6.00pm: $3.53 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Raffles City Shopping Centre",
+  "rate": "8.00am-5.59pm: $2.60 for 1st hr; $0.65 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-7.59am next day: $3.25 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Raffles City Shopping Centre",
+  "rate": "8.00am-7.59am (the next day): $2.60 for 1st 2 hr; $0.65 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-7.59am next day: $3.25 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Raffles Holland V Mall",
+  "rate": "9.00am-6.00pm: $$2.40 per 30min.",
+  "notes": "Weekday evening: Sun to Wed - 6.00pm-9.00am: $2.90 per entry. Thurs to Sat and Public Holiday - $4.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Raffles Holland V Mall",
+  "rate": "9.00am-6.00pm: $$2.40 per 30min. Sun to Wed - 6.00pm-9.00am: $2.90 per entry. Thurs to Sat and Public Holiday - $4.50 per entry.",
+  "notes": "Weekday evening: Sun to Wed - 6.00pm-9.00am: $2.90 per entry. Thurs to Sat and Public Holiday - $4.50 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Raffles Hotel Singapore",
+  "rate": "$5.00 for 1st hr, $2.00 per sub 30 mins (6.00am-10.59pm); $4.00 per entry (11.00pm-5.59am)",
+  "notes": "AI-retrieved — verify. Grace period is 30 minutes. Vehicle height limit is 2.2 metres."
+ },
+ {
+  "name": "Ramada by Wyndham Singapore",
+  "rate": "6.00am-6.00pm: $2.20 for 1st hr; $1.10 for sub. 30min (Zhongshan Mall)",
+  "notes": "Weekday evening: After 6.00pm: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Reflections at Bukit Chandu",
+  "rate": "Free parking is available at the nearest public carpark at Carpark ‘C’ of Kent Ridge Park",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Regent Hotel",
+  "rate": "Basement Parking: 7.00am-6.00pm: $5.00 for 1st hr; $2.50 for sub. 30min Cuscaden Parking: 7.00am-6.00pm: $7.00 for 1st hr; $3.50 for sub. 30min",
+  "notes": "Weekday evening: Basement Parking: 6.00pm to 6.59am: $6.00 per entry Cuscaden Parking: 6.00pm to 6.59am:$7.00 for 1st hr; $3.50 for sub. 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "RELC International Hotel",
+  "rate": "7.00am-4.59pm: $4.08 for 1st hr; $3.06 sub. hr.",
+  "notes": "Weekday evening: 5.00pm-6.59am: $4.59 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "RELC International Hotel",
+  "rate": "7.00am-6.59am next day: $4.59 per entry",
+  "notes": "Weekday evening: 5.00pm-6.59am: $4.59 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Rendezvous Hotel",
+  "rate": "7.00am-7.00am the following day: $3.70 for 1st hr; $1.90 for sub.30min",
+  "notes": "Weekday evening: 7.00am-7.00am the following day: $3.70 for 1st hr; $1.90 for sub.30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "REPUBLIC OF SINGAPORE AIR FORCE MUSEUM",
+  "rate": "free",
+  "notes": ""
+ },
+ {
+  "name": "Republic Plaza",
+  "rate": "7.00am-5.00pm: $3.33 per ½ hr or part thereof.",
+  "notes": "Weekday evening: Aft 5.00pm: $3.63 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Republic Plaza",
+  "rate": "7.00am-7.00am next day: $3.63 per entry",
+  "notes": "Weekday evening: Aft 5.00pm: $3.63 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Republic Plaza",
+  "rate": "Same s Saturday",
+  "notes": "Weekday evening: Aft 5.00pm: $3.63 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Resorts World Sentosa (RWS)",
+  "rate": "Monday to Thursday (excluding PH): 7.00am-7.00am: $6.50 for 1st hr; $1.10 for ½ hr or part thereof. Capped at $13.10 per day.",
+  "notes": "Weekday evening: Monday to Thursday (excluding PH): 7.00am-7.00am: $6.50 for 1st hr; $1.10 for ½ hr or part thereof. Capped at $13.10 per day.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Resorts World Sentosa (RWS)",
+  "rate": "Friday to Sunday and Public Holiday 7.00am-7.00am: $9.70 for 1st hr; $1.10 for ½ hr or part thereof. Capped at $16.30 per day.",
+  "notes": "Weekday evening: Monday to Thursday (excluding PH): 7.00am-7.00am: $6.50 for 1st hr; $1.10 for ½ hr or part thereof. Capped at $13.10 per day.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Riverside Point",
+  "rate": "6.00am-5.59pm: $2.51 for 1st hr; $0.63 for sub. 15min.",
+  "notes": "Weekday evening: 6.00pm-12.00am: $3.82 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Rivervale Mall",
+  "rate": "12.00am-11.59pm: $1.28 for 1st hr, $0.64 for sub. 30 min or part thereof.",
+  "notes": "Weekday evening: 12.00am-11.59pm: $1.28 for 1st hr, $0.64 for sub. 30 min or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Robertson Walk",
+  "rate": "6.00am-6.00pm: $1.65 for 1st hr; $0.65 for sub. 30min.",
+  "notes": "Weekday evening: 6.00pm-6.00am next day: $4.35 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Robinson 77",
+  "rate": "7.00am-5.00pm: $2.50 per 30min",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Robinson 77",
+  "rate": "7.00am-2.00pm: $2.50 per 30min; 2.00pm-11.00pm: $3.00 per entry",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Robinson 77",
+  "rate": "7.00am-7.00am next day: $3.00 per entry",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Rochester Mall",
+  "rate": "Daily: $1.70 for 1st hr; $0.85 sub. 30min",
+  "notes": "Weekday evening: Daily: $1.70 for 1st hr; $0.85 sub. 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Roxy Square",
+  "rate": "7.00am-6.00pm: $0.67 for 1st 30min",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.80 per entry. 12.00am-7.00am the following day: $0.79 for sub. 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Royal Plaza On Scotts",
+  "rate": "8.00am-6.00pm: $4.80 for 1st hr; $1.80 for sub. 30min",
+  "notes": "Weekday evening: Aft 6.00pm: $5.80/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Royal Plaza On Scotts",
+  "rate": "$5.80/entry",
+  "notes": "Weekday evening: Aft 6.00pm: $5.80/entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "School of the Arts, Singapore (SOTA)",
+  "rate": "6.00am-5.59pm: $0.04 per min.",
+  "notes": "Weekday evening: 6.00pm-2.00am next day: $5.00 per entry. 2.01am-5.59am: $5 additional fee for overnight parking. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Scotts Square",
+  "rate": "8.00am-5.29pm : $3.27 for 1st hr; $1.64 for sub. ½ hr or part thereof.",
+  "notes": "Weekday evening: 5.30pm-7.59am: $4.91 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sembawang Shopping Centre",
+  "rate": "12.00am-11.59pm: $1.53 for 1st hr; $0.87 for sub. 30 min",
+  "notes": "Weekday evening: 12.00am-11.59pm: $1.53 for 1st hr; $0.87 for sub. 30 min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sembawang Shopping Centre",
+  "rate": "12.00am-11.59pm: $1.64 for 1st hr; $0.87 for sub. 30 min.",
+  "notes": "Weekday evening: 12.00am-11.59pm: $1.53 for 1st hr; $0.87 for sub. 30 min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sentosa (Beach and Imbiah car park)",
+  "rate": "7.00am - 5.00pm: $2.20 per hr based on per-15 minute charging or part thereof. *Fees will be capped at $10.00 per day",
+  "notes": "Weekday evening: 5.01pm - 6.59am $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Serene Centre",
+  "rate": "Daily: $2.51 for 1st hr, $2.18 for next sub. 30min or part thereof",
+  "notes": "Weekday evening: Daily: $2.51 for 1st hr, $2.18 for next sub. 30min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "SGX Centre",
+  "rate": "7.00am-6.00pm: $3.05 per 30 min",
+  "notes": "Weekday evening: 6.00pm-10.00pm: $3.76 per entry (Car Park closes at 10.00pm daily). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "SGX Centre",
+  "rate": "7.00am-10.00pm: $3.76 per entry",
+  "notes": "Weekday evening: 6.00pm-10.00pm: $3.76 per entry (Car Park closes at 10.00pm daily). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Shangri-la Hotel",
+  "rate": "7.00am-6.00pm: $6.00 for 1st hr; $2.00 for sub. 30min",
+  "notes": "Weekday evening: 6.00pm-7.00am next day: $8.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Shaw Centre",
+  "rate": "3.01am-6.00pm: $2.00 for 1st hr; $1.50 for sub. 30min",
+  "notes": "Weekday evening: 6.01pm-3.01am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Shaw Plaza",
+  "rate": "6.00am-5.59pm: $1.80 per hr",
+  "notes": "Weekday evening: 6.00pm-5.59am the following day: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Shenton House",
+  "rate": "8.00am-5.00pm: $3.21 per 30min",
+  "notes": "Weekday evening: 5.00pm-8.00am: $3.21 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Shenton House",
+  "rate": "8.00am-2.00pm: $3.21 per 30min; 2.00pm-8.00am the following day: $3.00 per entry.",
+  "notes": "Weekday evening: 5.00pm-8.00am: $3.21 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Shenton House",
+  "rate": "8.00am-8.00am the following day: $3.21 per entry",
+  "notes": "Weekday evening: 5.00pm-8.00am: $3.21 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sheraton Towers Singapore",
+  "rate": "7.00am-6.00pm: $4.00 for 1st hr; $2.00 for next sub. 30min",
+  "notes": "Weekday evening: After 6.00pm: $6.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sheraton Towers Singapore",
+  "rate": "$6.00 per entry",
+  "notes": "Weekday evening: After 6.00pm: $6.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Siglap Centre",
+  "rate": "12.00am-6.00pm: $1.68 for the first 1 hour; $0.42 for sub. 15min",
+  "notes": "Weekday evening: Per Entry: $2.45 (6.00pm to midnight). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Siglap Centre",
+  "rate": "12.00am-6.00pm: $1.85 for the first 1 hour; $0.46 for sub. 15min; 6.00pm-12.00am: $2.78 Per Entry",
+  "notes": "Weekday evening: Per Entry: $2.45 (6.00pm to midnight). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sim Lim Square",
+  "rate": "8.00am-8.00am the following day: $1.80 per 30min for 1st hr; $0.06 per min.",
+  "notes": "Weekday evening: 8.00am-8.00am the following day: $1.80 per 30min for 1st hr; $0.06 per min.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sim Lim Tower",
+  "rate": "$1.90 per 30 min all day",
+  "notes": "Weekday evening: $1.90 per 30 min all day. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Art Museum",
+  "rate": "Parking is available at: 39 Tanjong Pagar Distripark. 7:00am-04:59pm: $2 per hour or part thereof",
+  "notes": "Weekday evening: 5:00pm-6:59pm: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Art Museum",
+  "rate": "7:00am-12:59pm: $2 per hour or part thereof; 1:00pm-6:59am: $2.50 per entry",
+  "notes": "Weekday evening: 5:00pm-6:59pm: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Art Museum",
+  "rate": "$2.50 per entry",
+  "notes": "Weekday evening: 5:00pm-6:59pm: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Botanic Gardens",
+  "rate": "7.00am-10.30pm: $0.02 per min",
+  "notes": "Weekday evening: 7.00pm-10.30pm: $2 maximum; No overnight parking is allowed. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Chinese Cultural Centre",
+  "rate": "7.00am-5.00pm: $2.45 per 30 min block",
+  "notes": "Weekday evening: Aft 5.00pm: $3.82 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Chinese Cultural Centre",
+  "rate": "$3.82 per entry",
+  "notes": "Weekday evening: Aft 5.00pm: $3.82 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore City Gallery (URA Centre)",
+  "rate": "6.00am-6.00pm: $1.40 per 30min; Public parking is also available at the Erskine Road Off-Street Carpark next to Maxwell Road Food Centre.",
+  "notes": "Weekday evening: 6.00pm-6.00am: $0.70 per 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore City Gallery (URA Centre)",
+  "rate": "6.00am-6.00am: $0.70 per 30min",
+  "notes": "Weekday evening: 6.00pm-6.00am: $0.70 per 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Expo",
+  "rate": "Daily: $1.80 for 1st hr, $1.80 for 2nd hr; $1.50 for sub. 30 min or part thereof",
+  "notes": "Weekday evening: Daily: $1.80 for 1st hr, $1.80 for 2nd hr; $1.50 for sub. 30 min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Flyer",
+  "rate": "9.00am-10.59pm: $2.50 per hour or part thereof",
+  "notes": "Weekday evening: 11pm - 8.59am: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore General Hospital (Carpark G)",
+  "rate": "7.00am-5.59pm: No Entry (Staff Parking Only)",
+  "notes": "Weekday evening: 5.30pm-9.59pm: $0.036 per min, $2.18 per hr. 10pm-6.59am: $2.16 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore General Hospital (Carpark G)",
+  "rate": "7.00am-9.59pm: $0.036 per min, $2.18 per hr. 10.00pm-6.59am: $2.16 per entry.",
+  "notes": "Weekday evening: 5.30pm-9.59pm: $0.036 per min, $2.18 per hr. 10pm-6.59am: $2.16 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore General Hospital (Carpark G)",
+  "rate": "7.00am-9.59pm: $0.018 per min, $1.09 per hr. 10.00pm-6.59am: $2.16 per entry.",
+  "notes": "Weekday evening: 5.30pm-9.59pm: $0.036 per min, $2.18 per hr. 10pm-6.59am: $2.16 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore General Hospital (Multi-Storey Carpark H)",
+  "rate": "7.00am-9.59pm: $0.019 per min, $1.14 per hr",
+  "notes": "Weekday evening: 10.00pm-6.59am: $2.16 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore General Hospital (Multi-Storey Carpark H)",
+  "rate": "7.00am-6.59am: $2.16 per entry",
+  "notes": "Weekday evening: 10.00pm-6.59am: $2.16 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore General Hospital (National Heart Centre Singapore)",
+  "rate": "7.00am-9.59pm: $0.037 per min, $2.22 per hr",
+  "notes": "Weekday evening: 10.00pm-6.59am: $2.16 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore General Hospital (National Heart Centre Singapore)",
+  "rate": "7.00am-9.59pm: $0.019 per min, $1.14 per hr; 10.00pm-6.59am: $2.16 per entry",
+  "notes": "Weekday evening: 10.00pm-6.59am: $2.16 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Land Tower",
+  "rate": "7.00am-6.00pm: $3.20 per 30min",
+  "notes": "Weekday evening: 6.01pm-6.59am the following day: $5.45 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Land Tower",
+  "rate": "7.00am-6.59am the following day: $5.45 per entry",
+  "notes": "Weekday evening: 6.01pm-6.59am the following day: $5.45 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Marriott Tang Plaza Hotel",
+  "rate": "6.00am-6.00pm: $3.00 for 1st hr; $0.05 per min",
+  "notes": "Weekday evening: 6.00pm-6.00am the following day: $3.00 for 1st hr; $0.05 per min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Mint Coin Gallery",
+  "rate": "Parking is available at many shopping malls and buildings within a few min’ walk away: 9 Penang Road, Plaza Singapura, The Cathay, Singapore Shopping Centre, and Haw Par Centre.",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Science Centre/ Singapore Discovery Centre/ Snow C",
+  "rate": "Daily: $0.72 per 30min",
+  "notes": "Weekday evening: Daily: $0.72 per 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Shopping Centre",
+  "rate": "8.00am-8.00pm: $2.80 for 1st hr; $1.40 for sub. 30min",
+  "notes": "Weekday evening: After 8.00pm: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Turf Club",
+  "rate": "9.00am-11.00pm: $3.00 per entry",
+  "notes": "Weekday evening: 9.00am-11.00pm: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Turf Club",
+  "rate": "9.00am-11.00pm: $6.00 per entry",
+  "notes": "Weekday evening: 9.00am-11.00pm: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Turf Club (STC)",
+  "rate": "9.00am-11.00pm: $3 per entry",
+  "notes": "Weekday evening: 9.00am-11.00pm: $3 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Turf Club (STC)",
+  "rate": "9.00am-11.00pm: $6 per entry",
+  "notes": "Weekday evening: 9.00am-11.00pm: $3 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore University of Technology and Design",
+  "rate": "Daily: $0.02 per min",
+  "notes": "Weekday evening: Daily: $0.02 per min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Singapore Zoo/Night Safari",
+  "rate": "7.00am-7.00pm : $3 for 1st hour; sub. $2/hour (capped at $10/entry)",
+  "notes": "Weekday evening: 7.00am-7.00pm : $3 for 1st hour; sub. $2/hour (capped at $10/entry). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "SingPost Centre",
+  "rate": "6.00am to 5.59pm: $1.90 for 1st hr, $1.00 for sub ½ hr or part thereof",
+  "notes": "Weekday evening: 6.00pm to 5.59am (the next day): $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "SingPost Centre",
+  "rate": "6.00am to 12.59pm: $1.90 for 1st hr; 1.00pm to 5.59am (the next day): $3.00 per entry",
+  "notes": "Weekday evening: 6.00pm to 5.59am (the next day): $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "SingPost Centre",
+  "rate": "$3.00 per entry",
+  "notes": "Weekday evening: 6.00pm to 5.59am (the next day): $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Six Battery Road",
+  "rate": "7.00am-5.59pm: $3.20 per 30min",
+  "notes": "Weekday evening: 6.00pm-6.59am the following day: $3.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Six Battery Road",
+  "rate": "7.00am-12.59pm: $3.20 per 30min; 1.00pm-7.00am the following day: $3.80 per entry",
+  "notes": "Weekday evening: 6.00pm-6.59am the following day: $3.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Six Battery Road",
+  "rate": "7.00am-7.00am the following day: $3.80 per entry",
+  "notes": "Weekday evening: 6.00pm-6.59am the following day: $3.80 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "SJ Campus",
+  "rate": "7.00am-8pm: $2.51 for 1st hr, $2.18 for sub. 30min",
+  "notes": "Weekday evening: 8pm-7.00am: $3 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "SJ Campus",
+  "rate": "7.00am-7.00am: $3 per entry",
+  "notes": "Weekday evening: 8pm-7.00am: $3 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "South Bridge Tower",
+  "rate": "7.00am-5.59pm: $1.25 per 30min.",
+  "notes": "Weekday evening: 6.00pm-6.59am: $3.20 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "South Bridge Tower",
+  "rate": "6.59am-6.59am the following day:$5.50 per entry.",
+  "notes": "Weekday evening: 6.00pm-6.59am: $3.20 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Square 2",
+  "rate": "7.00am-6.00pm: $2.40 for 1st hr; $1.20 for sub. ½ hr or part thereof",
+  "notes": "Weekday evening: 6.00pm-7.00am: $2.73 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Square 2",
+  "rate": "7.00am-6.00pm: $2.40 for 1st 4hrs; $1.20 for sub. ½ hr; 6.00pm-7.00am: $2.73 per entry",
+  "notes": "Weekday evening: 6.00pm-7.00am: $2.73 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "St Joseph's Church (Victoria Street)",
+  "rate": "7.30am-7.30pm: $1.74 per hr. 7.30am-5.30pm: $6.95 (Capped)",
+  "notes": "Weekday evening: 7.30pm-10.00pm: $2.73 per hr.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "St Joseph's Church (Victoria Street)",
+  "rate": "7.30am-7.30pm: Strictly for church members only. 7.30pm-10pm: $2.73 per hr.",
+  "notes": "Weekday evening: 7.30pm-10.00pm: $2.73 per hr.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Stamford Court",
+  "rate": "8.00am-6.00pm: $2.64 for 1st hr, $2.04 for sub. 30min",
+  "notes": "Weekday evening: 6.00pm-8.00am: $2.52 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Stamford Court",
+  "rate": "8.00am-6.00pm: $1.32 per hr, 6.00pm-8,00am the following day: $2.52 per entry.",
+  "notes": "Weekday evening: 6.00pm-8.00am: $2.52 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sun Plaza",
+  "rate": "7.00am-4.59pm: $1.50 for 1st hr or part thereof; $0.80 for sub. ½ hr or part thereof",
+  "notes": "Weekday evening: 5.00pm-10.59pm: $2.70 per entry; 11.00pm-6.59am: $4 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sungei Buloh Wetland Reserve",
+  "rate": "Daily free: 7.00am-7.00pm",
+  "notes": "Weekday evening: Daily free: 7.00am-7.00pm. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sunshine Plaza",
+  "rate": "(Mon to Thurs) 7.00am-9.59pm: $2.00 for 1st hr; $0.04 for next sub. min.",
+  "notes": "Weekday evening: (Mon to Thurs) 10.00pm-6.59am the following day: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sunshine Plaza",
+  "rate": "(Fri to Sat) 7.00am-9.59pm: $2.20 for 1st hr; $0.04 for next sub. min. 10.00pm-6.59am the following day: $5.40 per entry",
+  "notes": "Weekday evening: (Mon to Thurs) 10.00pm-6.59am the following day: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Sunshine Plaza",
+  "rate": "7.00am-9.59pm: $2.20 for 1st hr; $0.04 for next sub. min. 10.00pm-6.59am the following day: $5.40 per entry",
+  "notes": "Weekday evening: (Mon to Thurs) 10.00pm-6.59am the following day: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Suntec City",
+  "rate": "7.00am-5.00pm: $2.60 for 1st hr; $1.30 per 30 min or part thereof",
+  "notes": "Weekday evening: 5.00pm-4.00am :$3.00 per entry; 4.00am-7.00am: $2.60 for 1st hr; $1.30 per 30 min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Suntec City",
+  "rate": "7.00am-4.00am: $2.60 for 1st hr; $1.30 for the next 3 hrs; $1.30 after the 4th hr (per 30 min or part thereof); 4.00am-7.00am: $2.60 for 1st hr; $1.30 per 30 min or part thereof",
+  "notes": "Weekday evening: 5.00pm-4.00am :$3.00 per entry; 4.00am-7.00am: $2.60 for 1st hr; $1.30 per 30 min or part thereof. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Swissotel Merchant Court Hotel",
+  "rate": "8.00am-5.00pm: $4.50 for 1st hr; $1.50 for next sub 30min",
+  "notes": "Weekday evening: 5.00pm-8.00am the following day: $4.50 for 1st hr; $1.50 for next sub 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Swissotel Stamford Hotel",
+  "rate": "8.00am-6.00pm: $2.20 for 1st hr; $0.55 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-8.00am next day: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Swissotel Stamford Hotel",
+  "rate": "8.00am-8.00am next day: $2.20 for 1st 2hr, $0.40 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-8.00am next day: $3.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tampines 1",
+  "rate": "6.00am-5.59pm: $1.40 for 1st hr; $0.95/30min",
+  "notes": "Weekday evening: 6.00pm-5.59am: $2.70 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tampines Mall",
+  "rate": "12.00am-5.59pm: $1.35 for 1st hr; $0.45 for sub. 15min or part thereof",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $2.65 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tampines Mall",
+  "rate": "3.00am-5.59pm: $2.65 for 1st 2hrs; $0.45 for sub. 15min or part thereof; 6.00pm-11.59pm: $2.65 per entry.12.00am-2.59am: $0.45 for sub. 15min or part thereof",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $2.65 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tampines Plaza 1 & 2",
+  "rate": "8.00am-5.00pm: $1.05 per 30min",
+  "notes": "Weekday evening: 5.00pm to 1.00am: $2.60 per entry; 1.00am to 8.00am: $2.10 for 1st 120 min; $1.05 sub. 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tampines Plaza 1 & 2",
+  "rate": "8.00am-1.00am: $2.60 per entry; 1.00am to 8.00am: $2.10 for 1st 120 min; $1.05 sub. 30min",
+  "notes": "Weekday evening: 5.00pm to 1.00am: $2.60 per entry; 1.00am to 8.00am: $2.10 for 1st 120 min; $1.05 sub. 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tang Plaza",
+  "rate": "6am-6.00pm: $3.00 for 1st hr; $0.05/min up to a maximum charge of $18.00",
+  "notes": "Weekday evening: Aft 6.00pm: $6 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tanglin Mall",
+  "rate": "6.01am-5.00pm: $2.24 for 1st hr; $1.12 for sub. 30min",
+  "notes": "Weekday evening: Aft 5.01pm: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tanglin Mall",
+  "rate": "$3.27 per entry",
+  "notes": "Weekday evening: Aft 5.01pm: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tanglin Shopping Centre",
+  "rate": "8.00am-5.59pm: $3.50 for 1st hr; $1.75 for next sub.sequent 30min",
+  "notes": "Weekday evening: After 6.00pm: $3.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tanglin Shopping Centre",
+  "rate": "$3.60 per entry",
+  "notes": "Weekday evening: After 6.00pm: $3.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "TANJONG KATONG COMPLEX",
+  "rate": "$0.60 per 30 mins",
+  "notes": "URA official rates (07.00 AM-05.00 PM), 355 lots."
+ },
+ {
+  "name": "TECHQUEST",
+  "rate": "$2.18 for 1st hr; $1.64 per sub 30 mins",
+  "notes": "Night rate (1800-2359): $2.18 per entry. Grace period: 20 minutes. Daily max cap: $20.00. Same rates apply to Monday-Friday, Saturday, Sunday, and Public Holidays."
+ },
+ {
+  "name": "Tekka Place",
+  "rate": "7.00am-6.00pm: $1.80 for 1st hr, sub 30min at $1.20.",
+  "notes": "Weekday evening: 6.00pm-7.00am: $3.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Telepark",
+  "rate": "Daily: 7.00am-10.00pm: $1.00 per 30min",
+  "notes": "Weekday evening: 10.00pm-6.59am next day: $1.00 per 30min (additional carpark exit surcharge of $22.00). From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Terminal 1 / Jewel Car Park",
+  "rate": "Short-term (B2M & B2): $0.65 per 15 mins for 1st 90 mins, then $5 per 30 mins; General (B3-B5): $0.65 per 15 mins",
+  "notes": "AI-retrieved — verify. Preferential parking and free parking redemptions available for Changi Rewards members or minimum spend."
+ },
+ {
+  "name": "The Adelphi",
+  "rate": "6.00am-5.00pm: $2.44 per hr; $1.22 per sub. ½ hr",
+  "notes": "Weekday evening: 5.00pm-6.00am next day: $3.27 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Adelphi",
+  "rate": "6.00am-6.00am next day: $3.27 per entry",
+  "notes": "Weekday evening: 5.00pm-6.00am next day: $3.27 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Arts House (Park at New Parliament House)",
+  "rate": "The Arts House does not offer public parking facilities, but paid parking is available at nearby carparks including: Parliament House, The Adelphi, National Gallery Singapore, The Fullerton Hotel",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Atrium @ Orchard",
+  "rate": "12.00am-2.59am: $0.55 per 15min; 3.00am-5.59pm: $3.25 for 1st 2hrs; $0.55 for sub. 15min; 6.00pm-11.59pm: $3.25 per entry",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $3.25 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Battle Box (Park at Fort Canning)",
+  "rate": "HDB / URA parking rates",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Cathay",
+  "rate": "8.00am-5:59am: $1.80 every 60 min or part thereof.",
+  "notes": "Weekday evening: 6.00pm-7.59am: $2.95 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Cathay",
+  "rate": "8.00am-5.59pm: $1.60 every 60 min or part thereof ; 6pm-7.59am: $3.10 per entry",
+  "notes": "Weekday evening: 6.00pm-7.59am: $2.95 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Centrepoint",
+  "rate": "6.00am-5.59am: $2.80 for 1st hr; $1.20 for sub. 30min or part thereof.",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Centrepoint",
+  "rate": "6.00am-5.59apm: $3 for 1st hr or part thereof; $1.20 for sub. 30min or part thereof.",
+  "notes": "From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Clementi Mall",
+  "rate": "Daily: $1.70 for 1st hr or part thereof; $0.85 for sub. ½ hr",
+  "notes": "Weekday evening: Daily: $1.70 for 1st hr or part thereof; $0.85 for sub. ½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Concourse",
+  "rate": "7.00am-5.00pm: $3.21 for 1st hr; $1.605 for sub. 30min.",
+  "notes": "Weekday evening: 5.00pm-7.00am the following day: $4.28 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Concourse",
+  "rate": "7.00am-12.00pm: $3.20 for 1st hr; $1.50 for sub. 30min. 12.00pm-7.00am: $4.28 per entry.",
+  "notes": "Weekday evening: 5.00pm-7.00am the following day: $4.28 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Concourse",
+  "rate": "$4.00 per entry after 5.00pm",
+  "notes": "Weekday evening: 5.00pm-7.00am the following day: $4.28 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Corporate Office",
+  "rate": "7.01am-5.00pm: $4 per hr",
+  "notes": "Weekday evening: 5.00pm-7.01am: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Esplanade",
+  "rate": "$2.30 per hour or part thereof.",
+  "notes": "Weekday evening: $2.30 per hour or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Gateway",
+  "rate": "7.00am-6.00pm: $2.80 for 1st hr; $1.50 for sub. 30 min.",
+  "notes": "Weekday evening: 6.00pm-7.00am the following day:: $3.05 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Gateway",
+  "rate": "7.00am-1.00pm: $2.80 for 1st hr; $1.50 for sub. 30 min. 1.00pm-7.00am the following day: $3.05 per entry.",
+  "notes": "Weekday evening: 6.00pm-7.00am the following day:: $3.05 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Gateway",
+  "rate": "7.00am-7.00am the following day: $3.05 per entry.",
+  "notes": "Weekday evening: 6.00pm-7.00am the following day:: $3.05 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Heeren",
+  "rate": "3.00am-4.59pm: $4.00 for 1st hour and $2.00 for sub. 30 min or part thereof",
+  "notes": "Weekday evening: 3.00am-4.59pm: $4.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Heeren",
+  "rate": "$6.00 for 1st two hours and $2.00 for sub. 30min or part thereof",
+  "notes": "Weekday evening: 3.00am-4.59pm: $4.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Metropolis",
+  "rate": "12.00am-6.00am: $2.50 for 1st hr, $1.25 for next sub. 30min or part thereof.",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Metropolis",
+  "rate": "6.00am-6.00pm: $1.00 per hr or part thereof; 6.00pm-12.00am: $2.50 per entry; 12.00am-6.00am: $2.50 per entry",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.50 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Mill",
+  "rate": "7.00am-12.00am: $1.53 for 1st hr; $0.76 sub. 30min",
+  "notes": "Weekday evening: 12.00am-7.00am next day: $3.82 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Sail@Marina Bay",
+  "rate": "6.00am-5.59pm: $4.50 per hr",
+  "notes": "Weekday evening: 6.00pm-5.59am the following day: $1.50 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Sail@Marina Bay",
+  "rate": "6.00am-12.59pm: $4.50 per hr; 1.00pm onwards: $1.50 per hr",
+  "notes": "Weekday evening: 6.00pm-5.59am the following day: $1.50 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Sail@Marina Bay",
+  "rate": "6.00am-5.59am the following day:$1.50 per hr",
+  "notes": "Weekday evening: 6.00pm-5.59am the following day: $1.50 per hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Star Vista",
+  "rate": "12.00am-5.59am: $2 per entry; 6.00am-11.59pm: $1.90 for 1st hr; $0.95 per sub 30min",
+  "notes": "Weekday evening: 12.00am-5.59am: $2 per entry; 6.00am-11.59pm: $1.90 for 1st hr; $0.95 per sub 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "The Star Vista",
+  "rate": "12.00am-5.59am: $2 per entry; 6.00am-11.59pm: $2.30 for 1st hr; $1.15 per sub 30min",
+  "notes": "Weekday evening: 12.00am-5.59am: $2 per entry; 6.00am-11.59pm: $1.90 for 1st hr; $0.95 per sub 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Thomson Plaza",
+  "rate": "7.00am-11.59pm: $1.40 for 1st hr, $0.70 for sub ½ hr.",
+  "notes": "Weekday evening: 12.00am-6.59am: $5 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Thomson Plaza",
+  "rate": "7.00am-11.59pm: $1.50 for 1st hr, $0.75 for sub ½ hr; 12.00am-6.59am: $5 per entry.",
+  "notes": "Weekday evening: 12.00am-6.59am: $5 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "TimMac @ Kranji",
+  "rate": "7.00am-7pm:. $0.60 per ½ hr.",
+  "notes": "Weekday evening: 7pm-7.00am:.Free parking.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "TimMac @ Kranji",
+  "rate": "7am-7am:$0.60 per ½ hr.",
+  "notes": "Weekday evening: 7pm-7.00am:.Free parking.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tiong Bahru Plaza",
+  "rate": "6.00am-6.00pm: For 1st hr or part thereof $1.40; $1.00 sub. 30min or part thereof",
+  "notes": "Weekday evening: 6.00pm-6.00am: Per entry $3.30. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Toa Payoh HDB Hub",
+  "rate": "7.00am-6.00pm: $0.60 per 30min",
+  "notes": "Weekday evening: 6.00pm-10.30pm:$1.50 per entry, 10.30pm-7.00am the following day: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Toa Payoh HDB Hub",
+  "rate": "7.00am-10.30pm:$1.50 per entry, 10.30pm-7.00am the following day:$5.00 per entry",
+  "notes": "Weekday evening: 6.00pm-10.30pm:$1.50 per entry, 10.30pm-7.00am the following day: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tong Eng Building",
+  "rate": "7.00am-5.00pm: $2.60 per 30min.",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tong Eng Building",
+  "rate": "7.00am-12.00pm: $2.60 per 30min. 12.00pm-11.00pm: $3.00 per entry.",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Tong Eng Building",
+  "rate": "10.00am-11.00pm: $3.00 per entry.",
+  "notes": "Weekday evening: 5.00pm-11.00pm: $3.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "TripleOne Somerset",
+  "rate": "12.00am-6.59am: $0.55 per 15min; 7.00am-5.59am: $1.64 per 30min",
+  "notes": "Weekday evening: 6.00pm-11.59am: $2.51 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "TripleOne Somerset",
+  "rate": "7.00am-5.59pm: $2.18 for 1st hr; $0.55 sub. 15 min. 6.00pm-11.59am: $2.51 per entry; 12.00am-6.59am:$0.55 sub. 15 min",
+  "notes": "Weekday evening: 6.00pm-11.59am: $2.51 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "UE Square",
+  "rate": "8.00am-5.00pm: $2.18 for 1st hr; $1.09 for sub. hr",
+  "notes": "Weekday evening: 5.00pm-8.00am next day: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "UE Square",
+  "rate": "8.00am-1pm: $2.18 for 1st hr; $1.09 for sub. hr; 1pm-8.00am: $3.27 per entry",
+  "notes": "Weekday evening: 5.00pm-8.00am next day: $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Union Food Industrial Centre",
+  "rate": "8.00am-6.00pm: $0.49 per 10 min",
+  "notes": "Weekday evening: 6.00pm-11.00pm: $3.05 per entry. 11.00pm-8.00am next day: $4.36 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "United Square Shopping Mall",
+  "rate": "6.00am-6.00pm: $2.40 for 1st hr; $0.60 for sub. 15 min",
+  "notes": "Weekday evening: Aft 6.00pm: $2.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "UOB Plaza",
+  "rate": "7.00am-6.00pm: $3.00 per 30min",
+  "notes": "Weekday evening: 6.00pm-12.00am: $4.00 per entry. 12.00am-7.00am the following day: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "UOB Plaza",
+  "rate": "7.00am-12.00am: $4.00 per entry. 12.00am-7.00am the following day: $4.00 per entry",
+  "notes": "Weekday evening: 6.00pm-12.00am: $4.00 per entry. 12.00am-7.00am the following day: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "UP@Robertson Quay",
+  "rate": "6.00am-6.00pm: $1.50 for 1st hr; $0.50 for sub. 30min",
+  "notes": "Weekday evening: 6.00pm-6.00am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Uptown@Farrer",
+  "rate": "7.00am-7.00pm: $1.97 per hr or part thereof.",
+  "notes": "Weekday evening: 7.00pm-7.00am (next day): $3.27 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Valley Point",
+  "rate": "Daily: $1.57 for 1st hr; $0.82 for sub. ½ hr",
+  "notes": "Weekday evening: Daily: $1.57 for 1st hr; $0.82 for sub. ½ hr. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Velocity @ Novena Square",
+  "rate": "6.00am-6.00pm: $2.40 for 1st hr or part thereof; $0.60 for sub. 15 min.",
+  "notes": "Weekday evening: After 6.00pm: $2.60 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Village Hotel Katong (Ex Paramount Hotel)",
+  "rate": "8.00am-5.59pm: $1.64 for 1st hr; $0.41 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.45 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Village Hotel Katong (Ex Paramount Hotel)",
+  "rate": "8.00am-5.59pm: $1.64 for 1st hr; $0.41 for sub. 15min. 6.00pm-12.00am: $2.45 per entry.",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.45 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Visioncrest Commercial",
+  "rate": "12.00am-6.59am: $3.24 per entry; 7.00am-5.59pm: $2.70 for 1st hr, $1.35 for sub. 30min",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $3.24 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Visioncrest Commercial",
+  "rate": "7.00am-11.59pm: $3.24 per entry; 12.00am-6.59am the following day: $3.24 per entry",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $3.24 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Vivocity",
+  "rate": "4.00am-12.00am: $1.60 for 1st hr; $0.80 for sub. 30 min or part thereof.",
+  "notes": "Weekday evening: 4.00am-12.00am: $1.60 for 1st hr; $0.80 for sub. 30 min or part thereof; 12.00am-4.00am: $3.20 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Vivocity",
+  "rate": "4.00am-12.00am: $2.20 for 1st hr; $1.10 for sub. 30 min or part thereof; 12.00am-4.00am: $4.80 per entry.",
+  "notes": "Weekday evening: 4.00am-12.00am: $1.60 for 1st hr; $0.80 for sub. 30 min or part thereof; 12.00am-4.00am: $3.20 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Waterway Point",
+  "rate": "6.00am-5.59am: $1.50 for 1st hr; $0.80 for sub. ½ hr or part thereof.",
+  "notes": "Weekday evening: 6.00am-5.59am: $1.50 for 1st hr; $0.80 for sub. ½ hr or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Waterway Point",
+  "rate": "6.00am-5.59am: $1.60 for 1st hr; $0.80 for sub. ½ hr or part thereof.",
+  "notes": "Weekday evening: 6.00am-5.59am: $1.50 for 1st hr; $0.80 for sub. ½ hr or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "West Coast Plaza",
+  "rate": "7.00am-6.00pm: $1.53 for the first 1 hour; $0.38 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.29 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "West Coast Plaza",
+  "rate": "6.00pm-7.00am: $2.45 per entry; 7.00am-6.00pm: $1.64 for the first 1 hour; $0.41 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-12.00am: $2.29 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "West Mall",
+  "rate": "6.00am-4.59pm: $2.20 for 1st 2hrs or part thereof; $0.70 for sub. ½ hr or part thereof",
+  "notes": "Weekday evening: 5.00pm-6.00am: $2.95 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "West Mall",
+  "rate": "6.00am-4.59pm: $1.40 for 1st hr or part thereof; $0.70 for sub. ½ hr or part thereof; 5.00pm-6.00am: $2.95 per entry",
+  "notes": "Weekday evening: 5.00pm-6.00am: $2.95 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "West Mall",
+  "rate": "6.00am-6.00am next day: $2.95 per entry",
+  "notes": "Weekday evening: 5.00pm-6.00am: $2.95 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Westgate",
+  "rate": "12.00am-6.00pm: $1.60 for 1st hr; $0.55 for sub. 15min",
+  "notes": "Weekday evening: 6.00pm-11.59pm: $3.25 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Wheelock Place",
+  "rate": "6.00am-5.30pm: $3.27 for 1st hr; $1.64 for sub. 30min.",
+  "notes": "Weekday evening: 5.30pm-6.00am: $4.91 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "White Sands Shopping Centre",
+  "rate": "6.00am-5.59pm: $1.35 for 1st hr; $0.90/30min",
+  "notes": "Weekday evening: 6.00pm-5.59am: $2.45 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "White Sands Shopping Centre",
+  "rate": "12.00am-5.59pm: $1.50 for 1st hr or part thereof; $1.10 every 30min or part thereof; 6.00pm-11.59pm: $2.45 per entry",
+  "notes": "Weekday evening: 6.00pm-5.59am: $2.45 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Winsland House",
+  "rate": "7.00am-7pm: $2.80 for 1st hr; $1.50 for sub. 30min",
+  "notes": "Weekday evening: 7pm-11pm: $4.00 per entry; 11pm-7.00am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Winsland House",
+  "rate": "7am-11pm: $5.00 per entry; 11pm-7am: $4.00 per entry",
+  "notes": "Weekday evening: 7pm-11pm: $4.00 per entry; 11pm-7.00am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Wisma Atria",
+  "rate": "12.00am-5.00pm: $2.60 for 1st hr; $1.70 for sub. 30min (Lunch hr surcharge of additional $1.10 between 12pm-2pm daily)",
+  "notes": "Weekday evening: After 5.00pm: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Wisma Atria",
+  "rate": "12am-5.00pm: $2.70 for 1st hr; $1.70 for sub. 30min (Lunch hr surcharge of additional $1.10 between 12pm-2pm daily); After 5.00pm: $5.00 per entry",
+  "notes": "Weekday evening: After 5.00pm: $5.00 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Woods Square",
+  "rate": "Daily: 12.00am-11.59pm: $1.31 for 1st hr; $0.65 for sub. 30min",
+  "notes": "Weekday evening: Daily: 12.00am-11.59pm: $1.31 for 1st hr; $0.65 for sub. 30min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "YewTee Point",
+  "rate": "$1.53 for 1st hr; $0.98 for sub. ½ hr or part thereof.",
+  "notes": "Weekday evening: $1.53 for 1st hr; $0.98 for sub. ½ hr or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "YewTee Point",
+  "rate": "$1.61 for 1st hr; $0.98 for sub. ½ hr or part thereof.",
+  "notes": "Weekday evening: $1.53 for 1st hr; $0.98 for sub. ½ hr or part thereof.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "York Hotel",
+  "rate": "8.00am-7.59pm: $3.37 for 1st hr; $1.70 for sub. 30min",
+  "notes": "Weekday evening: 8.00pm-7.59am (next day): $4.49 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "York Hotel",
+  "rate": "8.00am-7.59am (next day): $4.49 per entry",
+  "notes": "Weekday evening: 8.00pm-7.59am (next day): $4.49 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Yotel Singapore (shared carpark with International Building)",
+  "rate": "7.00am-6.00pm: $3.00 for 1st hr or part thereof.; $1.50 for sub. 30min or part thereof.",
+  "notes": "Weekday evening: 6.00pm-7.00am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+ }
+]
