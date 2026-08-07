@@ -56,6 +56,39 @@ const RATES: Researched[] = [
     url: "https://www.changiairport.com/en/at-changi/facilities-and-services-directory/airport-parking.html",
   },
   {
+    // RWS bills Fri/Sat/Sun/PH at the weekend rate, but this app's day model is
+    // weekday / Saturday / Sunday-PH — there's nowhere to put "Friday counts as
+    // the weekend", so Friday shows the cheaper weekday rate. Flagged in notes.
+    match: "RESORT WORLD AT SENTOSA",
+    display: "Resorts World Sentosa",
+    lat: 1.25523,
+    lng: 103.82038,
+    weekday: "$6.50 for 1st hr, $1.10 per sub half hr (max cap $13.10)",
+    saturday: "$9.70 for 1st hr, $1.10 per sub half hr (max cap $16.30)",
+    sundayPh: "$9.70 for 1st hr, $1.10 per sub half hr (max cap $16.30)",
+    notes:
+      "Grace period: 10 mins. RWS charges the weekend rate from FRIDAY; this " +
+      "app prices Friday as a weekday, so a Friday estimate is lower than you " +
+      "will actually pay. Free parking with a minimum spend at some outlets.",
+    url: "https://www.rwsentosa.com/en/about/getting-here",
+  },
+  {
+    // The hospital's own EPS entries report no public lots, so this won't merge
+    // with a card — it stands on its own as a saved rate near the campus.
+    match: "SINGAPORE GENERAL HOSPITAL",
+    display: "Singapore General Hospital (OCH / Emergency)",
+    lat: 1.27858,
+    lng: 103.83612,
+    // Mon-Sat share a rate at SGH; only Sunday/PH is cheaper.
+    weekday: "7am-10pm: $0.037 per minute; 10pm-7am: $2.16 per entry",
+    saturday: "7am-10pm: $0.037 per minute; 10pm-7am: $2.16 per entry",
+    sundayPh: "7am-10pm: $0.019 per minute; 10pm-7am: $2.16 per entry",
+    notes:
+      "OCH and Emergency/NNI car parks. Car Park H (Macalister Road) is cheaper " +
+      "at $0.019 per minute 7am-10pm. No grace period published.",
+    url: "https://www.sgh.com.sg/patient-services/visiting-information/getting-to-sgh/carpark-and-fee",
+  },
+  {
     match: "UNITED SQUARE",
     display: "United Square",
     lat: 1.31718,
