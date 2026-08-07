@@ -314,6 +314,14 @@ export default function Home() {
               </button>
             </div>
           )}
+
+          {/* Android's date picker shows a bare calendar grid with no weekday,
+              and the day decides which rate card applies — so spell it out. */}
+          {useCustomStart && describeStart(start) && (
+            <p className="mt-1.5 text-[11px]" style={{ color: "var(--muted)" }}>
+              {describeStart(start)}
+            </p>
+          )}
         </div>
 
         <button
@@ -1232,6 +1240,42 @@ function formatWalkMinutes(distanceM: number): string {
 
 function formatDistance(m: number): string {
   return m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${m} m`;
+}
+
+const DAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+const MONTH_NAMES = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" ");
+
+/**
+ * "Saturday, 8 Aug · Saturday rates" for a datetime-local value.
+ *
+ * The value is a naive local string the app reads as Singapore time, so the
+ * date parts are used as-is (built in UTC) rather than parsed as a Date, which
+ * would shift the day on a device in another timezone.
+ *
+ * Saturday and Sunday get the rate band named because that's the whole reason
+ * the day matters. Weekdays deliberately don't: a weekday can still be a public
+ * holiday, and only the server knows the holiday list — the results header
+ * reports the band that was actually applied.
+ */
+function describeStart(value: string): string {
+  const m = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return "";
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const date = new Date(Date.UTC(y, mo - 1, d));
+  if (Number.isNaN(date.getTime())) return "";
+  const dow = date.getUTCDay();
+  const label = `${DAY_NAMES[dow]}, ${d} ${MONTH_NAMES[mo - 1]}`;
+  if (dow === 6) return `${label} · Saturday rates`;
+  if (dow === 0) return `${label} · Sunday / public holiday rates`;
+  return label;
 }
 
 /** Longest session the fee engine prices; caps are per-day, so beyond this the
