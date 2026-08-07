@@ -56,6 +56,17 @@ const RATES: Researched[] = [
     url: "https://www.changiairport.com/en/at-changi/facilities-and-services-directory/airport-parking.html",
   },
   {
+    match: "UNITED SQUARE",
+    display: "United Square",
+    lat: 1.31718,
+    lng: 103.84377,
+    // Semicolons separate TIME BANDS, so the first-then pair is joined with a
+    // comma — a semicolon there would split the rate and lose the 15-min block.
+    weekday: "6am-6pm: $2.40 for 1st hr, $0.60 per sub 15 mins; 6pm-6am: $2.60 per entry",
+    notes: "Grace period: 15 mins. Season parking $350/month.",
+    url: "https://www.unitedsquare.com.sg/getting-here/",
+  },
+  {
     match: "CHANGI AIRPORT T1 CARPARK",
     display: "Changi Airport T1 / Jewel Car Park",
     lat: 1.35585,
