@@ -13,6 +13,12 @@
  *
  * Only fills rows where friday_rate is NULL; never overwrites a rate someone
  * set deliberately.
+ *
+ * Provenance: what this writes is INFERRED from text already in the store, not
+ * read fresh off each operator's site. It is only as current as the row it came
+ * from. Treat the 13 rows it filled on 2026-08-07 as needing the same
+ * confirmation as any other stored rate — if one of them is disputed, go to the
+ * operator rather than assuming the inference was the mistake.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
