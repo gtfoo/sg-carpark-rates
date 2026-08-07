@@ -422,10 +422,14 @@ function hdbResult(
   opts: HdbFeeOpts,
 ): CarparkResult {
   const avail = availability.get(c.carparkNo);
+  // Central pricing follows the CAR PARK, not the destination. A search near
+  // the Central Area edge returns car parks on both sides of it, and billing
+  // them all by the destination's side doubles or halves the wrong ones.
+  const carparkIsCentral = isProbablyCentral(c.location.lat, c.location.lng);
   const scheduleFee = calculateHdbFee({
     start: opts.start,
     minutes: opts.minutes,
-    isCentral: opts.isCentral,
+    isCentral: carparkIsCentral,
     perMinuteBilling: !c.needsParkingApp,
     freeParking: c.freeParking,
     shortTermParking: c.shortTermParking,
@@ -500,7 +504,7 @@ function hdbResult(
     feeNote: scheduleFee.notes.join(" "),
     feeBreakdown: hdbBreakdown(
       scheduleFee,
-      opts.isCentral,
+      carparkIsCentral,
       !c.needsParkingApp,
       opts.minutes,
       opts.dayType,

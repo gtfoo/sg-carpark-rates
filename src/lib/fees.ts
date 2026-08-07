@@ -1,4 +1,8 @@
 import { toSgt, fromSgt, type SgtParts } from "./time";
+import centralRings from "./sources/central-area.json";
+
+/** Outer rings of the 11 URA Central Area planning areas, as [lng, lat]. */
+const CENTRAL_RINGS = centralRings as number[][][];
 
 /**
  * HDB / URA short-term parking fee calculation, time-aware.
@@ -262,17 +266,36 @@ function round2(n: number): number {
 }
 
 /**
- * KNOWN INACCURACY. HDB charges Central rates at a defined list of carparks,
- * but that flag is absent from the published dataset, so it has to be derived.
- * This bounding box roughly covers the CBD / Orchard / Marina area and WILL
- * misclassify carparks near the boundary, where the error is a 2x fee change.
- * The western edge is 103.82: Orchard (~103.837) is the westernmost genuinely
- * central spot, while Queenstown / Commonwealth / Tanglin Halt (~103.80) are
- * NOT central and must be excluded.
+ * HDB charges its higher rate at car parks in the URA CENTRAL AREA, and no
+ * published dataset carries that flag, so it is derived from position: a
+ * point-in-polygon test against the 11 Central Area planning areas, baked into
+ * central-area.json by `npm run import-central-area`.
  *
- * Replace with a point-in-polygon test against the URA Master Plan Central
- * Area boundary before relying on the numbers.
+ * This replaced a bounding box that swept in whole heartland estates — Tiong
+ * Bahru, Queenstown, Bukit Merah, Toa Payoh — and billed them double. The trap
+ * is that Central AREA is not Central REGION: Bukit Merah is in the region but
+ * not the area, so Blk 77/72/71/58 Seng Poh Road is $0.60 per half hour, as
+ * parking.sg shows, not $1.20.
  */
 export function isProbablyCentral(lat: number, lng: number): boolean {
-  return lat > 1.264 && lat < 1.32 && lng > 103.82 && lng < 103.877;
+  // Cheap reject first: the Central Area sits well inside this box, so most
+  // car parks in Singapore never touch the ring maths.
+  if (lat < 1.24 || lat > 1.34 || lng < 103.79 || lng > 103.91) return false;
+  return CENTRAL_RINGS.some((ring) => pointInRing(lng, lat, ring));
+}
+
+/** Ray casting: count crossings of the ring by a ray heading east from (x,y). */
+function pointInRing(x: number, y: number, ring: number[][]): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i]![0]!;
+    const yi = ring[i]![1]!;
+    const xj = ring[j]![0]!;
+    const yj = ring[j]![1]!;
+    // Does the edge straddle the ray's latitude, and is the crossing east of x?
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
 }

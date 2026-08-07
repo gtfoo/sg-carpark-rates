@@ -29,9 +29,17 @@ function coupon(start: Date, minutes: number, isCentral: boolean) {
 // Fri 7 Aug 2026, 2pm Singapore — a plain weekday inside the day window.
 const WEEKDAY_2PM = fromSgt(2026, 8, 7, 14);
 
-test("central-area boundary: the estates that were being overcharged", () => {
-  // These sit ~103.80 and are NOT central; the old box reached to 103.79 and
-  // charged them the central rate — double.
+test("central-area boundary: estates that were being overcharged", () => {
+  // Every one of these was billed the central rate — double — by the bounding
+  // box this replaced. Each sits in the Central REGION but outside the Central
+  // AREA, which is the distinction that matters.
+  //
+  // Blk 77/72/71/58 Seng Poh Road is the anchor: parking.sg charges $2.40 for
+  // two hours there, i.e. non-central. It is BUKIT MERAH.
+  assert.equal(isProbablyCentral(1.2837, 103.8316), false, "Seng Poh Road");
+  assert.equal(isProbablyCentral(1.2839, 103.833), false, "Seng Poh Lane");
+  assert.equal(isProbablyCentral(1.2832, 103.8306), false, "Moh Guan Terrace");
+  assert.equal(isProbablyCentral(1.2853, 103.8199), false, "Jalan Bukit Merah");
   assert.equal(isProbablyCentral(1.3, 103.7973), false, "Tanglin Halt");
   assert.equal(isProbablyCentral(1.3005, 103.8004), false, "Commonwealth");
   assert.equal(isProbablyCentral(1.3339, 103.8489), false, "Toa Payoh");
@@ -39,7 +47,24 @@ test("central-area boundary: the estates that were being overcharged", () => {
   // Genuinely central, and must stay that way.
   assert.equal(isProbablyCentral(1.3032, 103.8367), true, "Orchard");
   assert.equal(isProbablyCentral(1.2821, 103.8516), true, "Raffles Place");
-  assert.equal(isProbablyCentral(1.2996, 103.8542), true, "Bugis");
+  assert.equal(isProbablyCentral(1.2823, 103.8432), true, "Chinatown (Outram)");
+  assert.equal(isProbablyCentral(1.2996, 103.8542), true, "Bugis (Rochor)");
+});
+
+test("Seng Poh Road bills $2.40 for two hours, as parking.sg does", () => {
+  const f = coupon(WEEKDAY_2PM, 120, isProbablyCentral(1.2837, 103.8316));
+  assert.equal(f.total, 2.4);
+});
+
+test("somewhere far from the Central Area is never central", () => {
+  for (const [name, lat, lng] of [
+    ["Jurong East", 1.3329, 103.7436],
+    ["Tampines", 1.3496, 103.9568],
+    ["Woodlands", 1.4382, 103.789],
+    ["Changi Airport", 1.3644, 103.9915],
+  ] as const) {
+    assert.equal(isProbablyCentral(lat, lng), false, name);
+  }
 });
 
 test("two hours at a non-central coupon car park is $2.40", () => {

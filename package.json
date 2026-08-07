@@ -13,6 +13,7 @@
     "rates": "tsx scripts/rates.ts",
     "import-lta": "tsx scripts/importLta.ts",
     "import-ura": "tsx scripts/importUra.ts",
+    "import-central-area": "tsx scripts/importCentralArea.ts",
     "lookup": "tsx scripts/lookup.ts",
     "demo": "tsx scripts/demo.ts"
   },
