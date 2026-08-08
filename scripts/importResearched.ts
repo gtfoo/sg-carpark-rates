@@ -39,10 +39,15 @@ const RATES: Researched[] = [
     lat: 1.31174,
     lng: 103.86367,
     weekday: "7.00am-7.00pm: $0.03 per min; 7.00pm-7.00am: $3.00 per entry",
-    saturday: "$0.03 per min",
-    sundayPh: "Same as Saturday",
+    // The $3 cap is weekend-only, so it belongs in these strings rather than
+    // in notes — limitsForOverride reads notes on every day of the week, and
+    // a cap written there charged a weekday two-hour stay $3.00 instead of
+    // $3.60. Sunday is spelled out rather than "Same as Saturday" so the cap
+    // travels with it.
+    saturday: "$0.03 per min, capped at $3.00 per entry",
+    sundayPh: "$0.03 per min, capped at $3.00 per entry",
     notes:
-      "10 mins grace period. Sat/Sun/PH capped at $3.00 per entry. " +
+      "10 mins grace period. " +
       "114 Lavender Street, S338729 — distinct from CT Hub at 2 Kallang Avenue.",
     url: "https://www.motorist.sg/parking/ct-hub-2-parking-rates",
   },
