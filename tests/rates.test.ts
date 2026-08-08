@@ -6,6 +6,8 @@ import {
   parseLimits,
   bandForTime,
   rateForDay,
+  rateTextForDay,
+  joinWeekdayBands,
   type ParsedRate,
 } from "../src/lib/sources/mallRates";
 import { classifyDay } from "../src/lib/fees";
@@ -75,6 +77,40 @@ test("a first period of more than one hour is charged as one period", () => {
   assert.equal(fee("$2.40 for 1st 4hrs; $1.20 for sub. ½ hr", 120), 2.4);
   // A count of one, written out, must not change the meaning.
   assert.equal(fee("$2.40 for 1st 1hr or part thereof; $1.53 for sub. 30min", 120), 5.46);
+});
+
+test("a block of several hours is not read as an hourly rate", () => {
+  // "$5.35 every 4 hrs" used to match a price of 4 and a unit of "hrs".
+  assert.deepEqual(parseRate("$5.35 every 4 hrs"), {
+    kind: "per-block",
+    dollars: 5.35,
+    blockMinutes: 240,
+  });
+  assert.equal(fee("$5.35 every 4 hrs", 120), 5.35);
+  assert.equal(fee("$5.35 every 4 hrs", 300), 10.7);
+  assert.equal(fee("$3.00 per 4 hr block.", 120), 3);
+  assert.equal(fee("$4.60/4hr", 120), 4.6);
+});
+
+test("a daily cap is not mistaken for the rate", () => {
+  // Changi's South car park: "Capped at $35 per 24hrs" parsed as $24 an hour
+  // and quoted $48 for two hours. The real charge is 3.5 cents a minute.
+  const changi = "$0.035 per min. Capped at $35 per 24hrs.";
+  assert.deepEqual(parseRate(changi), { kind: "per-minute", dollars: 0.035 });
+  assert.equal(fee(changi, 120), 4.2);
+  // The cap itself still applies, read separately.
+  assert.equal(parseLimits(changi).capDollars, 35);
+});
+
+test("'first' is the same word as '1st'", () => {
+  // Katong V, One Holland Village, Siglap Centre and West Coast Plaza all
+  // write it out, and all four quoted $2.00 — the "1 hour" read as $1 an hour.
+  assert.equal(fee("$1.64 for the first 1 hour; $0.41 for sub. 15min", 120), 3.28);
+  assert.equal(fee("$1.80 for the first hour; $0.50 for sub. 15min", 120), 3.8);
+  // Lot One hyphenates the count.
+  assert.equal(fee("$2.65 for 1st 2-hrs; $0.45 for sub. 15 min", 120), 2.65);
+  // Suntec City puts "the" in front of the follow-on period.
+  assert.equal(fee("$2.60 for 1st hr; $1.30 for the next 3 hrs", 120), 3.9);
 });
 
 test("the follow-on rate is never read out of a duration", () => {
@@ -172,6 +208,60 @@ test("a genuine second band is still split off", () => {
   assert.equal(estimateMallFee(parseRate(bandForTime(ion, 19 * 60)), 120), 3.82, "7pm: per entry");
 });
 
+test("rateTextForDay falls back exactly as the parsed version does", () => {
+  const r = { name: "x", category: "", weekday: "WK", saturday: "", sundayPh: "" };
+  assert.equal(rateTextForDay(r, "weekday"), "WK");
+  // LTA publishes no Friday column, so Friday reads the weekday one.
+  assert.equal(rateTextForDay(r, "friday"), "WK");
+  assert.equal(rateTextForDay(r, "saturday"), "WK");
+  assert.equal(rateTextForDay({ ...r, saturday: "SAT" }, "saturday"), "SAT");
+  assert.equal(rateTextForDay({ ...r, saturday: "SAT" }, "sunday-ph"), "WK");
+  assert.equal(
+    rateTextForDay({ ...r, saturday: "SAT", sundayPh: "Same as Saturday" }, "sunday-ph"),
+    "SAT",
+  );
+  // "-" and "NA" are how the dataset writes an empty column.
+  assert.equal(rateTextForDay({ ...r, saturday: "-" }, "saturday"), "WK");
+  assert.equal(rateTextForDay({ ...r, saturday: "NA" }, "saturday"), "WK");
+});
+
+test("LTA's two weekday columns become one banded string", () => {
+  // 301 of 357 rows carry a second weekday column and it was never read, so
+  // every one of them quoted the daytime rate at midnight.
+  assert.equal(
+    joinWeekdayBands("7am-6pm: $1.20 for 1st hr", "6pm-3.30am: $3 per entry."),
+    "7am-6pm: $1.20 for 1st hr; 6pm-3.30am: $3 per entry.",
+  );
+  // About half the rows just repeat the first column; appending those would
+  // invent a second band that says the same thing.
+  assert.equal(joinWeekdayBands("$1.80 for 1st hr", "$1.80 for 1st hr"), "$1.80 for 1st hr");
+  // Causeway Point's two columns differ only by a stray space.
+  assert.equal(
+    joinWeekdayBands("$1.20 for sub.½ hr", "$1.20 for sub. ½ hr"),
+    "$1.20 for sub.½ hr",
+  );
+  assert.equal(joinWeekdayBands("$2 per hr", "-"), "$2 per hr");
+  assert.equal(joinWeekdayBands("", "Aft 5pm: $2 per entry"), "Aft 5pm: $2 per entry");
+});
+
+test("an open-ended evening band runs until the next band opens", () => {
+  // Balestier Point, as published: the evening column names no closing time.
+  const r = "8am-10pm: $1.20 per hr; Aft 10pm: $2 per entry";
+  assert.equal(bandForTime(r, 13 * 60), "$1.20 per hr");
+  assert.equal(bandForTime(r, 23 * 60), "$2 per entry");
+  // Wraps past midnight, and hands back to the daytime band at 8am.
+  assert.equal(bandForTime(r, 2 * 60), "$2 per entry");
+  assert.equal(bandForTime(r, 9 * 60), "$1.20 per hr");
+  assert.equal(fee(bandForTime(r, 23 * 60), 120), 2);
+  assert.equal(fee(bandForTime(r, 13 * 60), 120), 2.4);
+});
+
+test("'after' in a rate's wording is not mistaken for a band", () => {
+  // "after 4 hrs" is a duration, not a clock time, so this stays one band.
+  const r = "$2.44 for 1st 2 hrs, $1.43 per 30 mins after 4 hrs";
+  assert.equal(bandForTime(r, 23 * 60), r);
+});
+
 test("bandForTime leaves single-band strings alone", () => {
   // A semicolon alone must not trigger band selection — this string has two
   // clauses but no time ranges, and splitting it would lose the "1st hr" half.
@@ -264,8 +354,9 @@ test("limits never rescue a rate we couldn't parse", () => {
   // "not computable" must stay that way — a grace period doesn't make an
   // unreadable rate free.
   const junk = parseRate("rates vary, ask the operator");
-  assert.equal(estimateMallFee(junk, 10, { graceMinutes: 30, capDollars: 20 }), null);
-  assert.equal(estimateMallFee(junk, 120, { graceMinutes: 30, capDollars: 20 }), null);
+  const limits = { graceMinutes: 30, graceMode: "threshold" as const, capDollars: 20 };
+  assert.equal(estimateMallFee(junk, 10, limits), null);
+  assert.equal(estimateMallFee(junk, 120, limits), null);
 });
 
 test("Friday uses its own rate only when the operator sets one", () => {

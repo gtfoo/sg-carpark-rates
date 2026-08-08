@@ -72,9 +72,12 @@ function repairAmounts(s: string): string {
 
 const NUM = String.raw`\$?\s*(\d+(?:\.\d+)?)`;
 
-// A time block: half-hour (½ / "half hr" / "half hour"), N minutes, or an hour.
-// Bare "min"/"minute" is deliberately excluded — that's the per-minute case.
-const BLOCK_UNIT = String.raw`(?:½|half)\s*(?:hr|hour)|\d+\s*min(?:ute)?s?|hrs?|hours?`;
+// A time block: half-hour (½ / "half hr" / "half hour"), N minutes, N hours,
+// or an hour. Bare "min"/"minute" is deliberately excluded — that's the
+// per-minute case. The multi-hour form must come before the bare one so
+// "$5.35 every 4 hrs" consumes the "4"; otherwise the block reads as one hour
+// and the 4 is left looking like a price.
+const BLOCK_UNIT = String.raw`(?:½|half)\s*(?:hr|hour)|\d+\s*min(?:ute)?s?|\d+\s*(?:hrs?|hours?)|hrs?|hours?`;
 
 // Words operators put between an amount and its unit. These sources are
 // hand-written prose, so the same rate appears as "per", "for", "every",
@@ -106,6 +109,12 @@ const CLOCK = String.raw`\d{1,2}(?:[.:]\d{2})?\s*(?:am|pm)|\d{3,4}\s*hrs?`;
 /** Fresh each call — a global regex carries lastIndex between uses. */
 const timeRangeRe = () =>
   new RegExp(`(${CLOCK})\\s*(?:-|–|to)\\s*(${CLOCK})`, "gi");
+/**
+ * "Aft 10pm", "After 5.30pm" — LTA's evening column names only the time the
+ * band opens and leaves the close implied.
+ */
+const openFromRe = () =>
+  new RegExp(String.raw`\b(?:aft|after)\.?\s*(${CLOCK})`, "gi");
 
 /** Does [from,to) cover t? Ranges may wrap past midnight (e.g. 11pm-7am). */
 function covers(from: number, to: number, t: number): boolean {
@@ -133,11 +142,32 @@ function splitBands(raw: string): string[] {
   const bands: string[] = [];
   for (const part of raw.split(";")) {
     const beforeMoney = part.split("$")[0] ?? part;
-    const startsBand = timeRangeRe().test(beforeMoney);
+    const startsBand =
+      timeRangeRe().test(beforeMoney) || openFromRe().test(beforeMoney);
     if (startsBand || bands.length === 0) bands.push(part);
     else bands[bands.length - 1] += `;${part}`;
   }
   return bands.map((s) => s.trim()).filter(Boolean);
+}
+
+/**
+ * Removes a daily-cap clause before the rate patterns run. "Capped at $35 per
+ * 24hrs" is a ceiling, not a rate, but it looks exactly like one — Changi
+ * Airport's South car park was quoting it as $35 for two hours when the real
+ * charge is 3.5 cents a minute. parseLimits reads the cap separately.
+ */
+function withoutCaps(s: string): string {
+  return s.replace(/capp?ed\s*(?:at)?\s*\$?\s*[\d.]+[^,.;]*/gi, " ").trim();
+}
+
+/** Drops the clock prefix so the fee patterns can't read "5pm-11pm" as money. */
+function stripBandPrefix(seg: string): string {
+  const stripped = seg
+    .replace(timeRangeRe(), " ")
+    .replace(openFromRe(), " ")
+    .replace(/^[\s&,:-]+/, "")
+    .trim();
+  return stripped || seg;
 }
 
 export function bandForTime(rawInput: string, minutesOfDay: number): string {
@@ -150,20 +180,36 @@ export function bandForTime(rawInput: string, minutesOfDay: number): string {
       const from = parseClock(m[1]!);
       const to = parseClock(m[2]!);
       if (from === null || to === null) continue;
-      if (covers(from, to, minutesOfDay)) {
-        const stripped = seg
-          .replace(timeRangeRe(), " ")
-          .replace(/^[\s&,:-]+/, "")
-          .trim();
-        return stripped || seg;
-      }
+      if (covers(from, to, minutesOfDay)) return stripBandPrefix(seg);
+    }
+  }
+
+  // Nothing with an explicit range covered the arrival. An open-ended band
+  // ("Aft 10pm: $2 per entry") runs until the next band opens, so borrow the
+  // earliest start the others declare as its close.
+  const starts = [...raw.matchAll(timeRangeRe())]
+    .map((m) => parseClock(m[1]!))
+    .filter((n): n is number => n !== null);
+  const until = starts.length ? Math.min(...starts) : null;
+  for (const seg of segments) {
+    for (const m of seg.matchAll(openFromRe())) {
+      const from = parseClock(m[1]!);
+      if (from === null) continue;
+      // With no other band declaring a range there is nothing to close this
+      // one against, so it only covers the rest of the day — never the morning.
+      // Half the dataset writes the daytime column with no clock at all
+      // ("$7 per hr." / "Aft 6pm: $7 per entry"), and treating the evening band
+      // as the fallback there quoted the evening price at lunchtime.
+      const covered =
+        until === null ? minutesOfDay >= from : covers(from, until, minutesOfDay);
+      if (covered) return stripBandPrefix(seg);
     }
   }
   return raw;
 }
 
 export function parseRate(rawInput: string): ParsedRate {
-  const raw = repairEncoding(rawInput ?? "");
+  const raw = withoutCaps(repairEncoding(rawInput ?? ""));
   if (!raw || raw === "-" || raw.toLowerCase() === "na") return { kind: "none" };
   if (/same as/i.test(raw)) return { kind: "same-as-other" };
   // "Free", "Daily free: 7am-7pm", etc. — free whenever "free" appears and no
@@ -182,7 +228,8 @@ export function parseRate(rawInput: string): ParsedRate {
   // and that count MUST be captured here. Miss it and the whole pattern fails,
   // then the per-block pattern below reads the bare "2" as a price and quotes
   // $2 an hour: 49 stored rates priced that way, every one of them wrong.
-  const FIRST_PERIOD = `(?:the\\s*)?1st\\s*(?:(\\d+)\\s*)?(${RATE_UNIT})`;
+  // "1st hr", "the first 1 hour", "1st 2-hrs" — all the same thing.
+  const FIRST_PERIOD = `(?:the\\s*)?(?:1st|first)\\s*(?:(\\d+)[\\s-]*)?(${RATE_UNIT})`;
   // Both amounts must carry a "$". Without it the follow-on half of the pattern
   // will happily read the "30" of "30min" as thirty dollars a minute — which is
   // exactly what "$1.80 for 1st hr, sub 30min at $1.20" does.
@@ -193,7 +240,7 @@ export function parseRate(rawInput: string): ParsedRate {
         // "for each sub. ½ hr", "for next sub 30min", "per subsequent hour".
         // "sub" is optional: plenty of operators just write the follow-on rate
         // straight after a comma ("$3.27 for 1st 2 hrs, $1.64 per 30 mins").
-        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:each|next)\\s*)?(?:(?:sub\\.?|subsequent)\\s*)?` +
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:(?:sub\\.?|subsequent)\\s*)?` +
         `(${RATE_UNIT})`,
       "i",
     ),
@@ -215,9 +262,12 @@ export function parseRate(rawInput: string): ParsedRate {
   // block size "30 Mins" otherwise gets misread as a rate of $30 per minute,
   // which silently produces a $3,600 two-hour fee.
   // The separator ("per"/"for"/"every"/"each"/"/") is optional so adjectival
-  // LTA forms parse too ("$3.03 half hourly", "$2 hourly").
+  // LTA forms parse too ("$3.03 half hourly", "$2 hourly") — which is why the
+  // "$" is required: without it "Capped at $35 per 24hrs" splits into a price
+  // of 24 and a unit of "hrs", quoting $24 an hour for a car park that charges
+  // 3.5 cents a minute.
   const perBlock = raw.match(
-    new RegExp(`${NUM}${SEPS}(${BLOCK_UNIT})`, "i"),
+    new RegExp(`${MONEY}${SEPS}(${BLOCK_UNIT})`, "i"),
   );
   if (perBlock) {
     const dollars = Number(perBlock[1]);
@@ -252,6 +302,10 @@ export function parseRate(rawInput: string): ParsedRate {
 function unitToMinutes(unit: string): number {
   const u = unit.toLowerCase().replace(/\s+/g, "");
   if (u.includes("½") || u.includes("half")) return 30;
+  // "4hrs" is four hours, not four minutes — the bare-number fallback below
+  // would otherwise read it as the latter.
+  const hrs = u.match(/^(\d+)(?:hrs?|hours?)$/);
+  if (hrs) return Number(hrs[1]) * 60;
   if (u.startsWith("hr") || u.startsWith("hour")) return 60;
   const mins = u.match(/(\d+)min/);
   if (mins) return Number(mins[1]);
@@ -261,15 +315,46 @@ function unitToMinutes(unit: string): number {
   return n ? Number(n[1]) : 60;
 }
 
-export async function fetchMallRates(): Promise<MallCarparkRates[]> {
+/**
+ * LTA splits weekdays across two columns — a daytime band and, for 301 of the
+ * 357 rows, an evening one ("7am-6pm: $1.20 for 1st hr" / "6pm-3.30am: $3 per
+ * entry"). About half repeat the first column word for word, so only genuinely
+ * new text is appended, joined with the semicolon splitBands looks for.
+ */
+export function joinWeekdayBands(first: string, second: string): string {
+  const a = repairEncoding(first ?? "");
+  const b = repairEncoding(second ?? "");
+  const absent = (s: string) => !s || s === "-" || /^na$/i.test(s);
+  // Ignore spacing and full stops: the duplicate columns differ only by a
+  // stray space ("sub.½ hr" against "sub. ½ hr").
+  const key = (s: string) => s.toLowerCase().replace(/[\s.]/g, "");
+  if (absent(b) || key(a) === key(b)) return a;
+  if (absent(a)) return b;
+  return `${a}; ${b}`;
+}
+
+/**
+ * The rate text as published, NOT a parsed rate: which band applies depends on
+ * when the driver arrives, and that isn't known until a search runs. Parsing
+ * here is what made the whole evening column unreachable.
+ */
+export interface MallCarparkRateText {
+  name: string;
+  category: string;
+  weekday: string;
+  saturday: string;
+  sundayPh: string;
+}
+
+export async function fetchMallRates(): Promise<MallCarparkRateText[]> {
   const raw = await fetchAllRecords<RawMallRate>(LTA_CARPARK_RATES);
 
   return raw.map((r) => ({
     name: repairEncoding(r.carpark),
     category: repairEncoding(r.category),
-    weekday: parseRate(r.weekdays_rate_1),
-    saturday: parseRate(r.saturday_rate),
-    sundayPh: parseRate(r.sunday_publicholiday_rate),
+    weekday: joinWeekdayBands(r.weekdays_rate_1, r.weekdays_rate_2),
+    saturday: repairEncoding(r.saturday_rate ?? ""),
+    sundayPh: repairEncoding(r.sunday_publicholiday_rate ?? ""),
   }));
 }
 
@@ -443,6 +528,26 @@ function grossFee(rate: ParsedRate, minutes: number): number | null {
  * otherwise it falls back to the weekday rate, which is the common case and
  * what the LTA dataset assumes (it has no Friday column at all).
  */
+/**
+ * The same day-to-column fallback as rateForDay, but on the published text so
+ * a band can still be chosen afterwards. The LTA dataset has no Friday column,
+ * so Friday always reads the weekday one.
+ */
+export function rateTextForDay(
+  rates: MallCarparkRateText,
+  dayType: DayType,
+): string {
+  const absent = (s: string) => {
+    const v = (s ?? "").trim();
+    return !v || v === "-" || /^na$/i.test(v);
+  };
+  const or = (s: string) => (absent(s) ? rates.weekday : s);
+  if (dayType === "weekday" || dayType === "friday") return rates.weekday;
+  if (dayType === "saturday") return or(rates.saturday);
+  if (/same as/i.test(rates.sundayPh)) return or(rates.saturday);
+  return or(rates.sundayPh);
+}
+
 export function rateForDay(
   rates: MallCarparkRates,
   dayType: DayType,

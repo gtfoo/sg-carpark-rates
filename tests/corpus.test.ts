@@ -23,8 +23,18 @@ import { loadCorpus, checkCorpus, IMPLAUSIBLE_2H } from "../scripts/rateHealth";
  * This number must never RISE: that means a rate that used to price stopped
  * pricing. Lowering it is the goal; do that by teaching the parser, then drop
  * the baseline in the same commit.
+ *
+ * Raised from 25 to 29 once the per-block pattern began requiring a "$" on the
+ * amount. That silenced a family of confident wrong answers — "Capped at $35
+ * per 24hrs" read as $24 an hour, "the first 1 hour" as $1 an hour — which had
+ * Clarke Quay, Lot One and Parkway Parade all quoting $24.00 for two hours.
+ * Teaching the parser "first", "2-hrs" and multi-hour blocks recovered 18 of
+ * those at the right price; the 5 left are malformed at source (the amount
+ * written after its period, "sub. 1 per 2 hr") and now read "—" instead of a
+ * number that was never right. A rise is only ever acceptable with that kind
+ * of accounting, string by string.
  */
-const MAX_UNPRICEABLE = 25;
+const MAX_UNPRICEABLE = 29;
 
 test("every stored rate still prices, or was already known not to", () => {
   const health = checkCorpus(loadCorpus());

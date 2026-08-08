@@ -13,10 +13,12 @@ import {
   parseLimits,
   bandForTime,
   rateForDay,
+  rateTextForDay,
   parseRate,
   describeRate,
   NO_LIMITS,
   type MallCarparkRates,
+  type MallCarparkRateText,
   type RateLimits,
 } from "./sources/mallRates";
 import { getPublicHolidays } from "./sources/holidays";
@@ -115,7 +117,7 @@ export interface SearchResponse {
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 let carparkCache: { at: number; data: HdbCarpark[] } | null = null;
-let mallCache: { at: number; data: MallCarparkRates[] } | null = null;
+let mallCache: { at: number; data: MallCarparkRateText[] } | null = null;
 
 async function getCarparks(): Promise<HdbCarpark[]> {
   if (carparkCache && Date.now() - carparkCache.at < DAY_MS) {
@@ -139,15 +141,17 @@ async function getCarparks(): Promise<HdbCarpark[]> {
   }
 }
 
-async function getMallRates(): Promise<MallCarparkRates[]> {
+async function getMallRates(): Promise<MallCarparkRateText[]> {
   if (mallCache && Date.now() - mallCache.at < DAY_MS) return mallCache.data;
   try {
     const data = await fetchMallRates();
     mallCache = { at: Date.now(), data };
-    safe(() => writeCache("mall_rates", data), undefined);
+    // "_text" because the shape changed from parsed rates to published text; a
+    // cache written by the old build would deserialise into nonsense.
+    safe(() => writeCache("mall_rates_text", data), undefined);
     return data;
   } catch (err) {
-    const cached = safe(() => readCache<MallCarparkRates[]>("mall_rates"), null);
+    const cached = safe(() => readCache<MallCarparkRateText[]>("mall_rates_text"), null);
     if (cached) {
       mallCache = { at: Date.now(), data: cached.data };
       return cached.data;
@@ -345,7 +349,13 @@ export async function search(
         startParts.minutesOfDay,
       );
     } else {
-      destRate = mallDatasetMatch(place, mallRates, minutes, dayType);
+      destRate = mallDatasetMatch(
+        place,
+        mallRates,
+        minutes,
+        dayType,
+        startParts.minutesOfDay,
+      );
     }
     if (destRate) results.unshift(destRate);
   }
@@ -657,15 +667,21 @@ function epsResult(
 /** The LTA mall dataset match by name (no coordinates), or null when none. */
 function mallDatasetMatch(
   place: GeocodeResult,
-  mallRates: MallCarparkRates[],
+  mallRates: MallCarparkRateText[],
   minutes: number,
   dayType: DayType,
+  startMod: number,
 ): CarparkResult | null {
   const destUpper = place.name.toUpperCase();
   for (const m of mallRates) {
     if (!looseNameMatch(destUpper, m.name.toUpperCase())) continue;
-    const applied = rateForDay(m, dayType);
-    const dollars = estimateMallFee(applied, minutes);
+    // Pick the band for the arrival time before parsing, exactly as the saved
+    // overrides do. Parsing the whole string instead always priced the morning
+    // and never the evening.
+    const text = rateTextForDay(m, dayType);
+    const band = bandForTime(text, startMod);
+    const applied = parseRate(band);
+    const dollars = estimateMallFee(applied, minutes, parseLimits(band));
     return {
       id: `mall:${m.name}`,
       name: m.name,
