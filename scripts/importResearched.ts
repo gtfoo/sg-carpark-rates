@@ -31,6 +31,22 @@ interface Researched {
 
 const RATES: Researched[] = [
   {
+    // EPS lists CT Hub 2 with publicLots = 0, so it never reached search at
+    // all — but it takes hourly public parking. Filed with coordinates so the
+    // card stands on its own rather than waiting on that flag being corrected.
+    match: "CT HUB 2",
+    display: "CT Hub 2",
+    lat: 1.31174,
+    lng: 103.86367,
+    weekday: "7.00am-7.00pm: $0.03 per min; 7.00pm-7.00am: $3.00 per entry",
+    saturday: "$0.03 per min",
+    sundayPh: "Same as Saturday",
+    notes:
+      "10 mins grace period. Sat/Sun/PH capped at $3.00 per entry. " +
+      "114 Lavender Street, S338729 — distinct from CT Hub at 2 Kallang Avenue.",
+    url: "https://www.motorist.sg/parking/ct-hub-2-parking-rates",
+  },
+  {
     match: "GARDENS BY THE BAY (BAY SOUTH)",
     display: "Gardens by the Bay (Bay South)",
     lat: 1.28148,

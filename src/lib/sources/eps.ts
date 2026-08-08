@@ -43,9 +43,34 @@ function cleanName(name: string): string {
   return name.replace(/\s*-\s*C$/i, "").trim();
 }
 
+/**
+ * Nine URA short-term car parks are listed under URA's internal code —
+ * "URA_P0075" — which reaches a card as "Ura_p0075" and tells a driver
+ * nothing. The address carries the real identity ("51, LAVENDER STREET,
+ * P0075"), so use that, dropping the trailing repeat of the code and joining a
+ * bare house number onto its street.
+ */
+export function displayName(name: string, address: string): string {
+  const clean = cleanName(name);
+  if (!/^URA[_ ]/i.test(clean)) return clean;
+  const code = clean.replace(/^URA[_ ]/i, "").trim().toUpperCase();
+  const parts = address
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .filter((s) => s.toUpperCase() !== code && !/^singapore\b/i.test(s));
+  // "0, TIONG BAHRU ROAD" — a placeholder house number, not an address.
+  if (parts[0] === "0") parts.shift();
+  if (!parts.length) return clean;
+  if (parts.length > 1 && /^\d+[A-Z]?$/i.test(parts[0]!)) {
+    return [`${parts[0]} ${parts[1]}`, ...parts.slice(2)].join(", ");
+  }
+  return parts.join(", ");
+}
+
 const all: EpsCarpark[] = (raw as RawEps[]).map((c) => ({
   id: c.id,
-  name: cleanName(c.name),
+  name: displayName(c.name, c.address),
   address: c.address,
   postal: c.postal,
   location: { lat: c.lat, lng: c.lng },
