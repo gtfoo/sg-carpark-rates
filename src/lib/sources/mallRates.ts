@@ -129,25 +129,63 @@ function covers(from: number, to: number, t: number): boolean {
  * multiple bands are returned untouched.
  */
 /**
- * Splits a rate into time bands.
+ * Splits a rate into time bands, cutting wherever a new clock range opens.
  *
- * A semicolon does NOT reliably separate bands: LTA writes a single band's
- * tiers with one — "7.00am-5.59pm: $3.90 for 1st hr; $1.95 per sub.½ hr" — and
- * cutting there strands "$3.90 for 1st hr" with no subsequent-block price,
- * which parses as nothing at all. So a segment only starts a NEW band when it
- * introduces its own clock range before any dollar amount; otherwise it
- * belongs to the band before it.
+ * Punctuation can't be trusted in either direction. A semicolon does NOT
+ * reliably separate bands — LTA writes a single band's tiers with one,
+ * "7.00am-5.59pm: $3.90 for 1st hr; $1.95 per sub.½ hr", and cutting there
+ * strands the first tier with no subsequent-block price. And a semicolon is not
+ * required BETWEEN bands either: Bras Basah Complex writes
+ * "7.00am-10.00am: $1.20 per ½ hr. 10.00am-10.30pm: $1.40 per ½ hr." with a
+ * full stop, and splitting on ";" alone left the second band unreachable, so
+ * every afternoon arrival was priced at the morning rate. 60 stored rates had
+ * at least one band that could never be selected.
+ *
+ * So boundaries are found by position, not by separator: a clock range starts a
+ * new band only once the band before it has been priced. That "$ seen since the
+ * last cut" test is what keeps a band's own second range attached to it —
+ * "7am-5pm & 11pm-7am: $1.50 …" is one band with two ranges, not two bands.
  */
 function splitBands(raw: string): string[] {
-  const bands: string[] = [];
-  for (const part of raw.split(";")) {
-    const beforeMoney = part.split("$")[0] ?? part;
-    const startsBand =
-      timeRangeRe().test(beforeMoney) || openFromRe().test(beforeMoney);
-    if (startsBand || bands.length === 0) bands.push(part);
-    else bands[bands.length - 1] += `;${part}`;
+  const marks = [...raw.matchAll(timeRangeRe()), ...raw.matchAll(openFromRe())]
+    .map((m) => m.index ?? 0)
+    .sort((a, b) => a - b);
+
+  // A cut is only allowed once the text since the last one is a COMPLETE band:
+  // its own clock range and its own price. Either half alone misreads a string.
+  // Without the range test, "Daily free: 7.00am-7.00pm" cuts after "free" and
+  // strands the hours with no rate; without the price test, "7am-5pm &
+  // 11pm-7am: $1.50 …" splits one band's two ranges apart. "Free" counts as a
+  // price because "7.00am-10.00pm: Free; 10.00pm-7.00am: $2.70/hr" states no
+  // amount for its first band, and merging the two charged for the free hours.
+  const closesBand = (s: string) =>
+    timeRangeRe().test(s) && (s.includes("$") || /\bfree\b/i.test(s));
+  // A range in brackets is an aside about the band it sits in, not a new one:
+  // "$0.60 per 30 mins (8:30am-12pm, 2pm-5am); Free 5am-8:30am". Cutting there
+  // stranded the amount and handed the hours to the wrong rate.
+  const bracketed = (upto: string) =>
+    upto.split("(").length > upto.split(")").length;
+
+  // The first band always starts at the beginning: anything before the opening
+  // range ("Mon-Thu: 7.00am-5.00pm: …") belongs with it.
+  const starts = [0];
+  for (const at of marks) {
+    const from = starts[starts.length - 1]!;
+    if (at <= from) continue;
+    if (!closesBand(raw.slice(from, at)) || bracketed(raw.slice(0, at))) continue;
+    starts.push(at);
   }
-  return bands.map((s) => s.trim()).filter(Boolean);
+
+  return starts
+    .map((from, i) =>
+      raw
+        .slice(from, starts[i + 1] ?? raw.length)
+        // Cutting by position keeps the separator the old split consumed, and
+        // this text is shown to the user as "Applied rate".
+        .replace(/[\s;,.]+$/, "")
+        .trim(),
+    )
+    .filter(Boolean);
 }
 
 /**

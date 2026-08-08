@@ -262,6 +262,62 @@ test("'after' in a rate's wording is not mistaken for a band", () => {
   assert.equal(bandForTime(r, 23 * 60), r);
 });
 
+test("a band boundary needs no semicolon", () => {
+  // Bras Basah Complex separates its two bands with a full stop. Splitting on
+  // ";" alone left the second unreachable, so every afternoon arrival was
+  // priced at the morning rate — $4.80 against a real $5.60. 60 stored rates
+  // had at least one band that could never be selected.
+  const bras = "7.00am-10.00am: $1.20 per ½ hr. 10.00am-10.30pm: $1.40 per ½ hr.";
+  assert.equal(bandForTime(bras, 9 * 60), "$1.20 per ½ hr");
+  assert.equal(bandForTime(bras, 13 * 60), "$1.40 per ½ hr");
+  assert.equal(fee(bandForTime(bras, 13 * 60), 120), 5.6);
+  // A colon-separated pair, and a band that opens with a day label.
+  assert.equal(
+    bandForTime("7.00am-11.00am: $1.31 per 30 min. 11.00am-5.00pm: $1.53 per 30 min.", 13 * 60),
+    "$1.53 per 30 min",
+  );
+  // A single-band string is handed back untouched — there's nothing to choose
+  // between, and the leading clock can't be read as money now that amounts
+  // require a "$".
+  assert.equal(
+    bandForTime("Mon-Thu: 7.00am-5.00pm: $3.27 for 1st 2hrs; $1.64 per ½ hr", 13 * 60),
+    "Mon-Thu: 7.00am-5.00pm: $3.27 for 1st 2hrs; $1.64 per ½ hr",
+  );
+  assert.equal(fee("Mon-Thu: 7.00am-5.00pm: $3.27 for 1st 2hrs; $1.64 per ½ hr", 120), 3.27);
+});
+
+test("a band is only cut once the one before it is complete", () => {
+  // Both a range AND a price are needed before a new band can start.
+  // Without the price test this splits one band's two ranges apart.
+  assert.equal(
+    bandForTime("7am-5pm & 11pm-7am: $1.50 per 30 min; 5pm-11pm: $3.00 per entry", 13 * 60),
+    "$1.50 per 30 min",
+  );
+  // Without the range test, "free" cuts before the hours it applies to.
+  assert.equal(bandForTime("Daily free: 7.00am-7.00pm", 13 * 60), "Daily free: 7.00am-7.00pm");
+  assert.equal(fee("Daily free: 7.00am-7.00pm", 120), 0);
+  // "after 5.00pm" is the only clock in the string — not a second band.
+  assert.equal(fee(bandForTime("$4.00 per entry after 5.00pm", 19 * 60), 120), 4);
+  // A band priced only as "Free" still closes, or the free hours get charged.
+  const arc = "7.00am-10.00pm: Free; 10.00pm-7.00am: $2.70/hr or part thereof";
+  assert.equal(fee(bandForTime(arc, 9 * 60), 120), 0);
+  assert.equal(fee(bandForTime(arc, 23 * 60), 120), 5.4);
+});
+
+test("a bracketed clock range is an aside, not a new band", () => {
+  // Jurong Lake Gardens and Marina South Pier both put the hours in brackets
+  // after the amount. Cutting there strands the amount with no rate.
+  // The bracketed hours stay with their amount, so 9am is priced at $0.60 per
+  // half hour rather than being handed to the "Free" clause that follows.
+  assert.equal(fee(bandForTime("$0.60 per 30 mins (8:30am-12pm, 2pm-5am); Free 5am-8:30am", 9 * 60), 120), 2.4);
+  assert.equal(fee(bandForTime("$0.60 per 30 mins (8:30am-12pm, 2pm-5am)", 9 * 60), 120), 2.4);
+  // Marina South Pier's trailing bracket must not become a band of its own —
+  // the string stays whole. (It still doesn't price: "per add'l hr" is a form
+  // the parser doesn't know, which is a separate gap.)
+  const pier = "$2.40 for 1st 2 hrs, $3.60 per add'l hr (7:00 AM-10:30 PM)";
+  assert.equal(bandForTime(pier, 13 * 60), pier);
+});
+
 test("bandForTime leaves single-band strings alone", () => {
   // A semicolon alone must not trigger band selection — this string has two
   // clauses but no time ranges, and splitting it would lose the "1st hr" half.

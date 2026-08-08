@@ -33,8 +33,16 @@ import { loadCorpus, checkCorpus, IMPLAUSIBLE_2H } from "../scripts/rateHealth";
  * written after its period, "sub. 1 per 2 hr") and now read "—" instead of a
  * number that was never right. A rise is only ever acceptable with that kind
  * of accounting, string by string.
+ *
+ * Raised again, 29 to 31, when band splitting moved from cutting on ";" to
+ * cutting wherever a new clock range opens. Two strings lost a price at 1pm:
+ * Funan, whose covering band writes the amount after its unit ("Every 15min of
+ * part thereof at $0.65") and which had been quoting a LATER band's price, and
+ * Jurong Lake Gardens, which lists "Free" ahead of the hours it applies to.
+ * Against that, 60 stored rates had a band that could never be selected at all,
+ * so afternoon and evening arrivals were priced at the morning rate.
  */
-const MAX_UNPRICEABLE = 29;
+const MAX_UNPRICEABLE = 31;
 
 test("every stored rate still prices, or was already known not to", () => {
   const health = checkCorpus(loadCorpus());
