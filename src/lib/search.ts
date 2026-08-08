@@ -266,6 +266,17 @@ export async function search(
     }));
 
   const kept: Candidate[] = [];
+
+  // Car parks we can price claim their slots first. The EPS inventory is over
+  // 1,500 entries and carries no rates, so letting it compete on distance alone
+  // would let unpriced cards push priced ones off a ten-result list — the whole
+  // point of the app is the price. Anything left over is filled from EPS below,
+  // and the UI sorts unpriced cards under priced ones either way.
+  for (const cand of ranked) {
+    if (kept.length >= limit) break;
+    if (cand.kind !== "eps") kept.push(cand);
+  }
+
   for (const cand of ranked) {
     if (kept.length >= limit) break;
     if (cand.kind === "eps") {
@@ -292,10 +303,10 @@ export async function search(
       ) {
         continue;
       }
+      kept.push(cand);
     }
-    kept.push(cand);
   }
-  const candidates = kept;
+  const candidates = kept.sort((a, b) => a.d - b.d);
 
   const nearestHdbM = candidates.find((x) => x.kind === "hdb")?.d ?? Infinity;
   const nearestOverrideM = overrideHits[0]?.d ?? Infinity;

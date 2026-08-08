@@ -92,12 +92,27 @@ function isHdbCode(name: string): boolean {
   return /^HDB[_ ]/i.test(name);
 }
 
+/** "…HEAVY VEHICLE" / "LORRY PARK" — a car can't park there. */
+function isHeavyVehicleOnly(name: string): boolean {
+  return /\b(heavy vehicle|lorry|container)\b/i.test(name);
+}
+
 /**
- * Car parks that actually offer public (short-term) parking — the subset worth
- * surfacing as parking options. Season- or heavy-vehicle-only entries (public
- * lots reported as -1/0) are kept in the full inventory but left out of search,
- * as are the HDB-coded duplicates above.
+ * Car parks worth surfacing as parking options.
+ *
+ * `publicLots` used to gate this, on the reading that 0 meant season-only. It
+ * doesn't: CT Hub 2 is listed with 0 and takes hourly public parking, and so is
+ * "100 Pasir Panjang", for which we already hold a rate. The flag was hiding
+ * 1,241 non-HDB car parks, 712 of them nowhere near anything we can price — so
+ * it was removing them from the map as well as from the price list.
+ *
+ * They carry no rate, so they arrive as "location only" cards. Two things stop
+ * that swamping a search: the result list sorts priced cards above unpriced
+ * ones, and search fills its slots with car parks it can price before it falls
+ * back to this inventory.
+ *
+ * Still excluded: the HDB-coded duplicates above, and heavy-vehicle parks.
  */
 export const publicEpsCarparks: EpsCarpark[] = all.filter(
-  (c) => c.publicLots !== null && c.publicLots > 0 && !isHdbCode(c.name),
+  (c) => !isHdbCode(c.name) && !isHeavyVehicleOnly(c.name),
 );
