@@ -198,6 +198,21 @@ function withoutCaps(s: string): string {
   return s.replace(/capp?ed\s*(?:at)?\s*\$?\s*[\d.]+[^,.;]*/gi, " ").trim();
 }
 
+/**
+ * Two ways operators write an amount that the patterns can't see through.
+ *
+ * Chinatown Point puts a note between the amount and its unit — "$1.96 (with 9%
+ * GST) for every 30min" — which breaks the adjacency every pattern relies on.
+ * The figure already includes the tax, so the note carries no arithmetic.
+ *
+ * East Coast Park writes small amounts in cents: "60¢ per 30min".
+ */
+function normaliseAmounts(s: string): string {
+  return s
+    .replace(/\([^)]*\bgst\b[^)]*\)/gi, " ")
+    .replace(/(\d+)\s*¢/g, (_, cents: string) => `$${(Number(cents) / 100).toFixed(2)}`);
+}
+
 /** Drops the clock prefix so the fee patterns can't read "5pm-11pm" as money. */
 function stripBandPrefix(seg: string): string {
   const stripped = seg
@@ -247,9 +262,14 @@ export function bandForTime(rawInput: string, minutesOfDay: number): string {
 }
 
 export function parseRate(rawInput: string): ParsedRate {
-  const raw = withoutCaps(repairEncoding(rawInput ?? ""));
+  const raw = normaliseAmounts(withoutCaps(repairEncoding(rawInput ?? "")));
   if (!raw || raw === "-" || raw.toLowerCase() === "na") return { kind: "none" };
-  if (/same as/i.test(raw)) return { kind: "same-as-other" };
+  // Republic Plaza's row reads "Same s Saturday". Missing the typo left Sunday
+  // unpriced when it should simply have billed as Saturday, so the day word is
+  // what's matched on rather than the exact phrase.
+  if (/same as/i.test(raw) || /\bsame\b[^.;]{0,6}\b(?:sat|sun|wk|weekday)/i.test(raw)) {
+    return { kind: "same-as-other" };
+  }
   // "Free", "Daily free: 7am-7pm", etc. — free whenever "free" appears and no
   // dollar amount does. (Mixed free/paid text falls through to normal parsing.)
   if (/\bfree\b/i.test(raw) && !/\$\s*\d/.test(raw)) {
@@ -294,6 +314,29 @@ export function parseRate(rawInput: string): ParsedRate {
     };
   }
 
+  // Some operators write the period first and the amount after it: Clarke Quay
+  // has "1st hour @ $1.60, $0.55 for subsequent 15 min", Jurong Point "1st hr
+  // at $1.50; $0.75 every sub. 30min". Same rate, reversed clause — tried only
+  // once the ordinary form has failed.
+  const firstThenReversed = raw.match(
+    new RegExp(
+      `${FIRST_PERIOD}\\s*(?:at|@|[-–])\\s*${MONEY}` +
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:(?:sub\\.?|subsequent)\\s*)?` +
+        `(${RATE_UNIT})`,
+      "i",
+    ),
+  );
+  if (firstThenReversed) {
+    const units = firstThenReversed[1] ? Number(firstThenReversed[1]) : 1;
+    return {
+      kind: "first-then",
+      firstDollars: Number(firstThenReversed[3]),
+      firstMinutes: units * unitToMinutes(firstThenReversed[2]!),
+      thenDollars: Number(firstThenReversed[4]),
+      thenBlockMinutes: unitToMinutes(firstThenReversed[5]!),
+    };
+  }
+
   // "$1.30 / 30 Mins", "$1.20 per half hour", "$3.20 every 30 min", "$2 hourly"
   //
   // MUST be tried before the per-minute pattern: in "$1.30 / 30 Mins" the
@@ -312,6 +355,23 @@ export function parseRate(rawInput: string): ParsedRate {
     const blockMinutes = unitToMinutes(perBlock[2]!);
     // Guard against a 0-minute block (would divide by zero → Infinity). If the
     // match is degenerate, fall through to the remaining patterns.
+    if (dollars > 0 && blockMinutes > 0) {
+      return { kind: "per-block", dollars, blockMinutes };
+    }
+  }
+
+  // Funan writes the block first: "Every 15min of part thereof at $0.65".
+  //
+  // The leading "every/each/per" is what makes this safe. Without it the same
+  // pattern reads Tekka Place's "$1.80 for 1st hr, sub 30min at $1.20" as a
+  // flat $1.20 an hour, losing the first-hour charge entirely — a plausible
+  // wrong number, which is worse than the blank it gives today.
+  const perBlockReversed = raw.match(
+    new RegExp(`(?:every|each|per)\\s+(${BLOCK_UNIT})[^$;]{0,24}?(?:at|@)\\s*${MONEY}`, "i"),
+  );
+  if (perBlockReversed) {
+    const blockMinutes = unitToMinutes(perBlockReversed[1]!);
+    const dollars = Number(perBlockReversed[2]);
     if (dollars > 0 && blockMinutes > 0) {
       return { kind: "per-block", dollars, blockMinutes };
     }

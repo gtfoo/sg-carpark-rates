@@ -41,8 +41,13 @@ import { loadCorpus, checkCorpus, IMPLAUSIBLE_2H } from "../scripts/rateHealth";
  * Jurong Lake Gardens, which lists "Free" ahead of the hours it applies to.
  * Against that, 60 stored rates had a band that could never be selected at all,
  * so afternoon and evening arrivals were priced at the morning rate.
+ *
+ * Down to 24 once the parser learned the shapes where an amount is written
+ * AFTER its period — "1st hour @ $1.60", "Every 15min ... at $0.65" — plus the
+ * "(with 9% GST)" note between an amount and its unit, and amounts in cents.
+ * 26 prices recovered across four arrival hours, none moved, none lost.
  */
-const MAX_UNPRICEABLE = 31;
+const MAX_UNPRICEABLE = 24;
 
 test("every stored rate still prices, or was already known not to", () => {
   const health = checkCorpus(loadCorpus());

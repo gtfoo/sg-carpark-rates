@@ -113,6 +113,45 @@ test("'first' is the same word as '1st'", () => {
   assert.equal(fee("$2.60 for 1st hr; $1.30 for the next 3 hrs", 120), 3.9);
 });
 
+test("an amount written after its period still reads", () => {
+  // Clarke Quay and Jurong Point put the period first and the amount after it.
+  assert.equal(fee("1st hour @ $1.60, $0.55 for subsequent 15 min", 120), 3.8);
+  assert.equal(fee("1st hr at $1.50; $0.75 every sub. 30min", 120), 3);
+  assert.equal(fee("First 1 hour - $1.20; $0.40 for sub. 15min", 120), 2.8);
+  // Funan writes the block first. The leading "Every" is what makes this safe.
+  assert.equal(fee("Every 15min of part thereof at $0.65", 120), 5.2);
+  assert.equal(fee("$0.60 per 30 min at the barrier", 120), 2.4);
+});
+
+test("a trailing amount is not read as a whole rate on its own", () => {
+  // Without the "every/each/per" guard this reads Tekka Place as a flat $1.20
+  // an hour and loses the first-hour charge — a plausible wrong number, which
+  // is worse than the blank it gives.
+  assert.equal(fee("$1.80 for 1st hr, sub 30min at $1.20.", 120), null);
+});
+
+test("a GST note between an amount and its unit is ignored", () => {
+  // Chinatown Point: the figure already includes the tax, so the note carries
+  // no arithmetic — it just broke the adjacency the patterns rely on.
+  assert.equal(fee("$1.96 (with 9% GST) for every 30min or part thereof.", 120), 7.84);
+});
+
+test("an amount in cents is read as money", () => {
+  // East Coast Park writes small amounts as "60¢".
+  assert.equal(fee("60¢ per 30min", 120), 2.4);
+  assert.equal(fee("5¢ per min", 60), 3);
+});
+
+test("a mistyped 'same as' still defers to the other day", () => {
+  // Republic Plaza's row reads "Same s Saturday"; missing it left Sunday
+  // unpriced when it should simply have billed as Saturday.
+  assert.equal(parseRate("Same s Saturday").kind, "same-as-other");
+  assert.equal(parseRate("Same as Saturday").kind, "same-as-other");
+  assert.equal(parseRate("Charges same as wkdays").kind, "same-as-other");
+  // Not a deferral — an ordinary rate that happens to contain the word.
+  assert.equal(parseRate("$2 per hr, same rate all week").kind, "per-block");
+});
+
 test("the follow-on rate is never read out of a duration", () => {
   // Tekka Place and Tanglin Shopping Centre both put the amount last. Allowing
   // a bare number there let "30min" become $30 a minute — a $1,800 two-hour
