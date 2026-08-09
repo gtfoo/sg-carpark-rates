@@ -147,4 +147,22 @@ function migrate(handle: Database.Database): void {
       PRAGMA user_version = 4;
     `);
   }
+
+  // v5: verified_at is meant to be the day a rate was last true at its source,
+  // but the OneMotoring import stamped the day it ran. LTA's page carried
+  // "Last updated 16 April 2026" while the scrape happened on 24 July, so 346
+  // rates showed as checked a fortnight ago when the source behind them was
+  // three months old. The age on a card is one of the few things telling a
+  // driver how far to trust the number, so overstating it is worse than
+  // showing nothing. The importer now reads the page's own date; this corrects
+  // the rows already stored, and only ever moves a date backwards.
+  if (version < 5) {
+    handle.exec(`
+      UPDATE rate_overrides
+         SET verified_at = '2026-04-16'
+       WHERE source_url LIKE 'https://onemotoring.lta.gov.sg/%'
+         AND verified_at > '2026-04-16';
+      PRAGMA user_version = 5;
+    `);
+  }
 }

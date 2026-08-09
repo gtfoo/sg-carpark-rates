@@ -19,8 +19,14 @@ export interface RateOverride {
   sundayPhRate: string | null;
   source: RateSource;
   sourceUrl: string | null;
-  /** ISO date (YYYY-MM-DD) you last confirmed this rate. */
-  verifiedAt: string;
+  /**
+   * ISO date (YYYY-MM-DD) the rate was last true AT ITS SOURCE — not the day
+   * this row was written. An importer that stamps its own run date makes every
+   * rate look freshly checked, which is worse than no date at all: the age on
+   * a card is part of how a driver judges the number. Null when the source
+   * states no date of its own.
+   */
+  verifiedAt: string | null;
   notes: string | null;
   /** Coordinates, when known — enables proximity matching. */
   lat: number | null;
@@ -39,7 +45,7 @@ export interface RateOverrideInput {
   sundayPhRate?: string | null;
   source?: RateSource;
   sourceUrl?: string | null;
-  verifiedAt: string;
+  verifiedAt: string | null;
   notes?: string | null;
   lat?: number | null;
   lng?: number | null;

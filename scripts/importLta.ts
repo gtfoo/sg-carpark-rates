@@ -22,6 +22,27 @@ import {
 const BASE =
   "https://onemotoring.lta.gov.sg/content/onemotoring/home/owning/ongoing-car-costs/parking/parking_rates";
 
+const MONTHS = [
+  "january", "february", "march", "april", "may", "june",
+  "july", "august", "september", "october", "november", "december",
+];
+
+/**
+ * The "Last updated 16 April 2026" line in OneMotoring's footer, as
+ * YYYY-MM-DD. That is when these rates were last true; the day we scraped them
+ * is not. Returns null rather than guessing, so a page whose footer changes
+ * shape leaves the date empty instead of silently claiming today.
+ */
+export function lastUpdatedFrom(html: string): string | null {
+  const m = html
+    .replace(/<[^>]+>/g, " ")
+    .match(/last\s+updated\s*:?\s*(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/i);
+  if (!m) return null;
+  const month = MONTHS.indexOf(m[2]!.toLowerCase());
+  if (month < 0) return null;
+  return `${m[3]}-${String(month + 1).padStart(2, "0")}-${m[1]!.padStart(2, "0")}`;
+}
+
 function loadEnv() {
   for (const file of [".env.local", ".env"]) {
     try {
@@ -126,7 +147,11 @@ async function main() {
     }
 
     const rows = parsePage(html);
-    console.log(`page ${n}: ${rows.length} carparks`);
+    const pageDate = lastUpdatedFrom(html);
+    console.log(
+      `page ${n}: ${rows.length} carparks` +
+        (pageDate ? ` (page last updated ${pageDate})` : " (no page date found)"),
+    );
 
     for (const row of rows) {
       const { weekday, sat, sun, evening } = resolveRates(row);
@@ -156,7 +181,11 @@ async function main() {
         sundayPhRate: sun,
         source: "operator-site",
         sourceUrl: url,
-        verifiedAt: new Date().toISOString().slice(0, 10),
+        // The page's OWN date, not today's. Stamping the scrape date told the
+        // UI these rates were checked the day we ran the import, when LTA had
+        // not revised the page for three months — and the age on a card is one
+        // of the few things telling a driver how far to trust the number.
+        verifiedAt: pageDate ?? null,
         notes: `${evening}From LTA OneMotoring — verify before relying on it.`.trim(),
         lat,
         lng,
@@ -177,7 +206,11 @@ function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+// Guarded so lastUpdatedFrom can be imported and tested without the import
+// itself running — it opens the database and rewrites every LTA row.
+if (process.argv[1] && process.argv[1].endsWith("importLta.ts")) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

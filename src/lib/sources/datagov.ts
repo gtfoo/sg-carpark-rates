@@ -43,6 +43,34 @@ function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/**
+ * When the dataset itself was last republished, as YYYY-MM-DD.
+ *
+ * This is the date a rate taken from it was last true, which is NOT the date we
+ * imported it. Recording the import date instead made 346 stored rates claim
+ * they had been verified a fortnight ago when the source behind them had not
+ * moved since June 2024, and the age shown on the card — one of the few signals
+ * telling a driver how much to trust the number — said the opposite of the
+ * truth. Returns null if the metadata can't be read; callers should then record
+ * no date rather than invent today's.
+ */
+export async function fetchDatasetLastUpdated(
+  datasetId: string,
+): Promise<string | null> {
+  try {
+    const res = await fetchWithRetry(
+      `https://api-production.data.gov.sg/v2/public/api/datasets/${datasetId}/metadata`,
+    );
+    const body = (await res.json()) as {
+      data?: { datasetMetadata?: { lastUpdatedAt?: string } };
+    };
+    const at = body.data?.datasetMetadata?.lastUpdatedAt;
+    return at ? at.slice(0, 10) : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Pages through a datastore resource until every record is retrieved. */
 export async function fetchAllRecords<T>(
   resourceId: string,
