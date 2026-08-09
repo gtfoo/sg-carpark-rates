@@ -50,15 +50,40 @@ function cleanName(name: string): string {
  * P0075"), so use that, dropping the trailing repeat of the code and joining a
  * bare house number onto its street.
  */
+/**
+ * Is this a filing code rather than a place? "URA_P0075", "CP13_CP14_CP15",
+ * "HDH203", "TP57_TP59" — operators file car parks under internal references
+ * and EPS passes them through, so they reach a card as "Ura_p0075" and tell a
+ * driver nothing.
+ *
+ * Chasing them one prefix at a time didn't work: a sweep of the inventory found
+ * thirteen across eight different prefixes beyond the two already handled. So
+ * the test is structural — every part is a short reference and at least one
+ * carries a digit. Requiring the digit is what keeps real names out: "AMOY ST"
+ * and "112 KATONG" both survive it.
+ */
+function isCodeName(name: string): boolean {
+  const tokens = name.toUpperCase().trim().split(/[_\s-]+/).filter(Boolean);
+  if (!tokens.length) return false;
+  const isRef = (t: string) =>
+    /^[A-Z]{1,4}\d{1,5}$/.test(t) || /^\d{1,5}[A-Z]?$/.test(t) || /^(HDB|URA|CP|MSCP|BLK)$/.test(t);
+  return tokens.every(isRef) && tokens.some((t) => /\d/.test(t));
+}
+
 export function displayName(name: string, address: string): string {
   const clean = cleanName(name);
-  if (!/^URA[_ ]/i.test(clean)) return clean;
-  const code = clean.replace(/^URA[_ ]/i, "").trim().toUpperCase();
+  // HDB codes are left exactly as they are: publicEpsCarparks filters on this
+  // name, so renaming them would defeat isHdbCode and let 1,298 duplicates of
+  // the HDB dataset back into search.
+  if (/^HDB[_ ]/i.test(clean)) return clean;
+  if (!isCodeName(clean)) return clean;
+  // Every part of the code, so the address doesn't just repeat it back.
+  const codes = new Set(clean.toUpperCase().split(/[_\s-]+/).filter(Boolean));
   const parts = address
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean)
-    .filter((s) => s.toUpperCase() !== code && !/^singapore\b/i.test(s));
+    .filter((s) => !codes.has(s.toUpperCase()) && !/^singapore\b/i.test(s));
   // "0, TIONG BAHRU ROAD" — a placeholder house number, not an address.
   if (parts[0] === "0") parts.shift();
   if (!parts.length) return clean;
