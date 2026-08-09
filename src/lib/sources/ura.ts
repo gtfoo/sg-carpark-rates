@@ -122,6 +122,44 @@ function blockMins(r: RawUraCarpark): number {
   return parseInt((r.weekdayMin ?? "").trim(), 10) || 0;
 }
 
+/**
+ * Every band URA publishes for one car park, as one string the fee engine can
+ * read: "08.30 AM-05.00 PM: $1.20 per 30 mins; 05.00 PM-10.00 PM: $0.60 per 30 mins".
+ *
+ * URA returns a row per time band, and this import used to keep only the band
+ * covering 1pm — so all 660 car parks were priced at their midday rate at every
+ * hour of the day, evenings and overnight included. bandForTime selects the
+ * right band at query time instead, and URA's own clock format ("08.30 AM")
+ * already matches the pattern it reads, so nothing needs reformatting.
+ *
+ * Bands are emitted in clock order, and identical text is emitted once: URA
+ * repeats a band per vehicle category, and a duplicate would otherwise be read
+ * as a second band saying the same thing.
+ */
+function bandedRate(
+  rows: RawUraCarpark[],
+  rate: (r: RawUraCarpark) => string | null,
+): string | null {
+  const ordered = [...rows].sort(
+    (a, b) => (parseUraTime(a.startTime) ?? 0) - (parseUraTime(b.startTime) ?? 0),
+  );
+  const parts: string[] = [];
+  const seen = new Set<string>();
+  for (const r of ordered) {
+    const value = rate(r);
+    if (!value) continue;
+    const from = (r.startTime ?? "").trim();
+    const to = (r.endTime ?? "").trim();
+    // Without a clock range there is nothing to select on, so such a row can
+    // only stand as the whole rate.
+    const text = from && to ? `${from}-${to}: ${value}` : value;
+    if (seen.has(text)) continue;
+    seen.add(text);
+    parts.push(text);
+  }
+  return parts.length ? parts.join("; ") : null;
+}
+
 /** URA returns SVY21 "x,y"; convert with the verified transform. */
 function toLatLng(geometries?: { coordinates?: string }[]): LatLng | null {
   const raw = geometries?.[0]?.coordinates;
@@ -188,9 +226,9 @@ export async function fetchUraCarparks(): Promise<UraCarpark[]> {
       location: toLatLng(pick.geometries),
       capacity: Number(pick.parkCapacity) || null,
       parkingSystem: pick.parkingSystem?.trim() || null,
-      weekdayRate: rateString(pick.weekdayRate, pick.weekdayMin),
-      saturdayRate: rateString(pick.satdayRate, pick.satdayMin),
-      sundayPhRate: rateString(pick.sunPHRate, pick.sunPHMin),
+      weekdayRate: bandedRate(rows, (r) => rateString(r.weekdayRate, r.weekdayMin)),
+      saturdayRate: bandedRate(rows, (r) => rateString(r.satdayRate, r.satdayMin)),
+      sundayPhRate: bandedRate(rows, (r) => rateString(r.sunPHRate, r.sunPHMin)),
       band:
         pick.startTime && pick.endTime
           ? `${pick.startTime}-${pick.endTime}`
