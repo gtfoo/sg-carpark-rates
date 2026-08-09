@@ -46,6 +46,8 @@ export default function Home() {
   const [data, setData] = useState<SearchResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // Waiting on the browser's location prompt, which can sit open for a while.
+  const [locating, setLocating] = useState(false);
   // The term behind the current results, so we can re-run after adding a rate.
   const [lastTerm, setLastTerm] = useState("");
 
@@ -72,7 +74,15 @@ export default function Home() {
   // lookup is never triggered automatically anymore — it's user-initiated.
   async function doSearch(term: string, opts: { keepLookup?: boolean } = {}) {
     if (!term.trim()) return;
+    await runQuery(`q=${encodeURIComponent(term)}`, term, opts);
+  }
 
+  /** Shared by the address search and "near me" — only the query differs. */
+  async function runQuery(
+    query: string,
+    term: string,
+    opts: { keepLookup?: boolean } = {},
+  ) {
     setLastTerm(term);
     setLoading(true);
     setError(null);
@@ -83,7 +93,7 @@ export default function Home() {
       const startParam =
         useCustomStart && start ? `&start=${encodeURIComponent(start)}` : "";
       const res = await fetch(
-        `/api/search?q=${encodeURIComponent(term)}&minutes=${minutes}${startParam}`,
+        `/api/search?${query}&minutes=${minutes}${startParam}`,
       );
       const body = await res.json();
       if (!res.ok) {
@@ -96,6 +106,40 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  }
+
+  /**
+   * Search from the device's own position.
+   *
+   * The browser only prompts in response to a gesture, so this must stay on a
+   * button rather than firing on load — and a refused prompt is a choice, not
+   * an error, so it's reported as one line rather than a failure state.
+   */
+  function searchHere() {
+    if (!("geolocation" in navigator)) {
+      setError("This browser can't share a location.");
+      return;
+    }
+    setLocating(true);
+    setError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false);
+        const { latitude, longitude } = pos.coords;
+        void runQuery(`lat=${latitude}&lng=${longitude}`, "");
+      },
+      (err) => {
+        setLocating(false);
+        setError(
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission was declined — search by address instead."
+            : "Couldn't get a location fix. Try again, or search by address.",
+        );
+      },
+      // A rough fix is fine for "what's near me", and asking for a precise one
+      // costs seconds and battery. Accept a fix up to a minute old.
+      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
+    );
   }
 
   async function runLookup(
@@ -149,6 +193,8 @@ export default function Home() {
             // away rather than making the user press the button as well.
             void doSearch(s.name);
           }}
+          onUseLocation={searchHere}
+          locating={locating}
         />
 
         <div className="mt-4">

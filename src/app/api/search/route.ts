@@ -12,8 +12,30 @@ export async function GET(request: Request) {
   const destination = searchParams.get("q")?.trim();
   const minutes = Number(searchParams.get("minutes") ?? 120);
 
-  if (!destination) {
-    return Response.json({ error: "Missing ?q" }, { status: 400 });
+  // "Near me" sends coordinates instead of a place name — there's nothing to
+  // geocode, and no destination building whose own rate we'd look up.
+  const lat = Number(searchParams.get("lat"));
+  const lng = Number(searchParams.get("lng"));
+  const hasCoords =
+    searchParams.has("lat") &&
+    searchParams.has("lng") &&
+    Number.isFinite(lat) &&
+    Number.isFinite(lng);
+
+  if (!destination && !hasCoords) {
+    return Response.json({ error: "Missing ?q, or ?lat and ?lng" }, { status: 400 });
+  }
+
+  // Every data source here is Singapore-only, so a fix from anywhere else would
+  // return the whole country's nearest car parks ranked by hundreds of km. Say
+  // so plainly instead.
+  const IN_SINGAPORE =
+    lat > 1.13 && lat < 1.5 && lng > 103.55 && lng < 104.15;
+  if (hasCoords && !IN_SINGAPORE) {
+    return Response.json(
+      { error: "That location is outside Singapore, which is all this covers." },
+      { status: 400 },
+    );
   }
   // Up to 14 days: multi-day stays are normal near the airport, and the fee
   // engine caps each day and night window independently.
@@ -35,7 +57,11 @@ export async function GET(request: Request) {
   }
 
   try {
-    const result = await search(destination, minutes, start);
+    const result = await search(
+      hasCoords ? { lat, lng } : destination!,
+      minutes,
+      start,
+    );
     if (!result) {
       return Response.json(
         { error: `Could not find "${destination}" in Singapore.` },

@@ -8,11 +8,21 @@ interface Props {
   onChange: (v: string) => void;
   /** Fired when a suggestion is picked, so the caller can search immediately. */
   onPick: (s: Suggestion) => void;
+  /** Search from the device's position instead of a typed address. */
+  onUseLocation?: () => void;
+  /** True while the browser's location prompt is open or a fix is pending. */
+  locating?: boolean;
 }
 
 const DEBOUNCE_MS = 250;
 
-export default function AddressInput({ value, onChange, onPick }: Props) {
+export default function AddressInput({
+  value,
+  onChange,
+  onPick,
+  onUseLocation,
+  locating = false,
+}: Props) {
   const [items, setItems] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -97,6 +107,19 @@ export default function AddressInput({ value, onChange, onPick }: Props) {
 
   return (
     <div ref={boxRef} className="relative">
+      {onUseLocation && (
+        <button
+          type="button"
+          onClick={onUseLocation}
+          disabled={locating}
+          // Inside the field, so it reads as an alternative to typing rather
+          // than as a second search button.
+          className="absolute right-2 top-2 z-10 rounded-lg px-2.5 py-1.5 text-xs font-medium disabled:opacity-60"
+          style={{ background: "var(--surface-2, transparent)", color: "var(--accent)" }}
+        >
+          {locating ? "Locating…" : "◎ Near me"}
+        </button>
+      )}
       <input
         type="text"
         value={value}
@@ -112,7 +135,10 @@ export default function AddressInput({ value, onChange, onPick }: Props) {
         aria-controls="address-suggestions"
         aria-autocomplete="list"
         aria-activedescendant={active >= 0 ? `suggestion-${active}` : undefined}
-        className="w-full rounded-xl border px-4 py-3 outline-none"
+        // Right padding keeps typed text from running under the Near me button.
+        className={`w-full rounded-xl border py-3 pl-4 outline-none ${
+          onUseLocation ? "pr-24" : "pr-4"
+        }`}
         style={{
           background: "var(--surface)",
           borderColor: "var(--border)",

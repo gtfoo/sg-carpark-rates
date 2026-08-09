@@ -170,13 +170,26 @@ async function getAvailabilitySafe(): Promise<Map<string, Availability>> {
   }
 }
 
+/** The label a "near me" search carries instead of a building name. */
+export const HERE = "Your location";
+
+/**
+ * Searching from coordinates asks a different question from searching an
+ * address. "What does parking at Jem cost" has a destination whose own car park
+ * might have a rate; "what's around me" has no such building, so the
+ * destination-rate lookup and the gap log are skipped rather than run against a
+ * name that means nothing.
+ */
 export async function search(
-  destination: string,
+  destination: string | LatLng,
   minutes: number,
   start: Date = new Date(),
   limit = 10,
 ): Promise<SearchResponse | null> {
-  const place = await geocode(destination);
+  const fromCoordinates = typeof destination !== "string";
+  const place = fromCoordinates
+    ? { name: HERE, address: HERE, postal: null, location: destination }
+    : await geocode(destination);
   if (!place) return null;
 
   const [carparks, availability, mallRates, holidayMap, commercialLots] =
@@ -343,7 +356,7 @@ export async function search(
   // coordinates yet (geocode failures, hand-entered rates), then the LTA mall
   // dataset. Whichever hits is shown as the destination's own rate.
   let destRate: CarparkResult | null = null;
-  if (nearestOverrideM > COVERED_M) {
+  if (nearestOverrideM > COVERED_M && !fromCoordinates) {
     const nameOv = safe(
       () => findOverrideForDestination({ postal: place.postal, name: place.name }),
       null,
@@ -371,10 +384,14 @@ export async function search(
     if (destRate) results.unshift(destRate);
   }
 
-  const destinationRateFound = nearestOverrideM <= COVERED_M || destRate !== null;
+  // A coordinate search has no destination whose parking could be missing a
+  // rate, so nothing is "not found" and the add-a-rate prompt stays away.
+  const destinationRateFound =
+    fromCoordinates || nearestOverrideM <= COVERED_M || destRate !== null;
 
   if (
     !destinationRateFound &&
+    !fromCoordinates &&
     nearestHdbM > 200 &&
     nearestOverrideM > OVERRIDE_RADIUS_M
   ) {
