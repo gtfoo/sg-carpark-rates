@@ -26,7 +26,13 @@
  * licensed substitute for those, and deleting them would just lose the car park.
  */
 import { fetchAllRecords, fetchDatasetLastUpdated } from "../src/lib/sources/datagov";
-import { joinWeekdayBands } from "../src/lib/sources/mallRates";
+import {
+  joinWeekdayBands,
+  bandForTime,
+  parseRate,
+  parseLimits,
+  estimateMallFee,
+} from "../src/lib/sources/mallRates";
 
 const DATASET = "d_9f6056bdb6b1dfba57f063593e4f34ae";
 const DATASET_URL = `https://data.gov.sg/datasets/${DATASET}/view`;
@@ -85,7 +91,7 @@ async function main() {
 
   const rows = getDb()
     .prepare(
-      `SELECT id, match_type, match_value, display_name, lat, lng, notes
+      `SELECT id, match_type, match_value, display_name, lat, lng, notes, weekday_rate
          FROM rate_overrides
         WHERE source_url LIKE 'https://onemotoring.lta.gov.sg/%'`,
     )
@@ -97,8 +103,22 @@ async function main() {
     lat: number | null;
     lng: number | null;
     notes: string | null;
+    weekday_rate: string | null;
   }[];
   console.log(`scraped rows to re-source: ${rows.length}\n`);
+
+  /** Arrival hours to price each rate at, so a band change can't hide. */
+  const HOURS = [9, 13, 19, 23];
+  const price = (text: string, h: number): number | null => {
+    const band = bandForTime(text, h * 60);
+    return estimateMallFee(parseRate(band), 120, parseLimits(band));
+  };
+  const impact = {
+    same: 0,
+    moved: 0,
+    gained: 0,
+    lost: [] as { name: string; before: (number | null)[]; after: (number | null)[] }[],
+  };
 
   let replaced = 0;
   let unmatched = 0;
@@ -115,7 +135,20 @@ async function main() {
     }
     replaced++;
     if (dry) {
-      if (replaced <= 5) console.log(`  ${row.display_name}\n     -> ${weekday.slice(0, 96)}`);
+      // What this actually does to the price is the only thing that matters.
+      // The dataset is older but band-richer, so both directions are possible
+      // and a row that stops pricing altogether must not slip through.
+      const before = HOURS.map((h) => price(row.weekday_rate ?? "", h));
+      const after = HOURS.map((h) => price(weekday, h));
+      const lost = before.some((b, i) => b !== null && after[i] === null);
+      const gained = before.some((b, i) => b === null && after[i] !== null);
+      const moved = before.some(
+        (b, i) => b !== null && after[i] !== null && Math.abs(b - after[i]!) > 0.005,
+      );
+      if (lost) impact.lost.push({ name: row.display_name ?? row.match_value, before, after });
+      else if (gained) impact.gained++;
+      if (moved) impact.moved++;
+      if (!lost && !gained && !moved) impact.same++;
       continue;
     }
     upsertOverride({
@@ -138,7 +171,21 @@ async function main() {
 
   console.log(`\n  re-sourced from the open dataset : ${replaced}`);
   console.log(`  left as they are, no match       : ${unmatched}`);
-  if (dry) console.log("\n--dry: nothing written.");
+
+  if (dry) {
+    const f = (v: number | null) => (v === null ? "—" : `$${v.toFixed(2)}`);
+    console.log(`\n  priced at ${HOURS.map((h) => `${h}:00`).join("/")}:`);
+    console.log(`    identical               : ${impact.same}`);
+    console.log(`    price moves             : ${impact.moved}`);
+    console.log(`    newly priceable         : ${impact.gained}`);
+    console.log(`    STOPS pricing at an hour: ${impact.lost.length}`);
+    for (const l of impact.lost.slice(0, 12)) {
+      console.log(
+        `      ${l.name.slice(0, 34).padEnd(35)} ${l.before.map(f).join(" ")}  ->  ${l.after.map(f).join(" ")}`,
+      );
+    }
+    console.log("\n--dry: nothing written.");
+  }
 }
 
 if (process.argv[1] && process.argv[1].endsWith("resourceLtaRates.ts")) {
