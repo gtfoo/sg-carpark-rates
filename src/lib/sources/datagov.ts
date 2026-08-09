@@ -62,9 +62,15 @@ export async function fetchDatasetLastUpdated(
       `https://api-production.data.gov.sg/v2/public/api/datasets/${datasetId}/metadata`,
     );
     const body = (await res.json()) as {
-      data?: { datasetMetadata?: { lastUpdatedAt?: string } };
+      data?: {
+        lastUpdatedAt?: string;
+        datasetMetadata?: { lastUpdatedAt?: string };
+      };
     };
-    const at = body.data?.datasetMetadata?.lastUpdatedAt;
+    // The field sits directly on `data`. It was read one level too deep at
+    // first, which returned undefined every time — worth accepting both shapes
+    // rather than depending on an undocumented response layout.
+    const at = body.data?.lastUpdatedAt ?? body.data?.datasetMetadata?.lastUpdatedAt;
     return at ? at.slice(0, 10) : null;
   } catch {
     return null;
