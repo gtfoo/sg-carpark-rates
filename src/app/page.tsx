@@ -1181,6 +1181,15 @@ function isUraApiUrl(url: string | null): boolean {
 }
 
 /**
+ * True for LTA's open carpark-rates dataset on data.gov.sg. Worth its own label
+ * rather than "operator site": it is a published dataset that stopped being
+ * updated in June 2024, and the age beside it is doing real work.
+ */
+function isOpenDataUrl(url: string | null): boolean {
+  return Boolean(url && url.includes("data.gov.sg"));
+}
+
+/**
  * True for LTA's OneMotoring portal. Both URA and OneMotoring rates are stored
  * as "operator-site", but OneMotoring is a government aggregator that re-lists
  * operators' rates — not the operator's own site — so it gets its own label and
@@ -1217,6 +1226,7 @@ function feeSourceLabel(r: CarparkResult): string {
       // "operator-site" is really three sources; separate them so the label
       // matches how authoritative each is.
       if (isUraApiUrl(r.feeSourceUrl)) return `URA (official) · ${age}`;
+      if (isOpenDataUrl(r.feeSourceUrl)) return `LTA open dataset · ${age}`;
       if (isOneMotoringUrl(r.feeSourceUrl)) return `Via LTA OneMotoring · ${age}`;
       return `From operator site · ${age}`;
   }

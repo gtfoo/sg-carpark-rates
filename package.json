@@ -18,6 +18,7 @@
     "export-rate-corpus": "tsx scripts/exportRateCorpus.ts",
     "rates-health": "tsx scripts/rateHealth.ts",
     "rates-staleness": "tsx scripts/rateStaleness.ts",
+    "resource-lta": "tsx scripts/resourceLtaRates.ts",
     "lookup": "tsx scripts/lookup.ts",
     "demo": "tsx scripts/demo.ts"
   },

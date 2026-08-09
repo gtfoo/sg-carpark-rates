@@ -30,6 +30,10 @@ interface Row {
 const SHELF_LIFE_DAYS: Record<string, number> = {
   "URA (official)": 180,
   "LTA OneMotoring": 180,
+  // The open dataset stopped being updated in June 2024, so every row sourced
+  // from it is already well past this. That is the point: they should sit in
+  // the re-verification queue rather than look current.
+  "LTA open data": 180,
   "Operator site": 365,
   "AI-retrieved": 90,
   "Entered by hand": 365,
@@ -40,6 +44,7 @@ function classify(r: Row): string {
   if (r.source === "web-llm") return "AI-retrieved";
   if (r.source === "manual") return "Entered by hand";
   if (/eservice\.ura\.gov\.sg/i.test(url)) return "URA (official)";
+  if (/data\.gov\.sg/i.test(url)) return "LTA open data";
   if (/onemotoring\.lta\.gov\.sg/i.test(url)) return "LTA OneMotoring";
   return "Operator site";
 }
