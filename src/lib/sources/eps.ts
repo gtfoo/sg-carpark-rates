@@ -70,13 +70,29 @@ function isCodeName(name: string): boolean {
   return tokens.every(isRef) && tokens.some((t) => /\d/.test(t));
 }
 
+/**
+ * EPS uses "_" as filing punctuation inside real names too: "28_30 BIDEFORD
+ * ROAD" is two house numbers, "ARAB_ QUEEN STREET" two roads, "47 JALAN
+ * PEMIMPIN_ 39A JALAN PEMIMPIN" two addresses sharing one car park. Rewrite in
+ * the convention the HDB dataset already uses on cards ("Blk 175/183 To 185"):
+ * a slash between numbers, a spaced slash between words.
+ */
+function tidySeparators(s: string): string {
+  if (!s.includes("_")) return s;
+  return s
+    .replace(/(\d[A-Z]?)\s*_\s*(?=\d)/gi, "$1/")
+    .replace(/\s*_\s*/g, " / ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 export function displayName(name: string, address: string): string {
   const clean = cleanName(name);
   // HDB codes are left exactly as they are: publicEpsCarparks filters on this
   // name, so renaming them would defeat isHdbCode and let 1,298 duplicates of
   // the HDB dataset back into search.
   if (/^HDB[_ ]/i.test(clean)) return clean;
-  if (!isCodeName(clean)) return clean;
+  if (!isCodeName(clean)) return tidySeparators(clean);
   // Every part of the code, so the address doesn't just repeat it back.
   const codes = new Set(clean.toUpperCase().split(/[_\s-]+/).filter(Boolean));
   const parts = address

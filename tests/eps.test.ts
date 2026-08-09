@@ -19,6 +19,29 @@ test("any filing code is replaced by the car park's address", () => {
   );
 });
 
+test("filing underscores inside a real name become slashes", () => {
+  // The convention the HDB dataset already uses on cards: "Blk 175/183 To 185".
+  assert.equal(displayName("28_30 BIDEFORD ROAD", "28, BIDEFORD ROAD"), "28/30 BIDEFORD ROAD");
+  assert.equal(
+    displayName("BLK 20_22_24_26_28_30 CHANGI NORTH WAY", "20, CHANGI NORTH WAY"),
+    "BLK 20/22/24/26/28/30 CHANGI NORTH WAY",
+  );
+  assert.equal(
+    displayName("ARAB_ QUEEN STREET OFF STREET", "1, ARAB STREET"),
+    "ARAB / QUEEN STREET OFF STREET",
+  );
+  assert.equal(
+    displayName("47 JALAN PEMIMPIN_ 39A JALAN PEMIMPIN", "47, JALAN PEMIMPIN"),
+    "47 JALAN PEMIMPIN / 39A JALAN PEMIMPIN",
+  );
+  assert.equal(
+    displayName("BLK 3004-3007_3014_3015 UBI ROAD 1", "3004, UBI ROAD 1"),
+    "BLK 3004-3007/3014/3015 UBI ROAD 1",
+  );
+  // No underscore, no change — and HDB codes stay verbatim (tested above).
+  assert.equal(displayName("The Cathay", "2, HANDY ROAD"), "The Cathay");
+});
+
 test("a real place name is never mistaken for a code", () => {
   // The digit requirement is what protects these — without it "AMOY ST" reads
   // as two short reference tokens and gets replaced by its address.
