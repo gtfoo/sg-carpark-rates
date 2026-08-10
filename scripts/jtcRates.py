@@ -43,6 +43,43 @@ DAY_HEADERS = {
 }
 # A band that covers the whole day names no clock: "Full day - Free Parking".
 FULLDAY = re.compile(r"^Full day\s*-\s*(.+)$", re.I)
+# Who runs the car park, when the document names them: "Wilson Parking",
+# "LHN Parking", "Metro Parking". Recorded in the notes, never used to decide
+# which token is the car park's name.
+OPERATOR = re.compile(r"\b(parking|management|carpark)\b", re.I)
+
+def looks_like_name(t):
+    """
+    Is this token a car park name rather than a stray rate or heading?
+
+    Listing every non-name shape was whack-a-mole — day headers, then season
+    lines, then "Containers (excluding Prime Mover)", then bare rate fragments
+    — because this PDF's reading order interleaves the Motorcycle and Heavy
+    Vehicle sections unpredictably. Testing for what a NAME looks like is
+    finite: some letters, no money, no rate vocabulary, not a label.
+    """
+    if "$" in t or t.rstrip().endswith(":"):
+        return False
+    if re.search(r"/\d+\s*mins?|per min|per session|capped|cents|full day parking", t, re.I):
+        return False
+    # Table headings and vehicle-type labels that sit between blocks.
+    if re.match(r"^(operator|container|vehicle type|car park name|season|first session)", t, re.I):
+        return False
+    # No car park is named after a day; these are day headers in a spelling the
+    # map doesn't carry ("Sunday/Public Holidays", "Monday to Sunday").
+    if re.match(r"^(mon|tue|wed|thu|fri|sat|sun|public holiday|full day)\w*\b", t, re.I):
+        return False
+    # A lone road-type word is the tail of a wrapped name — "Crescent", left
+    # over from "47-79 Ayer Rajah Crescent". Word count alone can't decide
+    # this: "Biopolis" is a real car park and rejecting it dropped seventeen
+    # blocks, so only the road-type words are refused.
+    if re.fullmatch(
+        r"(crescent|road|street|avenue|lane|way|drive|link|loop|park|close|"
+        r"place|terrace|walk|view|rise|hill|north|south|east|west)\)?",
+        t.strip(), re.I,
+    ):
+        return False
+    return bool(re.search(r"[A-Za-z]{3}", t))
 
 def runs_from(pdf_bytes):
     """Full text runs, one per TJ/Tj show operation, in document order."""
@@ -85,26 +122,41 @@ def band_line(m):
     return f"{clock(m.group(1))}-{clock(m.group(2))}: {norm_rate(m.group(3))}"
 
 def parse(runs):
-    # Operator names ("Wilson Parking", "LHN Parking") recur across blocks and
-    # can sit BEFORE or AFTER the car park name, so position can't identify
-    # them — frequency can. First pass: count the free-floating tokens.
-    floating = {}
-    for tok in runs:
-        if tok in MARKERS or tok in DAY_HEADERS or BAND.match(tok) \
-           or SEASON.match(tok) or FULLDAY.match(tok):
-            continue
-        floating[tok] = floating.get(tok, 0) + 1
-    operators = {t for t, n in floating.items() if n >= 3}
-
+    # Position identifies the name: every block is [operator?] [name] "Car",
+    # so the token immediately before "Car" is always the car park.
+    #
+    # An earlier version guessed operators by frequency instead, on the theory
+    # that a repeated token must be a company. It isn't — "Toa Payoh Industrial
+    # Park" names several car parks and was dropped as an operator, taking 18
+    # real entries with it. Operators are recognised by shape now, and only to
+    # record who runs the place; they never affect which token is the name.
     carparks = []
     i = 0
     pending = []           # candidate name tokens seen since the last block
+    skipped = []
     while i < len(runs):
         tok = runs[i]
         if tok == "Car" and pending:
-            names = [t for t in pending if t not in operators]
-            ops = [t for t in pending if t in operators]
-            name = names[-1] if names else pending[-1]
+            # A name wraps across runs when the bracket it opens is still open:
+            # "Aviation One, Seletar Aerospace Park (700 West Camp" + "Road)".
+            joined = []
+            for t in pending:
+                if joined and joined[-1].count("(") > joined[-1].count(")"):
+                    joined[-1] += " " + t
+                else:
+                    joined.append(t)
+            # The operator sits before the name in some blocks and after it in
+            # others, so take the last token that isn't one. Taking simply the
+            # last put "Wilson Parking" and "TOP Parking" in the store as car
+            # parks fifteen times over.
+            names = [t for t in joined if looks_like_name(t) and not OPERATOR.search(t)]
+            ops = [t for t in joined if OPERATOR.search(t)]
+            if not names:
+                skipped.append(joined[-1] if joined else "?")
+                pending = []
+                i += 1
+                continue
+            name = names[-1]
             operator = ops[-1] if ops else None
             pending = []
             bands = {"weekday": [], "friday": [], "saturday": [], "sundayPh": []}
@@ -138,11 +190,20 @@ def parse(runs):
                 "sundayPh": "; ".join(bands["sundayPh"]) or None,
             })
             continue
-        if tok in MARKERS or BAND.match(tok) or SEASON.match(tok) or FULLDAY.match(tok):
+        # Day headers and "Not Applicable" appear OUTSIDE Car sections too —
+        # under Motorcycle and Heavy Vehicle. Falling through to `pending` let
+        # them be taken as car park names, which is how "Not Applicable" and
+        # "Monday to Sunday/Public Holidays" reached the store as car parks.
+        if (tok in MARKERS or tok in DAY_HEADERS or BAND.match(tok)
+                or SEASON.match(tok) or FULLDAY.match(tok)):
             i += 1
             continue
         pending.append(tok)
         i += 1
+    if skipped:
+        print(f"  !! {len(skipped)} Car section(s) with no name before them:")
+        for s in skipped:
+            print(f"       {s[:64]}")
     return carparks
 
 def main():
@@ -150,8 +211,19 @@ def main():
     data = open(pdf, "rb").read()
     runs = runs_from(data)
     cps = parse(runs)
+    # Every name must be unique: the importer upserts on a normalised name, so
+    # two rows sharing one silently become one, and a junk name shared by three
+    # blocks quietly overwrites a real car park.
+    seen = {}
+    for c in cps:
+        k = re.sub(r"[^A-Z0-9]", "", c["name"].upper())
+        seen.setdefault(k, []).append(c["name"])
+    dupes = {k: v for k, v in seen.items() if len(v) > 1}
+    if dupes:
+        print(f"  !! {len(dupes)} duplicate name key(s): {list(dupes.values())[:3]}")
+
     json.dump(cps, open(out, "w"), indent=1)
-    print(f"text runs: {len(runs)}, car parks extracted: {len(cps)}")
+    print(f"text runs: {len(runs)}, car parks extracted: {len(cps)}, distinct names: {len(seen)}")
     missing = [c["name"] for c in cps if not c["weekday"]]
     print(f"  without a weekday rate: {len(missing)} {missing[:4]}")
     for c in cps[:4]:

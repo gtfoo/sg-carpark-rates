@@ -76,7 +76,13 @@ function inSingapore(p: { lat: number; lng: number }): boolean {
 /** OneMap lookup for a JTC name, most specific form first. */
 async function geocodeName(name: string): Promise<{ lat: number; lng: number } | null> {
   const inBrackets = name.match(/\(([^)]+)\)/)?.[1]?.trim();
-  const candidates = [inBrackets, name.replace(/\s*\([^)]*\)/, "").trim(), name]
+  const noBrackets = name.replace(/\s*\([^)]*\)/, "").trim();
+  // "Blk 1 Kb-1, Kaki Bukit Avenue 3" fails whole but its road resolves — the
+  // block-and-building prefix is what OneMap can't place.
+  const afterComma = noBrackets.includes(",")
+    ? noBrackets.slice(noBrackets.lastIndexOf(",") + 1).trim()
+    : null;
+  const candidates = [inBrackets, afterComma, noBrackets, name]
     .filter((v): v is string => Boolean(v && v.length > 3));
 
   for (const q of [...new Set(candidates)]) {
