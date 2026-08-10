@@ -1,26 +1,20 @@
 /**
- * Imports LTA OneMotoring published car park rates into the rate store.
+ * RETIRED. This used to scrape car park rates off OneMotoring's pages, and it
+ * must not do that again.
  *
- *   npm run import-lta            # rates only (fast; match by name)
- *   npm run import-lta -- --geocode   # also geocode each carpark for map/nearby
+ * OneMotoring's Terms of Use say its contents "shall not be reproduced,
+ * republished, uploaded, posted, transmitted, communicated or otherwise
+ * distributed in any way, without the prior written permission of LTA" — and
+ * the scrape also got past a 403 by sending a browser user-agent. The 346 rows
+ * it had written were replaced with the same car parks from LTA's open dataset
+ * on data.gov.sg (Singapore Open Data Licence) by scripts/resourceLtaRates.ts.
  *
- * Source: https://onemotoring.lta.gov.sg/.../parking/parking_rates.{1..8}.html
- * robots.txt allows this (Crawl-delay: 1). Rows are saved as 'operator-site'
- * overrides with the LTA page as the source URL, so re-running replaces them.
+ * Running this again would have re-scraped and overwritten that licensed data,
+ * so the scraper is gone rather than merely disused. If LTA grants written
+ * permission one day, the scraping logic is in git history before this commit.
  *
- * NOTE: LTA splits weekdays into before/after 5-6pm. Our fee model takes one
- * weekday rate, so we store the daytime (before 5/6pm) rate and keep the
- * evening rate in the notes.
+ *   npm run resource-lta        # the replacement: licensed, same car parks
  */
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import {
-  upsertOverride,
-  deleteOverridesBySourceUrlLike,
-} from "../src/lib/store/rates";
-
-const BASE =
-  "https://onemotoring.lta.gov.sg/content/onemotoring/home/owning/ongoing-car-costs/parking/parking_rates";
 
 const MONTHS = [
   "january", "february", "march", "april", "may", "june",
@@ -28,10 +22,11 @@ const MONTHS = [
 ];
 
 /**
- * The "Last updated 16 April 2026" line in OneMotoring's footer, as
- * YYYY-MM-DD. That is when these rates were last true; the day we scraped them
- * is not. Returns null rather than guessing, so a page whose footer changes
- * shape leaves the date empty instead of silently claiming today.
+ * The "Last updated 16 April 2026" line in a OneMotoring footer, as
+ * YYYY-MM-DD. Kept because it dates content correctly for ANY page that
+ * publishes such a line, and migration v5's correction of the old rows is
+ * documented against it. Returns null rather than guessing, so a footer that
+ * changes shape yields no date instead of silently claiming today.
  */
 export function lastUpdatedFrom(html: string): string | null {
   const m = html
@@ -43,174 +38,11 @@ export function lastUpdatedFrom(html: string): string | null {
   return `${m[3]}-${String(month + 1).padStart(2, "0")}-${m[1]!.padStart(2, "0")}`;
 }
 
-function loadEnv() {
-  for (const file of [".env.local", ".env"]) {
-    try {
-      for (const line of readFileSync(join(process.cwd(), file), "utf8").split("\n")) {
-        const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
-        if (m && m[1] && process.env[m[1]] === undefined) {
-          process.env[m[1]] = (m[2] ?? "").replace(/^["']|["']$/g, "");
-        }
-      }
-    } catch {}
-  }
-}
-
-interface Row {
-  name: string;
-  wdBefore: string;
-  wdAfter: string;
-  sat: string;
-  sun: string;
-}
-
-function clean(s: string): string {
-  return s
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&#39;|&rsquo;|&lsquo;|&apos;/g, "'")
-    .replace(/&quot;|&ldquo;|&rdquo;/g, '"')
-    .replace(/&[a-z0-9#]+;/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function parsePage(html: string): Row[] {
-  const cellRe = /<td[^>]*data-label="([^"]*)"[^>]*>([\s\S]*?)<\/td>/gi;
-  const rows: Row[] = [];
-  let cur: Row | null = null;
-  let m: RegExpExecArray | null;
-  while ((m = cellRe.exec(html))) {
-    const label = (m[1] ?? "").toLowerCase();
-    const val = clean(m[2] ?? "");
-    if (label.includes("car park")) {
-      if (cur) rows.push(cur);
-      cur = { name: val, wdBefore: "", wdAfter: "", sat: "", sun: "" };
-    } else if (!cur) {
-      continue;
-    } else if (label.includes("before")) cur.wdBefore = val;
-    else if (label.includes("after")) cur.wdAfter = val;
-    else if (label.includes("saturday")) cur.sat = val;
-    else if (label.includes("sunday")) cur.sun = val;
-  }
-  if (cur) rows.push(cur);
-  return rows.filter((r) => r.name && r.name.length > 1);
-}
-
-const isEmpty = (s: string) =>
-  !s || s === "-" || s.toLowerCase().replace(/[^a-z0-9]/g, "") === "na";
-
-/** Maps LTA's 4 columns to our weekday/sat/sun, resolving "Same as …" refs. */
-function resolveRates(row: Row) {
-  const weekday = isEmpty(row.wdBefore) ? null : row.wdBefore;
-  let sat = isEmpty(row.sat) ? null : row.sat;
-  if (sat && /same as weekday/i.test(sat)) sat = weekday;
-  let sun = isEmpty(row.sun) ? null : row.sun;
-  if (sun && /same as saturday/i.test(sun)) sun = sat;
-  else if (sun && /same as weekday/i.test(sun)) sun = weekday;
-
-  const evening =
-    isEmpty(row.wdAfter) || /same as/i.test(row.wdAfter)
-      ? ""
-      : `Weekday evening: ${row.wdAfter}. `;
-  return { weekday, sat, sun, evening };
-}
-
-async function main() {
-  loadEnv();
-  const doGeocode = process.argv.includes("--geocode");
-  const { geocode } = doGeocode
-    ? await import("../src/lib/onemap")
-    : { geocode: null };
-
-  const removed = deleteOverridesBySourceUrlLike(`${new URL(BASE).origin}%`);
-  if (removed > 0) console.log(`Cleared ${removed} rows from a previous LTA import.\n`);
-
-  let imported = 0;
-  let skipped = 0;
-  let geocoded = 0;
-
-  for (let n = 1; n <= 8; n++) {
-    const url = `${BASE}.${n}.html`;
-    let html = "";
-    try {
-      const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-      if (!res.ok) {
-        console.log(`page ${n}: HTTP ${res.status} — skipped`);
-        continue;
-      }
-      html = await res.text();
-    } catch {
-      console.log(`page ${n}: fetch failed — skipped`);
-      continue;
-    }
-
-    const rows = parsePage(html);
-    const pageDate = lastUpdatedFrom(html);
-    console.log(
-      `page ${n}: ${rows.length} carparks` +
-        (pageDate ? ` (page last updated ${pageDate})` : " (no page date found)"),
-    );
-
-    for (const row of rows) {
-      const { weekday, sat, sun, evening } = resolveRates(row);
-      if (!weekday && !sat && !sun) {
-        skipped++;
-        continue;
-      }
-
-      let lat: number | null = null;
-      let lng: number | null = null;
-      if (geocode) {
-        const place = await geocode(row.name).catch(() => null);
-        if (place) {
-          lat = place.location.lat;
-          lng = place.location.lng;
-          geocoded++;
-        }
-        await sleep(300); // be gentle on OneMap
-      }
-
-      upsertOverride({
-        matchType: "name",
-        matchValue: row.name,
-        displayName: row.name,
-        weekdayRate: weekday,
-        saturdayRate: sat,
-        sundayPhRate: sun,
-        source: "operator-site",
-        sourceUrl: url,
-        // The page's OWN date, not today's. Stamping the scrape date told the
-        // UI these rates were checked the day we ran the import, when LTA had
-        // not revised the page for three months — and the age on a card is one
-        // of the few things telling a driver how far to trust the number.
-        verifiedAt: pageDate ?? null,
-        notes: `${evening}From LTA OneMotoring — verify before relying on it.`.trim(),
-        lat,
-        lng,
-      });
-      imported++;
-      if (imported % 50 === 0) console.log(`  …${imported} imported`);
-    }
-
-    await sleep(1000); // robots.txt Crawl-delay: 1
-  }
-
-  console.log(
-    `\nDone. Imported ${imported} rates${doGeocode ? `, geocoded ${geocoded}` : " (no coordinates — run: npm run rates backfill)"}. Skipped ${skipped} with no usable rate.`,
-  );
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-// Guarded so lastUpdatedFrom can be imported and tested without the import
-// itself running — it opens the database and rewrites every LTA row.
 if (process.argv[1] && process.argv[1].endsWith("importLta.ts")) {
-  main().catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });
+  console.error(
+    "import-lta is retired: scraping OneMotoring violates its Terms of Use,\n" +
+      "and re-running it would overwrite the licensed rows from the open dataset.\n" +
+      "Use `npm run resource-lta` instead — same car parks, Singapore Open Data Licence.",
+  );
+  process.exit(1);
 }
