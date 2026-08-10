@@ -80,6 +80,16 @@ export interface CarparkResult {
   fee: number | null;
   /** How much to trust `fee`. Commercial rates come from a stale dataset. */
   feeConfidence: "high" | "approximate" | "unknown";
+  /**
+   * Minutes of the requested stay this car park can't take — it stops selling
+   * short-term parking partway through, or takes no overnight.
+   *
+   * This is not cosmetic. The fee for a partial stay is genuinely lower, so
+   * ranking on price alone floats these to the top: a car park that shuts after
+   * 55 of your 120 minutes was being recommended as the cheapest option, and
+   * the saving it advertised was the saving from not parking.
+   */
+  minutesNotCovered: number;
   feeSource: FeeSource;
   /** ISO date the fee's source was last confirmed, or null for live schedules. */
   feeVerifiedAt: string | null;
@@ -564,6 +574,9 @@ function hdbResult(
     distanceIsWalking: walkM !== null,
     lotsAvailable: avail?.lotsAvailable ?? null,
     totalLots: avail?.totalLots ?? null,
+    // Opening hours are only modelled for the HDB schedule; a saved or
+    // commercial rate carries no hours, so nothing is known to be uncovered.
+    minutesNotCovered: 0,
   };
 
   if (ov && ovFee !== null) {
@@ -600,6 +613,7 @@ function hdbResult(
       feeSourceUrl: null,
       feeNote: "No short-term parking here (season/reserved only).",
       feeBreakdown: [],
+      minutesNotCovered: opts.minutes,
     };
   }
 
@@ -610,6 +624,8 @@ function hdbResult(
     feeSource: "hdb-schedule",
     feeVerifiedAt: null,
     feeSourceUrl: null,
+    minutesNotCovered:
+      scheduleFee.outsideMinutes + scheduleFee.nightClosedMinutes,
     feeNote: scheduleFee.notes.join(" "),
     feeBreakdown: hdbBreakdown(
       scheduleFee,
@@ -643,6 +659,8 @@ function overrideResult(
     carparkType: "Saved rate",
     shelter: "unknown",
     needsParkingApp: false,
+    // A saved rate carries no opening hours, so nothing is known to be uncovered.
+    minutesNotCovered: 0,
     location: o.lat !== null && o.lng !== null ? { lat: o.lat, lng: o.lng } : null,
     distanceM: Math.round(walkM ?? straightM),
     distanceIsWalking: walkM !== null,
@@ -696,6 +714,8 @@ function epsResult(
     fee: null,
     feeConfidence: "unknown",
     feeSource: "eps-inventory",
+    // Commercial listings carry no opening hours.
+    minutesNotCovered: 0,
     feeVerifiedAt: null,
     feeSourceUrl: null,
     feeNote:
@@ -738,6 +758,8 @@ function mallDatasetMatch(
       fee: dollars,
       feeConfidence: dollars === null ? "unknown" : "approximate",
       feeSource: "lta-dataset",
+    // Commercial listings carry no opening hours.
+    minutesNotCovered: 0,
       // Representative "last updated" date for the dataset, so the UI can age it.
       feeVerifiedAt: "2024-06-06",
       feeSourceUrl: null,

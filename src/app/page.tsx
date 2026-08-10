@@ -502,9 +502,16 @@ function Results({
 
   // The nearest car park we can actually price is the yardstick for "is walking
   // further worth it?" — every other priced card is compared against it.
+  // Only a car park that can take the whole stay is a fair yardstick. One that
+  // shuts partway through is cheaper for the obvious reason, and comparing
+  // against it advertised a saving that was really just less parking.
   const benchmark = data.results.reduce<CarparkResult | null>(
     (best, r) =>
-      r.fee === null ? best : !best || r.distanceM < best.distanceM ? r : best,
+      r.fee === null || r.minutesNotCovered > 0
+        ? best
+        : !best || r.distanceM < best.distanceM
+          ? r
+          : best,
     null,
   );
 
@@ -513,6 +520,13 @@ function Results({
   // bottom, since a price we don't know can't be compared.
   const sorted = [...data.results].sort((a, b) => {
     if (sortBy === "price") {
+      // A car park that can't take the whole stay sorts below ones that can,
+      // whatever it costs. Its lower price isn't a better deal — it's the fee
+      // for parking less time than you asked for, and on price alone it led
+      // the list.
+      const aShort = a.minutesNotCovered > 0;
+      const bShort = b.minutesNotCovered > 0;
+      if (aShort !== bShort) return aShort ? 1 : -1;
       if (a.fee === null && b.fee === null) return a.distanceM - b.distanceM;
       if (a.fee === null) return 1;
       if (b.fee === null) return -1;
@@ -973,6 +987,18 @@ function CarparkCard({
           )}
           <div className="min-w-0">
             <p className="truncate font-medium">{r.name}</p>
+            {/* Stated on the card, not buried in the breakdown: this is the
+                one fact that should stop someone choosing a car park, and its
+                lower price actively invites the opposite. */}
+            {r.minutesNotCovered > 0 && (
+              <p
+                className="mt-0.5 text-[11px] font-medium"
+                style={{ color: "#d97706" }}
+              >
+                ⚠ Can’t take your full stay — {formatDuration(r.minutesNotCovered)} not
+                covered
+              </p>
+            )}
             <p className="text-xs" style={{ color: "var(--muted)" }}>
               {r.distanceIsWalking ? "walk" : "approx"}{" "}
               {formatDistance(r.distanceM)} · {formatWalkMinutes(r.distanceM)}
@@ -1270,6 +1296,10 @@ function TradeOff({
   benchmark: CarparkResult | null;
 }) {
   if (!benchmark || benchmark.id === r.id || r.fee === null) return null;
+  // "Save $2.10" on a car park that shuts partway through your stay is not a
+  // saving, it's a shorter stay. The warning on the card says what's wrong;
+  // a green number beside it would argue the opposite.
+  if (r.minutesNotCovered > 0) return null;
 
   const diff = r.fee - benchmark.fee!;
   const walkDiff =

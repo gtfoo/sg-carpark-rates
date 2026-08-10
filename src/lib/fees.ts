@@ -77,6 +77,8 @@ export interface FeeResult {
    * looked like a bug rather than the car park's opening hours.
    */
   outsideMinutes: number;
+  /** Minutes lost because the car park takes no overnight parking. */
+  nightClosedMinutes: number;
   notes: string[];
 }
 
@@ -168,6 +170,7 @@ export function calculateHdbFee(input: FeeInput): FeeResult {
       freeMinutes: 0,
       chargedMinutes: 0,
       outsideMinutes: input.minutes,
+      nightClosedMinutes: 0,
       notes: ["This carpark has no short-term parking."],
     };
   }
@@ -189,6 +192,7 @@ export function calculateHdbFee(input: FeeInput): FeeResult {
   let freeMinutes = 0;
   let chargedMinutes = 0;
   let outsideMinutes = 0;
+  let nightClosedMinutes = 0;
   let total = 0;
   let capApplied = false;
   let sawFree = false;
@@ -215,6 +219,7 @@ export function calculateHdbFee(input: FeeInput): FeeResult {
 
     if (seg.isNight && !input.nightParking) {
       sawNightClosed = true;
+      nightClosedMinutes += billable;
       continue;
     }
 
@@ -270,6 +275,7 @@ export function calculateHdbFee(input: FeeInput): FeeResult {
     freeMinutes,
     chargedMinutes,
     outsideMinutes,
+    nightClosedMinutes,
     notes,
   };
 }
