@@ -324,10 +324,23 @@ export async function search(
   const nearestHdbM = candidates.find((x) => x.kind === "hdb")?.d ?? Infinity;
   const nearestOverrideM = overrideHits[0]?.d ?? Infinity;
 
+  // Each walking distance is its own OneMap routing call, and they don't
+  // depend on each other. Awaited one at a time they were the dominant cost of
+  // a search — ten round trips deep, 1.1-2.2s on the wire — so they go
+  // together and the search waits for the slowest rather than the sum.
+  // The catch matters: a thrown route fetch previously 502'd the whole search;
+  // now that route just falls back to straight-line distance like any other
+  // routing miss.
+  const walks = await Promise.all(
+    candidates.map((cand) =>
+      walkingDistanceMetres(place.location, candLocation(cand)).catch(() => null),
+    ),
+  );
+
   const results: CarparkResult[] = [];
-  for (const cand of candidates) {
+  for (const [i, cand] of candidates.entries()) {
     const loc = candLocation(cand);
-    const walk = await walkingDistanceMetres(place.location, loc);
+    const walk = walks[i]!;
     results.push(
       cand.kind === "hdb"
         ? hdbResult(cand.c, cand.d, walk, availability, {
