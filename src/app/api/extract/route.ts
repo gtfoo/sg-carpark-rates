@@ -1,11 +1,28 @@
 import { extractRate } from "@/lib/extract";
 import { isLlmConfigured } from "@/lib/llm";
+import { allow, clientIp } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 // Fetching a page + one LLM call; give it room.
 export const maxDuration = 45;
 
 export async function POST(request: Request) {
+  // One LLM call per request, plus a URL fetch the caller controls — both
+  // worth limiting before any work happens. Same shape as /api/lookup.
+  if (
+    !allow(`extract:${clientIp(request)}`, 10, 60 * 60 * 1000) ||
+    !allow("extract:all", 60, 24 * 60 * 60 * 1000)
+  ) {
+    return Response.json(
+      {
+        found: false,
+        status: "error",
+        reason: "Extraction limit reached — try again later, or fill the form by hand.",
+      },
+      { status: 429 },
+    );
+  }
+
   if (!isLlmConfigured()) {
     return Response.json(
       { found: false, status: "disabled", reason: "AI extraction isn't configured on the server." },

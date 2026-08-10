@@ -6,6 +6,7 @@ import {
   type RateSource,
 } from "@/lib/store/rates";
 import { resolveGapsByName } from "@/lib/store/gaps";
+import { allow, clientIp, hasAdminSecret } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,16 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  // Adding a rate stays open — it's the product. The limit only slows down
+  // bulk vandalism; a poisoned rate is recoverable from the nightly backups,
+  // which is why this is a throttle and not a lock.
+  if (!allow(`rates:${clientIp(request)}`, 30, 60 * 60 * 1000)) {
+    return Response.json(
+      { error: "Too many rate submissions from this address. Try again later." },
+      { status: 429 },
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -72,6 +83,21 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  // Destructive and never called by the UI — only ever used from a shell for
+  // maintenance. It ran with no check at all, so anyone who found the endpoint
+  // could empty the store row by row. The secret lives in the server's
+  // .env.local (CARPARK_ADMIN_SECRET) and is sent as an x-admin-secret header.
+  const auth = hasAdminSecret(request);
+  if (auth === "unconfigured") {
+    return Response.json(
+      { error: "Delete is disabled: no CARPARK_ADMIN_SECRET is configured." },
+      { status: 503 },
+    );
+  }
+  if (auth === "denied") {
+    return Response.json({ error: "Wrong or missing x-admin-secret." }, { status: 403 });
+  }
+
   const id = Number(new URL(request.url).searchParams.get("id"));
   if (!Number.isInteger(id) || id <= 0) {
     return Response.json({ error: "Valid ?id required." }, { status: 400 });

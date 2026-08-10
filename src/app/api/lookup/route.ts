@@ -1,11 +1,31 @@
 import { lookupCarparkRate } from "@/lib/lookup";
 import { isLlmConfigured } from "@/lib/llm";
+import { allow, clientIp } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 // Web search + two LLM calls can take a while; give the request room.
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
+  // Every call here spends Tavily and Gemini quota, and the endpoint is open
+  // to anyone who finds it. Checked before anything else so a rejected request
+  // costs nothing. Two limits: per-address for fairness, and a global daily
+  // ceiling so a spread of addresses still can't drain the keys.
+  if (
+    !allow(`lookup:${clientIp(request)}`, 5, 60 * 60 * 1000) ||
+    !allow("lookup:all", 40, 24 * 60 * 60 * 1000)
+  ) {
+    return Response.json(
+      {
+        found: false,
+        status: "error",
+        reason: "Lookup limit reached — try again later, or add the rate manually.",
+        sources: [],
+      },
+      { status: 429 },
+    );
+  }
+
   if (!isLlmConfigured()) {
     return Response.json(
       { found: false, status: "disabled", reason: "LLM not configured on the server.", sources: [] },
