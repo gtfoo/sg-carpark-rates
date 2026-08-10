@@ -179,6 +179,33 @@ function bandedRate(
   return parts.length ? parts.join("; ") : null;
 }
 
+/**
+ * Undoes the line-wrap URA ships inside ppName.
+ *
+ * Long names arrive with a space inserted at column ~22: mid-word it splits
+ * the word ("ADAM RD FOOD CENTRE OF F ST", "JLN KEMBANG AN"), and on a word
+ * gap it doubles the space ("QUEEN ST OFF  ST"). 112 of 660 names carried one,
+ * and they've been visible on cards as-is ("HAMILTON R D - CAVAN RD").
+ *
+ * Because the corruption is positional it's mechanically reversible — no
+ * dictionary needed. NOT idempotent: it must only run on raw feed names, never
+ * on text that has already been repaired, or "PARK A OFF ST" loses a space.
+ * Three shapes in the wrap zone (indices 21-23):
+ *   double space        → the wrap fell on a real word gap; collapse it
+ *   space-letter-space  → "…HAMILTON R D…": the first space was real, the
+ *                         wrap inserted the second, after the letter
+ *   lone space          → mid-word split; remove it
+ */
+export function dewrapName(raw: string): string {
+  const s = raw.trim();
+  if (s.length < 24) return s;
+  const zone = [21, 22, 23].filter((i) => s[i] === " ");
+  if (!zone.length) return s;
+  const drop =
+    zone.length >= 2 && zone[1]! - zone[0]! === 2 ? zone[1]! : zone[0]!;
+  return (s.slice(0, drop) + s.slice(drop + 1)).trim();
+}
+
 /** URA returns SVY21 "x,y"; convert with the verified transform. */
 function toLatLng(geometries?: { coordinates?: string }[]): LatLng | null {
   const raw = geometries?.[0]?.coordinates;
@@ -241,7 +268,7 @@ export async function fetchUraCarparks(): Promise<UraCarpark[]> {
 
     out.push({
       code,
-      name: (pick.ppName ?? code).trim(),
+      name: dewrapName(pick.ppName ?? code),
       location: toLatLng(pick.geometries),
       capacity: Number(pick.parkCapacity) || null,
       parkingSystem: pick.parkingSystem?.trim() || null,
