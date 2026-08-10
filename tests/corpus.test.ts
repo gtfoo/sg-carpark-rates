@@ -57,12 +57,16 @@ import { loadCorpus, checkCorpus, IMPLAUSIBLE_2H } from "../scripts/rateHealth";
  * teaching some day; the deferral itself is fine.
  */
 // 36 -> 35 when the parser learned "1/2 hr" (The Metropolis — previously
-// priced as a two-hour block, a wrong number rather than a blank). Several of
-// the remaining 35 are day columns that just say "Same as wkdays": fine in the
-// app, where the day fallback resolves them, but priced standalone here they
-// count as unpriceable. Teaching checkCorpus that distinction would make this
-// baseline honest rather than merely stable.
-const MAX_UNPRICEABLE = 35;
+// priced as a two-hour block, a wrong number rather than a blank), then 35 ->
+// 29 after the JTC import: the corpus grew 613 -> 684 strings and the count
+// still FELL, because the same pass removed the junk rows a broken extractor
+// had written and researched the car parks that had gone blank.
+//
+// Several of the remaining 29 are day columns that just say "Same as wkdays":
+// fine in the app, where the day fallback resolves them, but priced standalone
+// here they count as unpriceable. Teaching checkCorpus that distinction would
+// make this baseline honest rather than merely stable.
+const MAX_UNPRICEABLE = 29;
 
 test("every stored rate still prices, or was already known not to", () => {
   const health = checkCorpus(loadCorpus());
