@@ -67,6 +67,16 @@ export interface FeeResult {
   capApplied: boolean;
   freeMinutes: number;
   chargedMinutes: number;
+  /**
+   * Minutes the car park doesn't sell short-term parking for at all — Blk 271
+   * Punggol Walk stops at 10.30pm, so a stay running past that is billed for
+   * the part before and nothing after.
+   *
+   * Tracked because it was previously invisible: a 120-minute session showed
+   * "Charged 55 min" with no free minutes and no note, and the missing hour
+   * looked like a bug rather than the car park's opening hours.
+   */
+  outsideMinutes: number;
   notes: string[];
 }
 
@@ -157,6 +167,7 @@ export function calculateHdbFee(input: FeeInput): FeeResult {
       capApplied: false,
       freeMinutes: 0,
       chargedMinutes: 0,
+      outsideMinutes: input.minutes,
       notes: ["This carpark has no short-term parking."],
     };
   }
@@ -177,6 +188,7 @@ export function calculateHdbFee(input: FeeInput): FeeResult {
 
   let freeMinutes = 0;
   let chargedMinutes = 0;
+  let outsideMinutes = 0;
   let total = 0;
   let capApplied = false;
   let sawFree = false;
@@ -185,6 +197,10 @@ export function calculateHdbFee(input: FeeInput): FeeResult {
   for (const seg of segments) {
     const span = { from: seg.from, to: seg.to };
     let billable = overlap(span, chargeable);
+    // Whatever falls outside the short-term window is time this car park
+    // simply doesn't sell. It must be counted, not dropped: the minutes have
+    // to add up on the card or the total looks arbitrary.
+    outsideMinutes += seg.to - seg.from - billable;
     if (billable <= 0) continue;
 
     if (free && seg.dayType === "sunday-ph") {
@@ -233,6 +249,12 @@ export function calculateHdbFee(input: FeeInput): FeeResult {
     total += cost;
   }
 
+  if (outsideMinutes > 0) {
+    notes.push(
+      `Short-term parking here is ${input.shortTermParking.toLowerCase()} — ` +
+        `${outsideMinutes} min of this stay falls outside that and isn't charged.`,
+    );
+  }
   if (sawFree) notes.push("Free parking applies for part of this session.");
   if (capApplied) notes.push("A daily or night cap was reached.");
   if (sawNightClosed) notes.push("No night parking here — overnight not charged.");
@@ -247,6 +269,7 @@ export function calculateHdbFee(input: FeeInput): FeeResult {
     capApplied,
     freeMinutes,
     chargedMinutes,
+    outsideMinutes,
     notes,
   };
 }

@@ -781,6 +781,15 @@ function hdbBreakdown(
     { label: "When", value: `${dayLabel(dayType)}, ${minutes} min` },
   ];
   if (fee.freeMinutes > 0) rows.push({ label: "Free", value: `${fee.freeMinutes} min` });
+  // Without this the minutes don't add up: a stay running past a car park's
+  // short-term hours showed "120 min" above and "Charged 55 min" below, with
+  // the missing hour unexplained.
+  if (fee.outsideMinutes > 0) {
+    rows.push({
+      label: "Outside hours",
+      value: `${fee.outsideMinutes} min — not sold here`,
+    });
+  }
   rows.push({ label: "Charged", value: `${fee.chargedMinutes} min` });
   if (fee.capApplied) rows.push({ label: "Cap", value: "daily/night cap applied" });
   rows.push({ label: "Total", value: formatFee(fee.total) });

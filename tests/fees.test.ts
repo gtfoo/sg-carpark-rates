@@ -29,6 +29,62 @@ function coupon(start: Date, minutes: number, isCentral: boolean) {
 // Fri 7 Aug 2026, 2pm Singapore — a plain weekday inside the day window.
 const WEEKDAY_2PM = fromSgt(2026, 8, 7, 14);
 
+test("a stay past closing time accounts for every minute", () => {
+  // Blk 271 Punggol Walk sells short-term parking 7am-10.30pm only. A two-hour
+  // stay from 9.35pm showed "Charged 55 min" against "120 min" above it, with
+  // the other 65 minutes silently dropped — the total looked arbitrary.
+  const at2135 = fromSgt(2026, 8, 9, 21, 35);
+  const shortHours = calculateHdbFee({
+    start: at2135,
+    minutes: 120,
+    isCentral: false,
+    perMinuteBilling: true,
+    freeParking: "NO",
+    shortTermParking: "7AM-10.30PM",
+    nightParking: false,
+    holidays: NO_HOLIDAYS,
+  });
+  assert.equal(shortHours.chargedMinutes, 55);
+  assert.equal(shortHours.outsideMinutes, 65);
+  assert.equal(shortHours.freeMinutes, 0);
+  assert.equal(shortHours.chargedMinutes + shortHours.outsideMinutes + shortHours.freeMinutes, 120);
+  assert.equal(shortHours.total, 1.1);
+  assert.match(shortHours.notes.join(" "), /7am-10\.30pm/i);
+
+  // The same stay where the car park sells all day: nothing falls outside.
+  const allDay = calculateHdbFee({
+    start: at2135,
+    minutes: 120,
+    isCentral: false,
+    perMinuteBilling: true,
+    freeParking: "NO",
+    shortTermParking: "WHOLE DAY",
+    nightParking: true,
+    holidays: NO_HOLIDAYS,
+  });
+  assert.equal(allDay.outsideMinutes, 0);
+  assert.equal(allDay.chargedMinutes, 120);
+  assert.equal(allDay.total, 2.4);
+
+  // And where Sunday free parking runs to 10.30pm, the first 55 min are free
+  // rather than unsold — a different reason for a different number.
+  const sunday = fromSgt(2026, 8, 9, 21, 35); // 9 Aug 2026 is a Sunday
+  const freeThenPaid = calculateHdbFee({
+    start: sunday,
+    minutes: 120,
+    isCentral: false,
+    perMinuteBilling: true,
+    freeParking: "SUN & PH FR 7AM-10.30PM",
+    shortTermParking: "WHOLE DAY",
+    nightParking: true,
+    holidays: NO_HOLIDAYS,
+  });
+  assert.equal(freeThenPaid.freeMinutes, 55);
+  assert.equal(freeThenPaid.chargedMinutes, 65);
+  assert.equal(freeThenPaid.outsideMinutes, 0);
+  assert.equal(freeThenPaid.total, 1.3);
+});
+
 test("central-area boundary: estates that were being overcharged", () => {
   // Every one of these was billed the central rate — double — by the bounding
   // box this replaced. Each sits in the Central REGION but outside the Central
