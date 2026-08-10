@@ -136,6 +136,20 @@ test("a GST note between an amount and its unit is ignored", () => {
   assert.equal(fee("$1.96 (with 9% GST) for every 30min or part thereof.", 120), 7.84);
 });
 
+test("'1/2 hr' is a half hour, not a two-hour block", () => {
+  // The Metropolis writes the fraction with a slash. Without the explicit
+  // branch, the "2" of "1/2" matched the multi-hour form and a $1.25 half-hour
+  // rate priced as $1.25 for two hours.
+  assert.deepEqual(parseRate("$1.25 per 1/2 hr"), {
+    kind: "per-block",
+    dollars: 1.25,
+    blockMinutes: 30,
+  });
+  assert.equal(fee("$2.50 for 1st hr, sub $1.25 per 1/2 hr", 120), 5);
+  // 51 Cuppage Road compresses "subsequent" to "subq" on top of the slash.
+  assert.equal(fee("$2.00 for 1st hr, $1.50 for next subq 1/2hr", 90), 3.5);
+});
+
 test("an amount in cents is read as money", () => {
   // East Coast Park writes small amounts as "60¢".
   assert.equal(fee("60¢ per 30min", 120), 2.4);

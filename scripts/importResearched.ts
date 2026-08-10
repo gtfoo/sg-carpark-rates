@@ -30,6 +30,74 @@ interface Researched {
 }
 
 const RATES: Researched[] = [
+  // ---- Batch of 2026-08-10: rows that lost pricing in the open-dataset
+  // re-sourcing, plus the two that had no source URL. Match values are the
+  // stored (normalised) ones so these upsert onto the existing rows and keep
+  // their coordinates.
+  {
+    match: "PARAGONSHOPPINGCENTRE",
+    display: "Paragon Shopping Centre",
+    // The stored row had no coordinates, so it could never be a nearby card.
+    lat: 1.30365,
+    lng: 103.83565,
+    weekday: "7am-4.59pm: $3.00 for 1st hr; $1.60 per sub. 30min; 5pm-2.59am: $4.60 per entry",
+    notes:
+      "A $2.10 peak-hour surcharge applies 11am-3pm daily, on top of the rate " +
+      "shown. Weekends bill as weekdays.",
+    url: "https://www.motorist.sg/parking/paragon-parking-rates",
+  },
+  {
+    match: "MUSTAFACENTRE",
+    display: "Mustafa Centre",
+    weekday: "7am-1.30am: $1.00 per 30 mins",
+    notes:
+      "Same rate every day. LTA's Jun 2024 dataset said first hour free then " +
+      "$2/hr; the current listing shows a flat $1/30min — if a receipt " +
+      "disagrees, believe the receipt and update this.",
+    url: "https://www.motorist.sg/parking/mustafa-centre-parking-rates",
+  },
+  {
+    match: "SGXCENTRE",
+    display: "SGX Centre",
+    weekday: "7am-6pm: $3.05 per 30 mins; 6pm-10pm: $3.76 per entry",
+    saturday: "7am-10pm: $3.76 per entry",
+    sundayPh: "Same as Saturday",
+    notes: "2 Shenton Way. Car park closes 10pm.",
+    url: "https://www.motorist.sg/parking/sgx-centre-parking-rates",
+  },
+  {
+    match: "18CROSS",
+    display: "18 Cross",
+    weekday: "8am-6pm: $1.90 per ½ hr; 6pm-12am: $3.20 per entry",
+    saturday: "Closed",
+    sundayPh: "Closed",
+    notes:
+      "Closed 12am-6am and all weekend/PH — the operator's own page says so " +
+      "outright, which is why Saturday and Sunday read Closed rather than a price.",
+    url: "https://www.18cross.sg/getting-here-by-car",
+  },
+  {
+    match: "SINGAPORELANDTOWER",
+    display: "Singapore Land Tower",
+    weekday: "7am-6pm: $3.02 per 30 mins; 6.01pm-6.59am: $5.40 per entry",
+    sundayPh: "7am-6.59am: $5.40 per entry",
+    notes:
+      "Public parking again after the 2025 asset-enhancement works — LTA's " +
+      "Jun 2024 dataset still said tenants only. Saturday bills as a weekday.",
+    url: "https://www.motorist.sg/parking/singapore-land-tower-parking-rates",
+  },
+  {
+    match: "INTERNATIONALBUILDING",
+    display: "International Building / Yotel",
+    weekday: "7am-5pm: $3.00 for 1st hr; $1.50 per sub. ½ hr; Aft 5pm: $4.00 per entry",
+    saturday: "7am-12pm: $3.00 for 1st hr; $1.50 per sub. ½ hr; Aft 12pm: $4.00 per entry",
+    sundayPh: "$4.00 per entry",
+    notes:
+      "Shared with YOTEL; entrance via Claymore Hill next to the hotel lobby. " +
+      "10 mins grace. LTA's dataset said 'Carpark not in use' — that was the " +
+      "old open-air car park, not this one.",
+    url: "https://b2life.com/parking-international-building/",
+  },
   {
     // EPS lists CT Hub 2 with publicLots = 0, so it never reached search at
     // all — but it takes hourly public parking. Filed with coordinates so the

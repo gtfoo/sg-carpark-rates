@@ -56,7 +56,13 @@ import { loadCorpus, checkCorpus, IMPLAUSIBLE_2H } from "../scripts/rateHealth";
  * gap (the deferral keeps the weekday rate and drops the addendum), worth
  * teaching some day; the deferral itself is fine.
  */
-const MAX_UNPRICEABLE = 36;
+// 36 -> 35 when the parser learned "1/2 hr" (The Metropolis — previously
+// priced as a two-hour block, a wrong number rather than a blank). Several of
+// the remaining 35 are day columns that just say "Same as wkdays": fine in the
+// app, where the day fallback resolves them, but priced standalone here they
+// count as unpriceable. Teaching checkCorpus that distinction would make this
+// baseline honest rather than merely stable.
+const MAX_UNPRICEABLE = 35;
 
 test("every stored rate still prices, or was already known not to", () => {
   const health = checkCorpus(loadCorpus());

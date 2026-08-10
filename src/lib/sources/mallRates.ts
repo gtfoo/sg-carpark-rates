@@ -77,7 +77,9 @@ const NUM = String.raw`\$?\s*(\d+(?:\.\d+)?)`;
 // per-minute case. The multi-hour form must come before the bare one so
 // "$5.35 every 4 hrs" consumes the "4"; otherwise the block reads as one hour
 // and the 4 is left looking like a price.
-const BLOCK_UNIT = String.raw`(?:½|half)\s*(?:hr|hour)|\d+\s*min(?:ute)?s?|\d+\s*(?:hrs?|hours?)|hrs?|hours?`;
+// "1/2 hr" is listed with the half-hour forms and must come before the
+// multi-hour branch, or the "2" of "1/2" reads as a two-hour block.
+const BLOCK_UNIT = String.raw`(?:½|half|1/2)\s*(?:hr|hour)|\d+\s*min(?:ute)?s?|\d+\s*(?:hrs?|hours?)|hrs?|hours?`;
 
 // Words operators put between an amount and its unit. These sources are
 // hand-written prose, so the same rate appears as "per", "for", "every",
@@ -298,7 +300,7 @@ export function parseRate(rawInput: string): ParsedRate {
         // "for each sub. ½ hr", "for next sub 30min", "per subsequent hour".
         // "sub" is optional: plenty of operators just write the follow-on rate
         // straight after a comma ("$3.27 for 1st 2 hrs, $1.64 per 30 mins").
-        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:(?:sub\\.?|subsequent)\\s*)?` +
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:(?:subq|sub\\.?|subsequent)\\s*)?` +
         `(${RATE_UNIT})`,
       "i",
     ),
@@ -321,7 +323,7 @@ export function parseRate(rawInput: string): ParsedRate {
   const firstThenReversed = raw.match(
     new RegExp(
       `${FIRST_PERIOD}\\s*(?:at|@|[-–])\\s*${MONEY}` +
-        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:(?:sub\\.?|subsequent)\\s*)?` +
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:(?:subq|sub\\.?|subsequent)\\s*)?` +
         `(${RATE_UNIT})`,
       "i",
     ),
@@ -399,7 +401,7 @@ export function parseRate(rawInput: string): ParsedRate {
 
 function unitToMinutes(unit: string): number {
   const u = unit.toLowerCase().replace(/\s+/g, "");
-  if (u.includes("½") || u.includes("half")) return 30;
+  if (u.includes("½") || u.includes("half") || u.includes("1/2")) return 30;
   // "4hrs" is four hours, not four minutes — the bare-number fallback below
   // would otherwise read it as the latter.
   const hrs = u.match(/^(\d+)(?:hrs?|hours?)$/);
