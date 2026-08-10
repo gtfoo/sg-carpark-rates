@@ -247,15 +247,15 @@ export default function Home() {
               <input
                 type="number"
                 min={1}
-                max={customUnit === "hr" ? 24 : 24 * 60}
+                max={customUnit === "hr" ? 14 * 24 : 14 * 24 * 60}
                 inputMode="numeric"
                 value={customVal}
                 onChange={(e) => {
                   setCustomVal(e.target.value);
                   setMinutes(customMinutes(e.target.value, customUnit));
                 }}
-                aria-label={`Parking duration amount (max 24 ${
-                  customUnit === "hr" ? "hours" : "hours worth of minutes"
+                aria-label={`Parking duration amount (max 14 days, in ${
+                  customUnit === "hr" ? "hours" : "minutes"
                 })`}
                 className="w-24 rounded-lg border px-3 py-2 text-sm"
                 style={{
@@ -302,10 +302,10 @@ export default function Home() {
               }}
             >
               {exceedsDurationMax(customVal, customUnit)
-                ? `Longest we can price is 24 hours — using 24h instead of ${customVal} ${
+                ? `Longest we can price is 14 days — using 14d instead of ${customVal} ${
                     customUnit === "hr" ? "hours" : "minutes"
                   }.`
-                : "Up to 24 hours."}
+                : "Up to 14 days — long stays price each day's caps separately."}
             </p>
           )}
         </div>
@@ -1343,11 +1343,15 @@ function describeStart(value: string): string {
   return label;
 }
 
-/** Longest session the fee engine prices; caps are per-day, so beyond this the
- *  number stops being meaningful. */
-const MAX_DURATION_MIN = 24 * 60;
+/**
+ * Matches the API's ceiling exactly. The fee engine caps each day and night
+ * window independently, so multi-day stays price correctly — leaving a car at
+ * the airport for a week is the normal case, and the UI capping at 24h while
+ * the API took 14 days meant the one place that limit bit was the search box.
+ */
+const MAX_DURATION_MIN = 14 * 24 * 60;
 
-/** Minutes from the custom-duration input (a number + unit), clamped 1min–24h. */
+/** Minutes from the custom-duration input (a number + unit), clamped 1min–14d. */
 function customMinutes(val: string, unit: "min" | "hr"): number {
   const n = Number(val);
   if (!Number.isFinite(n) || n <= 0) return 1;
@@ -1356,7 +1360,7 @@ function customMinutes(val: string, unit: "min" | "hr"): number {
 }
 
 /** True when the typed duration is longer than we price, so the UI can say so
- *  instead of silently showing "= 24h". */
+ *  instead of silently clamping. */
 function exceedsDurationMax(val: string, unit: "min" | "hr"): boolean {
   const n = Number(val);
   if (!Number.isFinite(n) || n <= 0) return false;
@@ -1367,7 +1371,11 @@ function formatDuration(mins: number): string {
   if (mins < 60) return `${mins}m`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+  if (h < 24) return m === 0 ? `${h}h` : `${h}h ${m}m`;
+  // Days read better than "168h" once a stay spans them.
+  const d = Math.floor(h / 24);
+  const hr = h % 24;
+  return hr === 0 ? `${d}d` : `${d}d ${hr}h`;
 }
 
 function dayTypeLabel(d: SearchResponse["dayType"]): string {
