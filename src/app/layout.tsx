@@ -20,8 +20,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export async function generateViewport(): Promise<Viewport> {
   const brand = brandFromHost((await headers()).get("host"));
   return {
-    // Tints the mobile browser chrome to match the brand.
-    themeColor: brand.theme.bg,
+    // Tints the mobile browser chrome. Two entries so it tracks the system
+    // setting; ThemeToggle rewrites the tag directly when a user overrides it,
+    // since a media query can't know about that choice.
+    themeColor: [
+      { media: "(prefers-color-scheme: light)", color: "#f6f7f9" },
+      { media: "(prefers-color-scheme: dark)", color: brand.theme.bg },
+    ],
     width: "device-width",
     initialScale: 1,
     // Allow pinch-zoom; disabling it is an accessibility failure.
@@ -36,6 +41,25 @@ export default async function RootLayout({
   const brand = brandFromHost((await headers()).get("host"));
   return (
     <html lang="en">
+      <head>
+        {/*
+          Applies a stored theme BEFORE first paint. Without this the page
+          renders in the system theme and then snaps to the chosen one — the
+          flash is worst for a user who picked light on a dark-mode phone,
+          which is exactly the person who bothered to set it.
+
+          Deliberately not a React effect: those run after paint, which is too
+          late. Wrapped in try/catch because localStorage throws outright in
+          Safari private browsing rather than returning null.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('carpark:theme');" +
+              "if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}",
+          }}
+        />
+      </head>
       <body data-brand={brand.key}>
         <BrandProvider brand={brand}>{children}</BrandProvider>
       </body>

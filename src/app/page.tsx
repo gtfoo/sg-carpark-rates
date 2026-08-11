@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import AddressInput from "./AddressInput";
+import ThemeToggle from "./ThemeToggle";
 import { NavigateButton, ParkingSgButton } from "./NavigateButton";
 import { useBrand } from "./brand-provider";
 import { toSgtInputValue } from "@/lib/time";
@@ -177,11 +178,14 @@ export default function Home() {
 
   return (
     <main className="mx-auto w-full max-w-lg px-4 pb-16 pt-6">
-      <header className="mb-5">
-        <h1 className="text-2xl font-bold tracking-tight">{brand.name}</h1>
-        <p className="text-sm" style={{ color: "var(--muted)" }}>
-          {brand.tagline}
-        </p>
+      <header className="mb-5 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold tracking-tight">{brand.name}</h1>
+          <p className="text-sm" style={{ color: "var(--muted)" }}>
+            {brand.tagline}
+          </p>
+        </div>
+        <ThemeToggle />
       </header>
 
       <form onSubmit={runSearch} className="mb-6">
@@ -297,7 +301,7 @@ export default function Home() {
               className="mt-1.5 text-[11px]"
               style={{
                 color: exceedsDurationMax(customVal, customUnit)
-                  ? "#d97706"
+                  ? "var(--warn)"
                   : "var(--muted)",
               }}
             >
@@ -435,10 +439,10 @@ function LookupBanner({
       : base;
   const accent =
     lookup.state === "found"
-      ? "#22c55e"
+      ? "var(--good)"
       : lookup.state === "searching"
         ? "var(--accent)"
-        : "#d97706";
+        : "var(--warn)";
 
   return (
     <div
@@ -932,7 +936,7 @@ function AddRatePanel({
       {msg && (
         <p
           className="mt-2 text-[11px]"
-          style={{ color: msg.ok ? "#22c55e" : "#d97706" }}
+          style={{ color: msg.ok ? "var(--good)" : "var(--warn)" }}
         >
           {msg.text}
         </p>
@@ -993,7 +997,7 @@ function CarparkCard({
             {r.minutesNotCovered > 0 && (
               <p
                 className="mt-0.5 text-[11px] font-medium"
-                style={{ color: "#d97706" }}
+                style={{ color: "var(--warn)" }}
               >
                 ⚠ Can’t take your full stay — {formatDuration(r.minutesNotCovered)} not
                 covered
@@ -1016,7 +1020,7 @@ function CarparkCard({
               {r.feeConfidence !== "high" && (
                 <p
                   className="text-[10px] uppercase"
-                  style={{ color: "#d97706" }}
+                  style={{ color: "var(--warn)" }}
                 >
                   {r.feeConfidence}
                 </p>
@@ -1045,7 +1049,7 @@ function CarparkCard({
           // only). A bar would need a total, so show the number alone.
           <span
             className="text-xs font-medium tabular-nums"
-            style={{ color: r.lotsAvailable === 0 ? "#ef4444" : "#22c55e" }}
+            style={{ color: r.lotsAvailable === 0 ? "var(--bad)" : "var(--good)" }}
           >
             {r.lotsAvailable === 0 ? "Full" : `${r.lotsAvailable} lots free`}
           </span>
@@ -1273,9 +1277,9 @@ function ageLabel(iso: string | null): string {
 }
 
 function lotColour(freeRatio: number): string {
-  if (freeRatio < 0.05) return "#ef4444";
-  if (freeRatio < 0.2) return "#f59e0b";
-  return "#22c55e";
+  if (freeRatio < 0.05) return "var(--bad)";
+  if (freeRatio < 0.2) return "var(--caution)";
+  return "var(--good)";
 }
 
 /** Must match availabilityColour() in CarparkMap so pins and badges agree. */
@@ -1320,7 +1324,7 @@ function TradeOff({
   return (
     <p
       className="text-[10px]"
-      style={{ color: cheaper ? "#22c55e" : "var(--muted)" }}
+      style={{ color: cheaper ? "var(--good)" : "var(--muted)" }}
     >
       {money}
       {walk}
@@ -1418,5 +1422,5 @@ function dayTypeLabel(d: SearchResponse["dayType"]): string {
 }
 
 function dayTypeColour(d: SearchResponse["dayType"]): string {
-  return d === "weekday" ? "var(--muted)" : "#22c55e";
+  return d === "weekday" ? "var(--muted)" : "var(--good)";
 }
