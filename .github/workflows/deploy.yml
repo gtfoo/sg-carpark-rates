@@ -22,7 +22,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Must match the droplet's system Node (22.23.2). Testing on 20 while
+          # shipping to 22 runs the gate on a different runtime than
+          # production — and better-sqlite3's ABI differs across exactly that
+          # boundary, which is the class of failure this gate exists to catch.
+          node-version: 22
           cache: npm
       - run: npm ci
       - run: npm test

@@ -12,11 +12,15 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   // NOT output: "standalone". The droplet serves this with `next start` (see
-  // the systemd unit and scripts/deploy.sh), and Next 16 rejects that pairing:
+  // the systemd unit and scripts/deploy.sh), and Next 16 WARNS about that
+  // pairing rather than refusing it:
   //   ⚠ "next start" does not work with "output: standalone" configuration
-  // The standalone bundle was being built on every deploy and never served —
-  // wasted minutes on a 1 vCPU box. npm ci already puts the full dependency
-  // tree on the server, which better-sqlite3 needs anyway.
+  // It then serves anyway — career-side-quests runs exactly that pairing on
+  // this box and has since provisioning. An earlier version of this comment
+  // said Next rejects it; it doesn't. The reason to leave standalone off is
+  // cost, not refusal: the bundle was built on every deploy and never served,
+  // which is wasted minutes on a 1 vCPU box. npm ci already puts the full
+  // dependency tree on the server, which better-sqlite3 needs anyway.
   //
   // If you ever do switch to `node .next/standalone/server.js`, add it back
   // AND keep the tracing exclude below.
