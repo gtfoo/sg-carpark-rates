@@ -109,4 +109,49 @@ npm run build
 echo "==> restarting ${SERVICE}"
 sudo systemctl restart "${SERVICE}"
 
+# ------------------------------------------------------------ does it answer?
+#
+# Until now a deploy was "successful" when this script exited 0 — i.e. when the
+# build finished and systemd accepted a restart. Neither asks whether the app
+# serves anything. A process that starts and then throws on its first request
+# reports success all the way to the green tick.
+#
+# Two checks, both local so no upstream outage can fail a good deploy:
+#   /            the app renders at all
+#   /api/rates   the database opens AND has rows — this is the standalone-DB
+#                failure exactly: the server came up happily against an empty
+#                file at the wrong path, serving a store with no rates in it.
+PORT="${CARPARK_PORT:-3001}"
+BASE="http://127.0.0.1:${PORT}"
+
+printf '==> waiting for %s' "$BASE"
+UP=""
+for _ in $(seq 1 30); do
+  if curl -sf -o /dev/null --max-time 3 "$BASE/"; then UP=1; break; fi
+  printf '.'
+  sleep 1
+done
+echo
+if [ -z "$UP" ]; then
+  echo "!!  ${SERVICE} did not serve / within 30s of restart." >&2
+  sudo systemctl status "${SERVICE}" --no-pager --lines 20 >&2 || true
+  exit 1
+fi
+
+RATES="$(curl -sf --max-time 10 "$BASE/api/rates" || true)"
+COUNT="$(printf '%s' "$RATES" | node -e '
+  let s = "";
+  process.stdin.on("data", (d) => (s += d)).on("end", () => {
+    try { console.log((JSON.parse(s).overrides || []).length); }
+    catch { console.log(0); }
+  });
+' 2>/dev/null || echo 0)"
+
+if [ "${COUNT:-0}" -lt 1 ]; then
+  echo "!!  /api/rates returned ${COUNT:-0} rates — the store is empty or unreadable." >&2
+  echo "!!  Most likely the database path: check CARPARK_DB_PATH in the unit." >&2
+  exit 1
+fi
+echo "==> serving, ${COUNT} rates in the store"
+
 echo "==> deployed $(git rev-parse --short HEAD) on $(hostname)"

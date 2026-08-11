@@ -79,7 +79,9 @@ const NUM = String.raw`\$?\s*(\d+(?:\.\d+)?)`;
 // and the 4 is left looking like a price.
 // "1/2 hr" is listed with the half-hour forms and must come before the
 // multi-hour branch, or the "2" of "1/2" reads as a two-hour block.
-const BLOCK_UNIT = String.raw`(?:½|half|1/2)\s*(?:hr|hour)|\d+\s*min(?:ute)?s?|\d+\s*(?:hrs?|hours?)|hrs?|hours?`;
+// The hyphen is for Palais Renaissance's "$3.80 per 4-hourly"; without it the
+// multi-hour branch can't cross it and the whole pattern falls through.
+const BLOCK_UNIT = String.raw`(?:½|half|1/2)\s*(?:hr|hour)|\d+\s*min(?:ute)?s?|\d+\s*-?\s*(?:hrs?|hours?)|hrs?|hours?`;
 
 // Words operators put between an amount and its unit. These sources are
 // hand-written prose, so the same rate appears as "per", "for", "every",
@@ -300,7 +302,7 @@ export function parseRate(rawInput: string): ParsedRate {
         // "for each sub. ½ hr", "for next sub 30min", "per subsequent hour".
         // "sub" is optional: plenty of operators just write the follow-on rate
         // straight after a comma ("$3.27 for 1st 2 hrs, $1.64 per 30 mins").
-        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:(?:subq|sub\\.?|subsequent)\\s*)?` +
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:sub[a-z]*\\.?\\s*)?` +
         `(${RATE_UNIT})`,
       "i",
     ),
@@ -323,7 +325,7 @@ export function parseRate(rawInput: string): ParsedRate {
   const firstThenReversed = raw.match(
     new RegExp(
       `${FIRST_PERIOD}\\s*(?:at|@|[-–])\\s*${MONEY}` +
-        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:(?:subq|sub\\.?|subsequent)\\s*)?` +
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:sub[a-z]*\\.?\\s*)?` +
         `(${RATE_UNIT})`,
       "i",
     ),
@@ -403,8 +405,12 @@ function unitToMinutes(unit: string): number {
   const u = unit.toLowerCase().replace(/\s+/g, "");
   if (u.includes("½") || u.includes("half") || u.includes("1/2")) return 30;
   // "4hrs" is four hours, not four minutes — the bare-number fallback below
-  // would otherwise read it as the latter.
-  const hrs = u.match(/^(\d+)(?:hrs?|hours?)$/);
+  // would otherwise read it as the latter. It must also cover the hyphenated
+  // and adjectival forms: teaching BLOCK_UNIT to match "4-hourly" without
+  // teaching this priced it as $3.80 per FOUR MINUTES, i.e. $114 for two
+  // hours. The implausibility check caught that; it should never have needed
+  // to.
+  const hrs = u.match(/^(\d+)-?(?:hrs?|hours?|hourly)$/);
   if (hrs) return Number(hrs[1]) * 60;
   if (u.startsWith("hr") || u.startsWith("hour")) return 60;
   const mins = u.match(/(\d+)min/);

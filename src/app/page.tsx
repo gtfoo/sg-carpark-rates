@@ -4,6 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import AddressInput from "./AddressInput";
 import ThemeToggle from "./ThemeToggle";
+import ServiceWorker from "./ServiceWorker";
 import { NavigateButton, ParkingSgButton } from "./NavigateButton";
 import { useBrand } from "./brand-provider";
 import { toSgtInputValue } from "@/lib/time";
@@ -187,6 +188,8 @@ export default function Home() {
         </div>
         <ThemeToggle />
       </header>
+
+      <ServiceWorker />
 
       <form onSubmit={runSearch} className="mb-6">
         <AddressInput

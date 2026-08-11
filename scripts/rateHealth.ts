@@ -46,14 +46,40 @@ export interface Health {
   implausible: { entry: CorpusEntry; fee: number }[];
   /** Free without saying so — usually a rate that half-parsed. */
   suspiciousFree: CorpusEntry[];
+  /**
+   * Columns that price fine in the app but can't standalone.
+   *
+   * The corpus is one entry per DAY COLUMN, so a Sunday column reading "Same
+   * as wkdays" arrives here with no weekday column beside it. In the app
+   * rateForDay resolves that against its sibling; priced alone it can only
+   * return null. Counting those as failures inflated the number the gate
+   * watches and hid how many strings genuinely don't parse.
+   */
+  deferred: CorpusEntry[];
+  /** Empty columns — "-", "NA", blank. An absent rate, not a broken one. */
+  absent: CorpusEntry[];
 }
 
 export function checkCorpus(corpus: CorpusEntry[]): Health {
-  const health: Health = { total: corpus.length, unpriceable: [], implausible: [], suspiciousFree: [] };
+  const health: Health = {
+    total: corpus.length,
+    unpriceable: [],
+    implausible: [],
+    suspiciousFree: [],
+    deferred: [],
+    absent: [],
+  };
   for (const e of corpus) {
     const fee = priceEntry(e);
     if (fee === null) {
-      health.unpriceable.push(e);
+      // Why it didn't price matters. Ask the parser rather than guessing from
+      // the text: "Charges same as wkdays but $3.20 per entry after 1pm" is a
+      // deferral the app resolves, and no regex over the raw string would
+      // classify that as reliably as the parser already does.
+      const kind = parseRate(bandForTime(e.rate, PROBE_MINUTE_OF_DAY)).kind;
+      if (kind === "same-as-other") health.deferred.push(e);
+      else if (kind === "none") health.absent.push(e);
+      else health.unpriceable.push(e);
     } else if (fee > IMPLAUSIBLE_2H) {
       health.implausible.push({ entry: e, fee });
     } else if (fee === 0 && !/\bfree\b/i.test(e.rate)) {
@@ -66,9 +92,11 @@ export function checkCorpus(corpus: CorpusEntry[]): Health {
 function main() {
   const h = checkCorpus(loadCorpus());
   console.log(`corpus: ${h.total} distinct rate strings, priced for 2h from 1pm\n`);
-  console.log(`  unpriceable    : ${h.unpriceable.length}`);
+  console.log(`  unpriceable    : ${h.unpriceable.length}   <- the only number that means "broken"`);
   console.log(`  implausible    : ${h.implausible.length}  (over $${IMPLAUSIBLE_2H} for 2h)`);
-  console.log(`  free, unstated : ${h.suspiciousFree.length}\n`);
+  console.log(`  free, unstated : ${h.suspiciousFree.length}`);
+  console.log(`  deferred       : ${h.deferred.length}   (e.g. "Same as wkdays" — resolved by the day fallback)`);
+  console.log(`  absent         : ${h.absent.length}   ("-" / "NA" — no rate published for that day)\n`);
 
   for (const [label, list] of [
     ["UNPRICEABLE", h.unpriceable.map((e) => `${e.name} :: ${e.rate}`)],

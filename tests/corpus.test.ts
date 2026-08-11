@@ -62,11 +62,17 @@ import { loadCorpus, checkCorpus, IMPLAUSIBLE_2H } from "../scripts/rateHealth";
 // still FELL, because the same pass removed the junk rows a broken extractor
 // had written and researched the car parks that had gone blank.
 //
-// Several of the remaining 29 are day columns that just say "Same as wkdays":
-// fine in the app, where the day fallback resolves them, but priced standalone
-// here they count as unpriceable. Teaching checkCorpus that distinction would
-// make this baseline honest rather than merely stable.
-const MAX_UNPRICEABLE = 29;
+// Now 10, and the number finally means what it says. Most of the drop is
+// reclassification, not repair: checkCorpus now separates strings that DEFER
+// to another day ("Same as wkdays" — the app's day fallback resolves them, but
+// priced standalone they can only return null) and ABSENT columns ("-", "NA")
+// from strings that genuinely don't parse. Those were never failures and
+// shouldn't have been counted against it. The rest came from teaching the
+// parser "4-hourly" and the "subseqent" misspelling.
+//
+// Of the 10 left, 7 are prose rather than rates — "URA coupon parking", "No
+// Entry (Staff Parking Only)" — so the real backlog is three strings.
+const MAX_UNPRICEABLE = 10;
 
 test("every stored rate still prices, or was already known not to", () => {
   const health = checkCorpus(loadCorpus());

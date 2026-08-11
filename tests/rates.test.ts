@@ -150,6 +150,27 @@ test("'1/2 hr' is a half hour, not a two-hour block", () => {
   assert.equal(fee("$2.00 for 1st hr, $1.50 for next subq 1/2hr", 90), 3.5);
 });
 
+test("a hyphenated multi-hour block prices per block, not per minute", () => {
+  // Palais Renaissance: "$3.80 per 4-hourly". Teaching BLOCK_UNIT the hyphen
+  // without teaching unitToMinutes read it as four MINUTES — thirty blocks in
+  // two hours, $114. The implausibility sweep caught it; this pins it.
+  assert.deepEqual(parseRate("$3.80 per 4-hourly"), {
+    kind: "per-block",
+    dollars: 3.8,
+    blockMinutes: 240,
+  });
+  assert.equal(fee("$3.80 per 4-hourly", 120), 3.8);
+  assert.equal(fee("$3.80 per 4-hourly", 300), 7.6);
+});
+
+test("'subsequent' survives being misspelled", () => {
+  // The Heeren writes "subseqent"; others use "subq" or "sub.". Matching the
+  // stem rather than a list of spellings covers all of them.
+  assert.equal(fee("$5 for 1st 3 hrs and $1.50 for subseqent ½ hr", 120), 5);
+  assert.equal(fee("$5 for 1st 3 hrs; $1.50 for subsequent ½ hr", 240), 8);
+  assert.equal(fee("$2.00 for 1st hr, $1.50 for next subq 1/2hr", 90), 3.5);
+});
+
 test("an amount in cents is read as money", () => {
   // East Coast Park writes small amounts as "60¢".
   assert.equal(fee("60¢ per 30min", 120), 2.4);
