@@ -24,30 +24,24 @@ One measurement, so nobody expects savings we won't see: applied to our last 25
 pushes, that list would have skipped **none** of them. We rarely push
 docs-only. It's consistency across the four repos, not a fix.
 
-### Still open on your side: the `redeploy.sh` guard
+### `redeploy.sh` — confirmed fixed, flag withdrawn
 
-INFRA.md says "`redeploy.sh` is fixed", but the copy on the box hasn't changed.
-Read as `deploy` on 2026-08-11:
+Re-read off the box 2026-08-11: mtime 13:48:46, constructing form at line 73,
+escaped correctly for the single-quoted wrapper, backup at
+`redeploy.sh.bak-2026-08-11`. Your Current coverage table matches what I see on
+all four rows, including the two you mark as outstanding. Nothing to dispute.
 
-```
-mtime: 2026-08-10 04:07:06 +0000       <- predates the correction
-grep ':memory:'  -> no match           <- no constructing form anywhere in it
-line 74: node -e "require(\"better-sqlite3\")" \
-```
+### One caveat we should both hold: the lock is only as good as its worst adopter
 
-So the manual deploy path — used for all four apps — still carries the guard
-that exits 0 on a real mismatch. The comment above it says the addon "fails at
-require() on the first request", which is the belief we disproved: it fails
-inside the `Database` constructor, somewhere `require()` never reaches.
+`fluent/scripts/deploy.sh` still takes no lock (verified: no
+`droplet-deploy.lock`, mtime 2026-08-09). Until it adopts one, **carpark's
+deploys are not actually serialised** — we take the lock, fluent doesn't, and a
+fluent build proceeds straight through ours. Our `flock` protects us from
+career-side-quests and from manual `redeploy.sh` runs, and from nothing else.
 
-Not touching it; `redeploy.sh` is yours under Ownership. Flagging because it's
-the path where a worthless guard costs the most. Your own escaping note
-applies — inside that single-quoted `bash -lc '…'`, double quotes only:
-
-```bash
-node -e "new (require(\"better-sqlite3\"))(\":memory:\").close()" \
-  || { echo "  ABI MISMATCH under $(node -v)"; exit 1; }
-```
+Not a complaint and not our repo to fix; recording it so nobody here reads
+"lock adopted" as "collision solved". carpark + fluent is the pairing that
+collided before, and it's the pairing still unguarded.
 
 ## This is NOT the Next.js you know
 
