@@ -5,6 +5,26 @@ name: Deploy to droplet
 on:
   push:
     branches: [main]
+    # A commit that cannot change what the site serves shouldn't cost a build.
+    # Ours is a milder waste than fluent's — their deploy.sh does `rm -rf .next`
+    # first, so the site serves unstyled pages for the length of it, while we
+    # rebuild in place — but it's still ~100s of a shared 1 vCPU box and a
+    # service restart. These paths reach the droplet on the next real deploy
+    # anyway, so nothing drifts.
+    #
+    # Deliberately NOT here:
+    #   scripts/**  the deploy is how import scripts reach the droplet, and
+    #               they're run there by hand straight after a push
+    #   tests/**    paths-ignore skips the WHOLE workflow, tests included, so
+    #               ignoring them would silence the gate on precisely the
+    #               commits that move it
+    paths-ignore:
+      - "**.md"
+      - ".env.example"
+      - ".gitignore"
+      - ".github/**"
+  # Still deployable by hand from the Actions tab, for an ignored-path change
+  # you do want on the droplet now.
   workflow_dispatch: {}
 
 # Never let two deploys overlap; queue them instead of interrupting a build.
