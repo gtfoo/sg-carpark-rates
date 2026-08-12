@@ -150,6 +150,31 @@ test("'1/2 hr' is a half hour, not a two-hour block", () => {
   assert.equal(fee("$2.00 for 1st hr, $1.50 for next subq 1/2hr", 90), 3.5);
 });
 
+test("a cap belongs to the band that states it", () => {
+  // Queen St Off St: $1.40 per half hour by day, and a $5 cap that applies
+  // only between 10.30pm and 7am. Limits used to be read from the band at
+  // MIDNIGHT regardless of arrival, so an eight-hour weekday stay from 8.41am
+  // was quoted $5.00 instead of $22.40 — underpriced by 4x, in the app's most
+  // confident voice. Harmless until URA rates carried per-band caps.
+  const queen =
+    "07.00 AM-05.00 PM: $1.40 per 30 mins; 05.00 PM-10.30 PM: $0.75 per 30 mins; " +
+    "10.30 PM-07.00 AM: $0.60 per 30 mins (capped at $5.00)";
+  const at = (mod: number, minutes: number) =>
+    estimateMallFee(
+      parseRate(bandForTime(queen, mod)),
+      minutes,
+      parseLimits(bandForTime(queen, mod)),
+    );
+
+  // Daytime: no cap in that band, so the full stay is charged.
+  assert.equal(at(8 * 60 + 41, 480), 22.4);
+  assert.equal(at(13 * 60, 120), 5.6);
+  // Overnight: the cap is real and must still bite.
+  assert.equal(at(23 * 60, 480), 5);
+  // Evening band has its own price and no cap.
+  assert.equal(at(18 * 60, 120), 3);
+});
+
 test("a hyphenated multi-hour block prices per block, not per minute", () => {
   // Palais Renaissance: "$3.80 per 4-hourly". Teaching BLOCK_UNIT the hyphen
   // without teaching unitToMinutes read it as four MINUTES — thirty blocks in

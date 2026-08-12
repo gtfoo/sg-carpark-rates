@@ -507,7 +507,7 @@ function feeFromOverride(
   return estimateMallFee(
     rateForDay(rates, dayType),
     minutes,
-    limitsForOverride(o, dayType),
+    limitsForOverride(o, dayType, startMod),
   );
 }
 
@@ -516,10 +516,22 @@ function feeFromOverride(
  * price rather than inside it, so both the rate text and the notes are read —
  * the AI extractor is told to put caveats like "Grace Period : 20 Minutes" and
  * "Whole Day Max Cap: $20.00" in the notes.
+ *
+ * `startMod` must be the arrival time, because a cap belongs to the BAND that
+ * states it. This read the band at minute 0 — midnight — and so applied the
+ * overnight cap to every stay: Queen St Off St charges $1.40 per half hour by
+ * day and caps at $5.00 only between 10.30pm and 7am, and an eight-hour
+ * weekday stay was quoted $5.00 instead of $22.40. Harmless until URA rates
+ * carried per-band caps, at which point it started underpricing in the app's
+ * most confident-looking voice.
  */
-function limitsForOverride(o: RateOverride, dayType: DayType): RateLimits {
+function limitsForOverride(
+  o: RateOverride,
+  dayType: DayType,
+  startMod: number,
+): RateLimits {
   return parseLimits(
-    [rawRateForDay(o, dayType, 0), o.notes ?? ""].join(" "),
+    [rawRateForDay(o, dayType, startMod), o.notes ?? ""].join(" "),
   );
 }
 
@@ -593,7 +605,7 @@ function hdbResult(
         opts.dayType,
         opts.minutes,
         ovFee,
-        limitsForOverride(ov, opts.dayType),
+        limitsForOverride(ov, opts.dayType, startMod),
       ),
     };
   }
@@ -680,7 +692,7 @@ function overrideResult(
       dayType,
       minutes,
       dollars,
-      limitsForOverride(o, dayType),
+      limitsForOverride(o, dayType, startMod),
     ),
   };
 }
