@@ -8,6 +8,7 @@ import {
   rateForDay,
   rateTextForDay,
   joinWeekdayBands,
+  notesForTime,
   type ParsedRate,
 } from "../src/lib/sources/mallRates";
 import { classifyDay } from "../src/lib/fees";
@@ -148,6 +149,33 @@ test("'1/2 hr' is a half hour, not a two-hour block", () => {
   assert.equal(fee("$2.50 for 1st hr, sub $1.25 per 1/2 hr", 120), 5);
   // 51 Cuppage Road compresses "subsequent" to "subq" on top of the slash.
   assert.equal(fee("$2.00 for 1st hr, $1.50 for next subq 1/2hr", 90), 3.5);
+});
+
+test("a caveat in the notes obeys its own hours", () => {
+  // Coliwoo's evening rate was filed in the notes by an importer with nowhere
+  // else to put it, cap included. Read whole, that $3.03 capped a daytime stay
+  // costing $8.80. A scan found 204 rates with band-limited caps and 6 with
+  // caps in the notes, so this is the same fault one field over.
+  const coliwoo =
+    "Weekday evening: 5.00pm-7.00am: $1.10 per hr (Capped at $3.03). " +
+    "From LTA OneMotoring — verify before relying on it.";
+  assert.equal(parseLimits(notesForTime(coliwoo, 13 * 60)).capDollars, null);
+  assert.equal(parseLimits(notesForTime(coliwoo, 19 * 60)).capDollars, 3.03);
+
+  // Jurong Lake Gardens states an overnight cap the same way.
+  const jurong =
+    "AI-retrieved — verify. Overnight parking between 10:30pm and 7:00am capped at $5.00.";
+  assert.equal(parseLimits(notesForTime(jurong, 13 * 60)).capDollars, null);
+  assert.equal(parseLimits(notesForTime(jurong, 23 * 60)).capDollars, 5);
+
+  // A caveat with no hours is global and must survive at every time.
+  const gardens = "Capped at $30 per day. Same rate applies at Bay East.";
+  for (const h of [9, 13, 19, 23]) {
+    assert.equal(parseLimits(notesForTime(gardens, h * 60)).capDollars, 30, `${h}:00`);
+  }
+  // As must a grace period, which is never time-scoped in practice.
+  assert.equal(parseLimits(notesForTime("10 mins grace period.", 13 * 60)).graceMinutes, 10);
+  assert.equal(notesForTime("", 780), "");
 });
 
 test("a cap belongs to the band that states it", () => {

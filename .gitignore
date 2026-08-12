@@ -12,6 +12,14 @@ tsconfig.tsbuildinfo
 # Persistent SQLite store — never commit your local rates/gaps DB
 data/
 
-# Park Here Anne logo — kept out of git (trademark-y), lives on the server only
-/public/logo-anne.png
-/public/logo-anne-icon.png
+# Park Here Anne logo — kept out of git (trademark-y), lives on the server only.
+# A glob rather than two exact paths: public/ became partially tracked when
+# sw.js landed there, so anything dropped in now shows up as untracked and is
+# one `git add public/` away from being committed.
+/public/logo-anne*
+
+# Windows alternate-data-stream leftovers. Copying a file in from Windows
+# leaves a 25-byte "<name>:Zone.Identifier" beside it, and these outlive the
+# file they described — three were sitting in public/ describing images that
+# had already been renamed to the logos above.
+*:Zone.Identifier

@@ -217,6 +217,43 @@ function normaliseAmounts(s: string): string {
     .replace(/(\d+)\s*¢/g, (_, cents: string) => `$${(Number(cents) / 100).toFixed(2)}`);
 }
 
+/**
+ * The parts of a notes field that apply at `minutesOfDay`.
+ *
+ * Notes carry two different kinds of caveat. Some are global — "Capped at $30
+ * per day", "10 mins grace period" — and some describe one band, because an
+ * importer had nowhere else to put it: Coliwoo's notes read "5.00pm-7.00am:
+ * $1.10 per hr (Capped at $3.03)". Feeding the whole field to parseLimits
+ * applied that evening cap to a daytime stay, quoting $3.03 for eight hours
+ * that cost $8.80 — the same error as reading a cap from the wrong band, one
+ * field over.
+ *
+ * So a clause that names its own hours is kept only when those hours cover the
+ * arrival; a clause that names none is always kept.
+ */
+export function notesForTime(notes: string, minutesOfDay: number): string {
+  const raw = repairEncoding(notes ?? "");
+  if (!raw) return "";
+  // Sentence-ish: these fields are prose, and a clause's range governs up to
+  // the next full stop or semicolon.
+  // Prose writes a range in ways a rate string never does — "between 10:30pm
+  // AND 7:00am" — so this accepts more separators than the band splitter,
+  // which must stay strict to avoid cutting bands apart on a stray word.
+  const noteRangeRe = () =>
+    new RegExp(`(${CLOCK})\\s*(?:-|–|to|and|until|&)\\s*(${CLOCK})`, "gi");
+  const clauses = raw.split(/(?<=[.;])\s+/);
+  const kept = clauses.filter((clause) => {
+    const ranges = [...clause.matchAll(noteRangeRe())];
+    if (!ranges.length) return true;
+    return ranges.some((m) => {
+      const from = parseClock(m[1]!);
+      const to = parseClock(m[2]!);
+      return from !== null && to !== null && covers(from, to, minutesOfDay);
+    });
+  });
+  return kept.join(" ").trim();
+}
+
 /** Drops the clock prefix so the fee patterns can't read "5pm-11pm" as money. */
 function stripBandPrefix(seg: string): string {
   const stripped = seg

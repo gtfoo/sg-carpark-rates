@@ -14,6 +14,7 @@ import {
   bandForTime,
   rateForDay,
   rateTextForDay,
+  notesForTime,
   parseRate,
   describeRate,
   NO_LIMITS,
@@ -531,7 +532,12 @@ function limitsForOverride(
   startMod: number,
 ): RateLimits {
   return parseLimits(
-    [rawRateForDay(o, dayType, startMod), o.notes ?? ""].join(" "),
+    [
+      rawRateForDay(o, dayType, startMod),
+      // The notes get the same treatment: a caveat that names its own hours
+      // only counts when those hours cover the arrival.
+      notesForTime(o.notes ?? "", startMod),
+    ].join(" "),
   );
 }
 
