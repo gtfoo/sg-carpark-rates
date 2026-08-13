@@ -38,16 +38,32 @@ Its branding lives only on the droplet:
    has something to patch*. Do not "simplify" them away or inline them, even
    though this repo only defines one brand — that silently un-brands her site.
 3. **Touching those files can break the patch.** `scripts/deploy.sh` re-applies
-   it on every deploy (the deploy hard-resets the tree, so this is required) and
-   prints a loud `!! WARNING` in the Actions log if it no longer applies. If you
-   see that warning, the patch needs refreshing on the server — don't ignore it.
+   it on every deploy (the deploy hard-resets the tree, so this is required).
+   An edit *near* the branded lines is re-anchored automatically by a 3-way
+   apply; an edit to *the same lines* cannot be, and then the deploy still
+   ships and serves — but **exits 1 so the Actions run goes red.** A red run is
+   the signal. It used to be a warning inside a green run, which nobody sees:
+   that is exactly how her site sat unbranded for a day in Aug 2026.
 
 To refresh the patch after the app's structure changes, on the droplet:
 
 ```bash
 cd /home/deploy/carpark
-git apply ../carpark-anne.patch   # or re-do the branding edits by hand
-git diff > ../carpark-anne.patch  # regenerate against the current commit
+git apply -3 ../carpark-anne.patch      # -3 re-anchors moved context
+# resolve any conflict markers by hand, keeping BOTH sides' intent
+git diff HEAD > ../carpark-anne.patch   # NOT `git diff` — see below
+```
+
+**`git diff HEAD`, never plain `git diff`.** A 3-way apply *stages* every file
+it merged cleanly, so plain `git diff` shows only the file you hand-resolved.
+It regenerates happily, exits 0, and silently produces a patch with four of the
+five files missing — which then applies cleanly and un-brands almost
+everything. Verify a regenerated patch by applying it to a throwaway worktree
+and reading the result, not by trusting that it applied:
+
+```bash
+git worktree add -f --detach /tmp/brandproof HEAD
+cd /tmp/brandproof && git apply ../carpark-anne.patch && grep -c anne src/lib/brand.ts
 ```
 
 ## Rate parsing is guarded by tests — extend them

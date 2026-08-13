@@ -60,13 +60,22 @@ SERVICE="${CARPARK_SERVICE:-carpark}"
 # re-applied here because the deploy hard-resets the working tree — otherwise
 # every deploy silently reverts that subdomain to default branding.
 PATCH="${CARPARK_LOCAL_PATCH:-../carpark-anne.patch}"
+BRAND_STALE=""
 if [ -f "$PATCH" ]; then
   if git apply --check "$PATCH" 2>/dev/null; then
     git apply "$PATCH"
     echo "==> applied server-only branding patch ($PATCH)"
+  elif git apply -3 "$PATCH" 2>/dev/null && [ -z "$(git ls-files -u)" ]; then
+    # Context moved but the patch still knows which blobs it was cut from, so
+    # git can re-anchor it. This is the common case: an edit landed NEAR the
+    # branded lines without touching them.
+    echo "==> applied server-only branding patch via 3-way merge ($PATCH)"
   else
-    # Don't fail the deploy — the app still serves, just unbranded — but make
-    # this impossible to miss in the Actions log.
+    # A real overlap: the patch and a commit changed the same lines. A failed
+    # 3-way leaves conflict markers staged, which would ship a file that does
+    # not compile — so put the tree back exactly as the deploy found it.
+    git reset -q --hard HEAD
+    BRAND_STALE=1
     echo "!!  WARNING: $PATCH no longer applies to this commit." >&2
     echo "!!  That subdomain will show DEFAULT branding until the patch is refreshed." >&2
   fi
@@ -155,3 +164,23 @@ fi
 echo "==> serving, ${COUNT} rates in the store"
 
 echo "==> deployed $(git rev-parse --short HEAD) on $(hostname)"
+
+# ------------------------------------------------- did the private skin ship?
+#
+# Deliberately the LAST thing, and deliberately non-fatal to the deploy: the
+# app is built, restarted and verified serving by this point, so exiting 1 here
+# costs no availability. It only turns the Actions run RED.
+#
+# That distinction is the whole point. This used to print a WARNING and exit 0,
+# and a warning inside a green run is invisible — the tick is what anyone
+# looks at. It went unnoticed for a day and was found by looking at the site,
+# which is the one way this was never supposed to be discovered.
+if [ -n "$BRAND_STALE" ]; then
+  echo "!!" >&2
+  echo "!!  DEPLOY OK, BUT THE BRANDING PATCH IS STALE." >&2
+  echo "!!  $(basename "$PATCH") did not apply, so that subdomain is serving" >&2
+  echo "!!  default branding right now. Refresh it on the droplet:" >&2
+  echo "!!    cd $(pwd) && git apply -3 $PATCH   # resolve any conflict" >&2
+  echo "!!    git diff HEAD > $PATCH" >&2
+  exit 1
+fi
