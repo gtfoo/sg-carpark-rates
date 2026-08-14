@@ -129,6 +129,7 @@ export async function lookupCarparkRate(args: {
 
     // Step 2 — structured extraction from the search results (no tools).
     const { object } = await generateObjectFallback({
+      op: "rate-lookup",
       schema: RateExtraction,
       prompt:
         `From the web search results below, extract the CURRENT public car ` +

@@ -120,6 +120,7 @@ export async function extractRate(args: {
 
   try {
     const { object } = await generateObjectFallback({
+      op: "rate-extract",
       schema: RateExtraction,
       prompt:
         `Extract the CURRENT public car park parking rates for CARS from the ` +

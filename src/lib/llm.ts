@@ -2,6 +2,7 @@ import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import type { LanguageModel } from "ai";
 import type { z } from "zod";
+import { isRateLimit, recordUsage } from "./usage";
 
 /**
  * The single place the extraction model is chosen, built on the Vercel AI SDK
@@ -74,20 +75,49 @@ function shouldFallback(err: unknown): boolean {
 export async function generateObjectFallback<T>(args: {
   schema: z.ZodType<T>;
   prompt: string;
+  /** Labels the call in the usage log, e.g. "rate-lookup". */
+  op?: string;
 }): Promise<{ object: T; modelId: string }> {
   const ids = getModelIds();
+  const provider = process.env.LLM_PROVIDER ?? "google";
   let lastErr: unknown;
   for (let i = 0; i < ids.length; i++) {
     const id = ids[i]!;
     try {
-      const { object } = await generateObject({
+      const { object, usage } = await generateObject({
         model: resolveModel(id),
         schema: args.schema,
         prompt: args.prompt,
       });
+      // `id` rather than getModelIds()[0]: on a fallback these differ, and the
+      // model that answered is the one whose quota was actually spent.
+      await recordUsage({
+        provider,
+        model: id,
+        op: args.op,
+        requests: 1,
+        in_tokens: usage?.inputTokens,
+        out_tokens: usage?.outputTokens,
+        units: null,
+        // Free-tier Gemini has no dollar cost. Null, never 0 — see usage.ts.
+        usd: null,
+        status: "ok",
+      });
       return { object: object as T, modelId: id };
     } catch (err) {
       lastErr = err;
+      // Recorded before deciding whether to fall back, so an exhausted model
+      // leaves a line whether or not another one rescued the request. That
+      // line is the only evidence of where the free-tier ceiling really is.
+      await recordUsage({
+        provider,
+        model: id,
+        op: args.op,
+        requests: 1,
+        units: null,
+        usd: null,
+        status: isRateLimit(err) ? "rate_limited" : "error",
+      });
       const hasNext = i < ids.length - 1;
       if (hasNext && shouldFallback(err)) {
         console.warn(

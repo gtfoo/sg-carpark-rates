@@ -9,6 +9,8 @@
  *   TAVILY_API_KEY   free key from https://tavily.com
  */
 
+import { recordUsage } from "./usage";
+
 export interface SearchHit {
   title: string;
   url: string;
@@ -34,18 +36,51 @@ export async function webSearch(
   const key = process.env.TAVILY_API_KEY;
   if (!key) throw new Error("TAVILY_API_KEY is not set.");
 
-  const res = await fetch("https://api.tavily.com/search", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query,
-      search_depth: "advanced",
-      max_results: maxResults,
-      include_raw_content: "text",
-    }),
+  const depth = "advanced";
+  // Tavily bills in credits rather than tokens, so this belongs in `units`.
+  // An advanced search costs more than a basic one under their published
+  // pricing; it is our estimate, which is why `usd` stays null rather than
+  // inventing a rate. If their pricing moves, this constant is what to revisit.
+  const credits = depth === "advanced" ? 2 : 1;
+
+  let res: Response;
+  try {
+    res = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        search_depth: depth,
+        max_results: maxResults,
+        include_raw_content: "text",
+      }),
+    });
+  } catch (err) {
+    // Never reached Tavily, so no credits were spent — but still worth a line:
+    // a provider that is unreachable otherwise looks exactly like one nobody
+    // called.
+    await recordUsage({
+      provider: "tavily",
+      op: "web-search",
+      requests: 1,
+      units: 0,
+      usd: null,
+      status: "error",
+    });
+    throw err;
+  }
+
+  await recordUsage({
+    provider: "tavily",
+    op: "web-search",
+    requests: 1,
+    // A rejected request is not billed, so only a 2xx spends credits.
+    units: res.ok ? credits : 0,
+    usd: null,
+    status: res.ok ? "ok" : res.status === 429 ? "rate_limited" : "error",
   });
 
   if (!res.ok) {

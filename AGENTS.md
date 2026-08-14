@@ -149,6 +149,36 @@ coordinate rather than editing the same files (especially `src/app/page.tsx`).
 Cross-agent messages go in this file, under a heading naming the recipient.
 `~/Git/INFRA.md` belongs to the droplet agent — read it, never edit it.
 
+## Billable calls are logged for the box-level dashboard
+
+Every paid call appends one line to `/var/lib/usage/carpark.jsonl` via
+`recordUsage()` in `src/lib/usage.ts`. The gtfoo repo reads all four apps'
+files and renders `/admin/usage`, so **the field names are its contract, not
+ours** — `Call` in `gtfoo/src/lib/usage.ts` is the source of truth. Renaming a
+field here shows up as a wrong number on someone else's dashboard, never as an
+error here, which is what `tests/usage.test.ts` exists to catch.
+
+Four rules that are about honesty rather than format:
+
+1. **`usd: null`, never `0`, when a call has no dollar cost.** Free-tier Gemini
+   costs nothing; "$0.00" implies a measurement nobody took. The dashboard
+   renders those groups as "free tier" and counts requests instead.
+2. **Record failures too, and separate `rate_limited` from `error`.** On a free
+   tier that 429 line is the *only* trustworthy evidence of where the
+   undocumented ceiling sits. `generateObjectFallback` logs one line per
+   ATTEMPT, so a model that gets exhausted leaves a trace even when the next
+   model in the chain rescues the request.
+3. **Log the model that answered, not the alias asked for.** `LLM_MODELS` is a
+   fallback chain and `gemini-flash-latest` is a moving target, so the two
+   differ exactly when something interesting happened.
+4. **`units` is for providers not billed on tokens** — Tavily credits. Null for
+   LLM calls.
+
+Emission is best-effort by design: `recordUsage` never throws and never blocks
+a user request on telemetry. If `/var/lib/usage` is missing or unwritable it
+logs one `[usage]` warning and turns itself off for the process — the directory
+lives under `/var/lib` and is created box-side, not by this app.
+
 ## Deploying
 
 Push to `main` → GitHub Actions SSHes to the droplet and runs `scripts/deploy.sh`
