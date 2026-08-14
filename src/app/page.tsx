@@ -10,6 +10,7 @@ import { useBrand } from "./brand-provider";
 import { toSgtInputValue } from "@/lib/time";
 import { formatFee } from "@/lib/format";
 import type { SearchResponse, CarparkResult } from "@/lib/search";
+import type { Brand } from "@/lib/brand";
 
 /**
  * Leaflet reaches for `window` at import time, so it must never run during
@@ -36,6 +37,31 @@ const DURATIONS = [
   { label: "4h", minutes: 240 },
   { label: "8h", minutes: 480 },
 ];
+
+/**
+ * A brand with artwork shows it; every other brand shows its wordmark.
+ *
+ * Deliberately knows nothing about WHICH brands have artwork — that is a
+ * property of the brand config, not of this component. The `onError` fallback
+ * matters because the image is served from a file outside the repository: if
+ * it is ever missing, the header degrades to the name rather than to a broken
+ * image icon.
+ */
+function BrandHeading({ brand }: { brand: Brand }) {
+  const [showLogo, setShowLogo] = useState(Boolean(brand.logo));
+  if (brand.logo && showLogo) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/brand/logo"
+        alt={brand.name}
+        onError={() => setShowLogo(false)}
+        className="h-auto w-full"
+      />
+    );
+  }
+  return <h1 className="text-2xl font-bold tracking-tight">{brand.name}</h1>;
+}
 
 export default function Home() {
   const brand = useBrand();
@@ -180,9 +206,9 @@ export default function Home() {
   return (
     <main className="mx-auto w-full max-w-lg px-4 pb-16 pt-6">
       <header className="mb-5 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight">{brand.name}</h1>
-          <p className="text-sm" style={{ color: "var(--muted)" }}>
+        <div className="min-w-0 flex-1">
+          <BrandHeading brand={brand} />
+          <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
             {brand.tagline}
           </p>
         </div>

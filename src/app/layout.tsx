@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { BrandProvider } from "./brand-provider";
-import { brandFromHost } from "@/lib/brand";
+import { paletteCss } from "@/lib/brand";
+import { resolveBrand } from "@/lib/brand-config";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const brand = brandFromHost((await headers()).get("host"));
+  const brand = resolveBrand((await headers()).get("host"));
   return {
     title: brand.name,
     description: brand.description,
@@ -18,14 +19,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export async function generateViewport(): Promise<Viewport> {
-  const brand = brandFromHost((await headers()).get("host"));
+  const brand = resolveBrand((await headers()).get("host"));
   return {
     // Tints the mobile browser chrome. Two entries so it tracks the system
     // setting; ThemeToggle rewrites the tag directly when a user overrides it,
-    // since a media query can't know about that choice.
+    // since a media query can't know about that choice. Both colours come from
+    // the brand — hardcoding the light one gave a private skin its own page
+    // and the default brand's address bar.
     themeColor: [
-      { media: "(prefers-color-scheme: light)", color: "#f6f7f9" },
-      { media: "(prefers-color-scheme: dark)", color: brand.theme.bg },
+      { media: "(prefers-color-scheme: light)", color: brand.palettes.light.bg },
+      { media: "(prefers-color-scheme: dark)", color: brand.palettes.dark.bg },
     ],
     width: "device-width",
     initialScale: 1,
@@ -38,10 +41,20 @@ export async function generateViewport(): Promise<Viewport> {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const brand = brandFromHost((await headers()).get("host"));
+  const brand = resolveBrand((await headers()).get("host"));
   return (
     <html lang="en">
       <head>
+        {/*
+          The brand's six palette colours, as the only definition of them
+          anywhere. globals.css deliberately does not declare them: two copies
+          of a palette is how a brand ends up half-applied.
+
+          Inline rather than a stylesheet because the values arrive at request
+          time from a file outside the build, and because being in the markup
+          means they are present at first paint with no extra round trip.
+        */}
+        <style dangerouslySetInnerHTML={{ __html: paletteCss(brand) }} />
         {/*
           Applies a stored theme BEFORE first paint. Without this the page
           renders in the system theme and then snaps to the chosen one — the

@@ -17,69 +17,105 @@ Next 16 has breaking changes — APIs, conventions and file structure may differ
 from your training data. Read the relevant guide in `node_modules/next/dist/docs/`
 before writing code, and heed deprecation notices.
 
-## The second brand is SERVER-ONLY — never commit it
+## Private brands are DATA on the server — never commit them
 
 This repo is **public** and is deliberately **single-brand (Carpark SG)**.
 
-`park-here-anne.gtfoo.com` is a private skin of the *same* app, for one person.
-Its branding lives only on the droplet:
+The same app also serves private skins on other hostnames. Their identity —
+name, tagline, palette, artwork — lives entirely on the droplet, in files the
+deploy never touches:
 
-- `/home/deploy/carpark-anne.patch` — name, tagline, colours, header/logo markup
-- `/home/deploy/carpark/public/logo-anne*.png` — gitignored logo assets
+- `/home/deploy/carpark-brands.json` — the brand data
+- `/home/deploy/carpark-brand/` — the artwork it names
+
+Both sit **beside** the repo, not inside it. Anything inside the app tree is
+deletable by `git reset --hard` and by phase 2's `rsync --delete`.
 
 **Rules:**
 
-1. **Never commit Park Here Anne branding** — no name, tagline, palette, logo,
-   or host-detection for it. If you find yourself adding "anne" to a tracked
-   file, stop.
-2. **Never delete the brand seams.** `src/lib/brand.ts` (`Brand`,
-   `brandFromHost`), and its use in `layout.tsx`, `manifest.ts`, `icon.tsx`,
-   `apple-icon.tsx`, `globals.css` and the `page.tsx` header exist *so the patch
-   has something to patch*. Do not "simplify" them away or inline them, even
-   though this repo only defines one brand — that silently un-brands her site.
-3. **Touching those files can break the patch.** `scripts/deploy.sh` re-applies
-   it on every deploy (the deploy hard-resets the tree, so this is required).
-   An edit *near* the branded lines is re-anchored automatically by a 3-way
-   apply; an edit to *the same lines* cannot be, and then the deploy still
-   ships and serves — but **exits 1 so the Actions run goes red.** A red run is
-   the signal. It used to be a warning inside a green run, which nobody sees:
-   that is exactly how her site sat unbranded for a day in Aug 2026.
+1. **Never commit a private brand's data** — no name, tagline, palette, logo,
+   or hostname. If you find yourself typing one into a tracked file, stop: it
+   belongs in the JSON.
+2. **Never delete the brand seams.** `src/lib/brand.ts` (types, `DEFAULT_BRAND`,
+   `paletteCss`), `src/lib/brand-config.ts`, the palette `<style>` in
+   `layout.tsx`, `BrandHeading` in `page.tsx`, and `src/app/brand/*` exist so a
+   brand can arrive at runtime. This repo defines one brand, so they can all
+   look like indirection with no purpose. Removing any of them silently
+   un-brands a live site that this repo cannot see.
+3. **Brand code must never name a brand.** Every seam above is generic: it asks
+   "does this brand have artwork?", never "is this the anne brand?". A
+   conditional on a specific key is the bug this design removed.
 
-To refresh the patch after the app's structure changes, on the droplet:
+### Changing a brand needs no deploy
 
-```bash
-cd /home/deploy/carpark
-git apply -3 ../carpark-anne.patch      # -3 re-anchors moved context
-# resolve any conflict markers by hand, keeping BOTH sides' intent
-git diff HEAD > ../carpark-anne.patch   # NOT `git diff` — see below
-```
-
-**`git diff HEAD`, never plain `git diff`.** A 3-way apply *stages* every file
-it merged cleanly, so plain `git diff` shows only the file you hand-resolved.
-It regenerates happily, exits 0, and silently produces a patch with four of the
-five files missing — which then applies cleanly and un-brands almost
-everything. Verify a regenerated patch by applying it to a throwaway worktree
-and reading the result, not by trusting that it applied:
+Edit the JSON on the droplet and restart. The config is read once per process,
+so a restart is what picks it up:
 
 ```bash
-git worktree add -f --detach /tmp/brandproof HEAD
-cd /tmp/brandproof && git apply ../carpark-anne.patch && grep -c anne src/lib/brand.ts
+sudo systemctl restart carpark
 ```
 
-**Never check the patch inside `/home/deploy/carpark` itself.** A deploy leaves
-it *applied*, so that working tree permanently carries the five modified files
-between deploys, and `git apply --check` there fails with "patch does not
-apply" for all five — whether the patch is good or not. It looks exactly like
-the failure you would be checking for. Always check against a clean worktree,
-as above; the deploy hard-resets before applying, so a clean tree is what the
-patch actually meets.
+Shape (any number of brands; `logo` and `icon` are optional and must be bare
+filenames inside the assets directory):
 
-**Also: the brand palette must answer the theme toggle.** The toggle writes
-`data-theme` on `<html>`, but a brand palette is declared on `body[data-brand]`
-— a descendant, so it wins every cascade and the toggle silently does nothing
-on that host. A brand needs four palette rules, not two: the plain one, the
-`prefers-color-scheme` one, and a `:root[data-theme="dark|light"] body[...]`
-pair that outscores both. Verify by clicking the real toggle and reading
+```json
+{
+  "brands": [
+    {
+      "key": "example",
+      "hosts": ["example.com"],
+      "name": "Example",
+      "shortName": "Ex",
+      "description": "...",
+      "tagline": "...",
+      "logo": "logo.png",
+      "icon": "icon.png",
+      "palettes": {
+        "dark":  { "bg": "#000", "surface": "#111", "border": "#222",
+                   "text": "#eee", "muted": "#999", "accent": "#f80" },
+        "light": { "bg": "#fff", "surface": "#fff", "border": "#ddd",
+                   "text": "#111", "muted": "#666", "accent": "#c60" }
+      }
+    }
+  ]
+}
+```
+
+Paths are overridable with `CARPARK_BRANDS_FILE` and `CARPARK_BRAND_ASSETS`.
+A missing file is normal and silent — that is any deployment with no private
+brand. A file that exists but is malformed logs `[brand]` with every problem at
+once and falls back to the default, rather than half-applying.
+
+### Both palettes are required, and that is deliberate
+
+A brand supplies `dark` and `light`. `layout.tsx` emits both, in four blocks —
+default, `prefers-color-scheme`, and an explicit `[data-theme]` pair that
+outscores the other two so the theme toggle wins.
+
+That last pair is not decoration. The earlier design declared brand colours on
+`body[data-brand]`, a *descendant* of the `<html>` the toggle writes to, so the
+brand won every cascade and the toggle did nothing on that host — it followed
+the OS only, which looks like a working theme until someone presses a button.
+Emitting on `:root` makes that structurally impossible.
+
+`globals.css` deliberately does **not** declare the six brand variables. Two
+copies of a palette is how a site ends up half-branded. Change
+`DEFAULT_BRAND` in `src/lib/brand.ts` instead.
+
+### The deploy checks what a visitor sees
+
+`scripts/deploy.sh` asks the running app, for every configured host, whether it
+serves that brand's name. If one falls back to the default it **exits 1 after
+the app is up** — availability is untouched, but the Actions run goes red.
+
+That is deliberately an outcome check rather than a "did the config load?"
+check, and it is deliberately red rather than a warning. The previous design
+was a git patch re-applied on every deploy, and it failed twice in one day:
+once when an edit touched the same lines it patched, once when the app grew a
+feature its CSS predated. Both printed a warning inside a green run, which
+nobody reads. The site was found unbranded by looking at it.
+
+Verify a theme change by clicking the real toggle and reading
 `getComputedStyle(document.body)`, not by grepping the built CSS — the minifier
 strips quotes from attribute selectors, so `[data-theme="light"]` ships as
 `[data-theme=light]` and a naive grep reports a correct deploy as missing.

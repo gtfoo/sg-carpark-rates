@@ -10,21 +10,23 @@
  * choice always beats the system's — which is the whole point of a toggle.
  *
  * No stored choice means no data-theme attribute at all, and the system wins.
- */
-/*
- * Status colours are variables for the same reason the palette is: the ones
- * that read well on a dark card are far too pale on a white one. Measured
- * against the card surface, the dark set scores 7.8 / 5.6 / 4.7 but only
- * 2.3 / 3.2 / 3.8 on light — the "can't take your full stay" warning would
- * have been the least readable thing on the page in light mode.
+ *
+ * THE SIX BRAND COLOURS ARE NOT HERE. --bg, --surface, --border, --text,
+ * --muted and --accent are emitted per request by layout.tsx from the resolved
+ * brand, in this same four-block shape. Declaring them here as well would put
+ * a second copy of the palette one edit away from disagreeing with the first,
+ * which is how a themed site ends up half-branded. Add brand colours to
+ * `DEFAULT_BRAND` in src/lib/brand.ts instead.
+ *
+ * Status colours DO live here: they are semantic rather than brand-owned, and
+ * every brand wants the same "this is a warning" red. They are variables for
+ * the same reason the palette is — the ones that read well on a dark card are
+ * far too pale on a white one. Measured against the card surface, the dark set
+ * scores 7.8 / 5.6 / 4.7 but only 2.3 / 3.2 / 3.8 on light, so the "can't take
+ * your full stay" warning would have been the least readable thing on the page
+ * in light mode.
  */
 :root {
-  --bg: #0b0d10;
-  --surface: #14181d;
-  --border: #232a32;
-  --text: #e8eaed;
-  --muted: #9aa4b2;
-  --accent: #5b8cff;
   --good: #22c55e;
   --warn: #d97706;
   --bad: #ef4444;
@@ -34,12 +36,6 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: #f6f7f9;
-    --surface: #ffffff;
-    --border: #dfe3e8;
-    --text: #12151a;
-    --muted: #5a6472;
-    --accent: #2f6bff;
     --good: #15803d;
     --warn: #b45309;
     --bad: #b91c1c;
@@ -49,12 +45,6 @@
 }
 
 :root[data-theme="dark"] {
-  --bg: #0b0d10;
-  --surface: #14181d;
-  --border: #232a32;
-  --text: #e8eaed;
-  --muted: #9aa4b2;
-  --accent: #5b8cff;
   --good: #22c55e;
   --warn: #d97706;
   --bad: #ef4444;
@@ -63,12 +53,6 @@
 }
 
 :root[data-theme="light"] {
-  --bg: #f6f7f9;
-  --surface: #ffffff;
-  --border: #dfe3e8;
-  --text: #12151a;
-  --muted: #5a6472;
-  --accent: #2f6bff;
   --good: #15803d;
   --warn: #b45309;
   --bad: #b91c1c;

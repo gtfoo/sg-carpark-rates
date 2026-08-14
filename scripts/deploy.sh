@@ -55,30 +55,22 @@ echo "==> node $(node -v) / npm $(npm -v)"
 # systemd unit name. Override with CARPARK_SERVICE=... if yours differs.
 SERVICE="${CARPARK_SERVICE:-carpark}"
 
-# Server-only branding patch (a private skin for a subdomain). It is kept OUT
-# of git on purpose, lives next to the repo on the server, and MUST be
-# re-applied here because the deploy hard-resets the working tree — otherwise
-# every deploy silently reverts that subdomain to default branding.
-PATCH="${CARPARK_LOCAL_PATCH:-../carpark-anne.patch}"
-BRAND_STALE=""
-if [ -f "$PATCH" ]; then
-  if git apply --check "$PATCH" 2>/dev/null; then
-    git apply "$PATCH"
-    echo "==> applied server-only branding patch ($PATCH)"
-  elif git apply -3 "$PATCH" 2>/dev/null && [ -z "$(git ls-files -u)" ]; then
-    # Context moved but the patch still knows which blobs it was cut from, so
-    # git can re-anchor it. This is the common case: an edit landed NEAR the
-    # branded lines without touching them.
-    echo "==> applied server-only branding patch via 3-way merge ($PATCH)"
-  else
-    # A real overlap: the patch and a commit changed the same lines. A failed
-    # 3-way leaves conflict markers staged, which would ship a file that does
-    # not compile — so put the tree back exactly as the deploy found it.
-    git reset -q --hard HEAD
-    BRAND_STALE=1
-    echo "!!  WARNING: $PATCH no longer applies to this commit." >&2
-    echo "!!  That subdomain will show DEFAULT branding until the patch is refreshed." >&2
-  fi
+# Private skins are DATA, not a code patch. Nothing to apply here any more.
+#
+# There used to be a `git apply` of a server-only branding patch at this point,
+# because the deploy hard-resets the tree. It broke twice: once when an edit
+# touched the same lines it patched, and once when the app grew a feature
+# (the theme toggle) that its CSS predated. Both were silent.
+#
+# Brands now load at runtime from a file BESIDE the repo, which no deploy
+# touches. See `src/lib/brand-config.ts`. The check below is the only thing
+# left: it reports what the running app resolves, so a missing or malformed
+# config is visible here rather than on someone's phone.
+BRANDS_FILE="${CARPARK_BRANDS_FILE:-../carpark-brands.json}"
+if [ -f "$BRANDS_FILE" ]; then
+  echo "==> brand config present ($BRANDS_FILE)"
+else
+  echo "==> no brand config at $BRANDS_FILE — serving the default brand only"
 fi
 
 # npm ci wipes node_modules and recompiles better-sqlite3 from source, which is
@@ -165,22 +157,51 @@ echo "==> serving, ${COUNT} rates in the store"
 
 echo "==> deployed $(git rev-parse --short HEAD) on $(hostname)"
 
-# ------------------------------------------------- did the private skin ship?
+# ------------------------------------------------ does every brand render?
+#
+# Asks the running app, for each configured host, whether it serves that
+# brand's name. This is the check the old patch never had: it tests the
+# OUTCOME a visitor sees, so it catches a stale config, a typo in a hostname,
+# a missing asset directory and a brand that silently fell back to the default
+# — none of which a "did the file apply?" check can see.
 #
 # Deliberately the LAST thing, and deliberately non-fatal to the deploy: the
 # app is built, restarted and verified serving by this point, so exiting 1 here
-# costs no availability. It only turns the Actions run RED.
-#
-# That distinction is the whole point. This used to print a WARNING and exit 0,
-# and a warning inside a green run is invisible — the tick is what anyone
-# looks at. It went unnoticed for a day and was found by looking at the site,
-# which is the one way this was never supposed to be discovered.
-if [ -n "$BRAND_STALE" ]; then
-  echo "!!" >&2
-  echo "!!  DEPLOY OK, BUT THE BRANDING PATCH IS STALE." >&2
-  echo "!!  $(basename "$PATCH") did not apply, so that subdomain is serving" >&2
-  echo "!!  default branding right now. Refresh it on the droplet:" >&2
-  echo "!!    cd $(pwd) && git apply -3 $PATCH   # resolve any conflict" >&2
-  echo "!!    git diff HEAD > $PATCH" >&2
-  exit 1
+# costs no availability. It only turns the Actions run RED. That distinction
+# matters — this used to print a WARNING and exit 0, and a warning inside a
+# green run is invisible. It went unnoticed for a day and was found by looking
+# at the site, which is the one way it was never supposed to be discovered.
+if [ -f "$BRANDS_FILE" ]; then
+  BRAND_BAD=""
+  while IFS='	' read -r host name; do
+    [ -n "$host" ] || continue
+    BODY="$(curl -sf --max-time 10 -H "Host: ${host}" "$BASE/" || true)"
+    if printf '%s' "$BODY" | grep -qF "<title>${name}</title>"; then
+      echo "==> ${host} serves ${name}"
+    else
+      echo "!!  ${host} did NOT serve '${name}'." >&2
+      BRAND_BAD=1
+    fi
+  done <<EOF
+$(node -e '
+  const fs = require("fs");
+  try {
+    const cfg = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+    for (const b of cfg.brands || []) {
+      for (const h of b.hosts || []) console.log(`${h}\t${b.name}`);
+    }
+  } catch (e) {
+    console.error("!!  unreadable brand config: " + e.message);
+    process.exit(1);
+  }
+' "$BRANDS_FILE" || echo "")
+EOF
+
+  if [ -n "$BRAND_BAD" ]; then
+    echo "!!" >&2
+    echo "!!  DEPLOY OK, BUT A CONFIGURED BRAND IS NOT RENDERING." >&2
+    echo "!!  The app is serving; one or more hosts fell back to the default" >&2
+    echo "!!  brand. Check $BRANDS_FILE and the app's stderr for '[brand]'." >&2
+    exit 1
+  fi
 fi

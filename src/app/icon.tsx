@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { headers } from "next/headers";
-import { brandFromHost } from "@/lib/brand";
+import { resolveBrand } from "@/lib/brand-config";
 
 /**
  * Home-screen / tab icon. Coloured from the request hostname so each brand
@@ -10,7 +10,7 @@ export const size = { width: 512, height: 512 };
 export const contentType = "image/png";
 
 export default async function Icon() {
-  const brand = brandFromHost((await headers()).get("host"));
+  const brand = resolveBrand((await headers()).get("host"));
   return new ImageResponse(
     (
       <div
@@ -20,8 +20,8 @@ export default async function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: brand.theme.bg,
-          color: brand.theme.accent,
+          background: brand.palettes.dark.bg,
+          color: brand.palettes.dark.accent,
           fontSize: 300,
           fontWeight: 700,
           letterSpacing: -10,
