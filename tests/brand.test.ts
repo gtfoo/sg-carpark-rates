@@ -19,13 +19,16 @@ import {
  * shouldn't. A brand that half-loads must be an error, never a quiet fallback.
  */
 
+// Deliberately absurd colours. An earlier version of this file used a real
+// private brand's palette as the fixture, which put its identity in a public
+// repo — the exact thing AGENTS.md rule 1 forbids, in the file that tests it.
 const goodPalette = {
-  bg: "#0c1330",
-  surface: "#15204a",
-  border: "#2a3768",
-  text: "#f4f6ff",
-  muted: "#aeb8dd",
-  accent: "#f5871f",
+  bg: "#010203",
+  surface: "#040506",
+  border: "#070809",
+  text: "#fafbfc",
+  muted: "#888888",
+  accent: "#abcdef",
 };
 
 function config(over: Record<string, unknown> = {}) {
@@ -38,7 +41,7 @@ function config(over: Record<string, unknown> = {}) {
         shortName: "Second",
         description: "d",
         tagline: "t",
-        palettes: { dark: goodPalette, light: { ...goodPalette, bg: "#fdf8ee" } },
+        palettes: { dark: goodPalette, light: { ...goodPalette, bg: "#fedcba" } },
         ...over,
       },
     ],
@@ -115,7 +118,7 @@ test("the emitted CSS answers the theme toggle, not just the system setting", ()
   assert.match(css, /\[data-theme="dark"\]/);
   assert.match(css, /prefers-color-scheme:light/);
   // The explicit blocks must outscore the media query, or the system wins.
-  assert.match(css, /:root:root\[data-theme="light"\]\{[^}]*--bg:#fdf8ee/);
+  assert.match(css, /:root:root\[data-theme="light"\]\{[^}]*--bg:#fedcba/);
 });
 
 test("the default brand needs no config file at all", () => {
