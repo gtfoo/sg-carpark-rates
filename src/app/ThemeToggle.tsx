@@ -6,11 +6,32 @@ export type ThemeChoice = "system" | "light" | "dark";
 
 const KEY = "carpark:theme";
 
-/** Chrome tint per palette — must match the values in globals.css. */
-const THEME_COLOUR: Record<"light" | "dark", string> = {
+/**
+ * Chrome tint per palette. Only a fallback for when the stylesheet hasn't
+ * applied yet — the real value is read back off the page below.
+ *
+ * Hardcoding it here was wrong for any brand that overrides the palette: a
+ * host with its own colours got its own page but the default brand's address
+ * bar, and the two only agreed because one brand existed when this was written.
+ */
+const FALLBACK_COLOUR: Record<"light" | "dark", string> = {
   light: "#f6f7f9",
   dark: "#0b0d10",
 };
+
+/**
+ * The painted `--bg`, after the attribute above has been applied. Reading
+ * computed style forces the recalc, so this is the colour actually on screen
+ * rather than a copy of it that can drift.
+ */
+function paintedBackground(fallback: string): string {
+  try {
+    const v = getComputedStyle(document.body).getPropertyValue("--bg").trim();
+    return v || fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 function readStored(): ThemeChoice {
   try {
@@ -49,7 +70,7 @@ function apply(choice: ThemeChoice): void {
     tag.dataset.explicit = "true";
     document.head.appendChild(tag);
   }
-  tag.content = THEME_COLOUR[resolved];
+  tag.content = paintedBackground(FALLBACK_COLOUR[resolved]);
 }
 
 const OPTIONS: { value: ThemeChoice; label: string; hint: string }[] = [
