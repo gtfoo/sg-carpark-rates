@@ -66,6 +66,24 @@ git worktree add -f --detach /tmp/brandproof HEAD
 cd /tmp/brandproof && git apply ../carpark-anne.patch && grep -c anne src/lib/brand.ts
 ```
 
+**Never check the patch inside `/home/deploy/carpark` itself.** A deploy leaves
+it *applied*, so that working tree permanently carries the five modified files
+between deploys, and `git apply --check` there fails with "patch does not
+apply" for all five — whether the patch is good or not. It looks exactly like
+the failure you would be checking for. Always check against a clean worktree,
+as above; the deploy hard-resets before applying, so a clean tree is what the
+patch actually meets.
+
+**Also: the brand palette must answer the theme toggle.** The toggle writes
+`data-theme` on `<html>`, but a brand palette is declared on `body[data-brand]`
+— a descendant, so it wins every cascade and the toggle silently does nothing
+on that host. A brand needs four palette rules, not two: the plain one, the
+`prefers-color-scheme` one, and a `:root[data-theme="dark|light"] body[...]`
+pair that outscores both. Verify by clicking the real toggle and reading
+`getComputedStyle(document.body)`, not by grepping the built CSS — the minifier
+strips quotes from attribute selectors, so `[data-theme="light"]` ships as
+`[data-theme=light]` and a naive grep reports a correct deploy as missing.
+
 ## Rate parsing is guarded by tests — extend them
 
 `npm test` (Node's built-in runner via tsx, no extra dependencies) covers the
