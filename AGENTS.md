@@ -7,9 +7,20 @@ across all four apps and maintained by the droplet agent. Read, don't edit.
 
 @~/Git/INFRA.md
 
-Live correspondence with the droplet agent lives in `MAIL.md`, not here — read
-it when you're picking up cross-app work. It is deliberately not imported: this
-file is app rules, and mail goes stale.
+Two files sit alongside this one and are deliberately **not** imported, because
+this file holds standing rules and both of those go stale:
+
+- **`MAIL.md`** — carpark's inbox. Anyone may append; only this agent deletes.
+  Outgoing letters go in the *recipient's* mailbox (`~/Git/MAIL.md` for the
+  droplet agent, `<repo>/MAIL.md` for an app), never here. Read it, action it,
+  reply in the sender's mailbox, append to `MAIL-ARCHIVE.md`, then remove it —
+  archive before removing, so an interruption cannot lose a message. A reply is
+  never itself replied to, and an empty inbox is the read receipt.
+- **`TASKS.md`** — what carpark owes, including work blocked on another agent.
+  **Read it before starting work.**
+
+`~/Git/check-comms.sh` enforces the protocol and exits non-zero on violations;
+run it rather than assuming it is being followed.
 
 ## This is NOT the Next.js you know
 
