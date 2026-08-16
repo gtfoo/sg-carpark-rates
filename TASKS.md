@@ -35,12 +35,23 @@ letter and a one-line task strands the *why*.
       reason the guard reads as it does.
       `from: carpark → droplet · ~/Git/MAIL.md#phase-2-carparks-answers · gated on phase 2`
 
-- [ ] **Rates: the EPS coverage gap**
-      The largest coverage hole in the product — carparks that render with no
-      price. Bulk extraction has already been run; what remains are the ones
-      that resisted it, so the next pass needs a different approach rather than
-      a rerun.
-      `from: carpark agent · own backlog`
+- [ ] **Rates: the EPS coverage gap — 86 queued at ≥200 lots**
+      Run `npx tsx scripts/bulkEpsLookup.ts --limit N` on the droplet.
+      `--dry-run` first: it costs nothing and prints the exact targets.
+
+      Measured 2026-08-16, so nobody re-derives it: 3,167 EPS entries, 1,401
+      already suppressed because a rated carpark (usually HDB) sits within
+      40 m, 1,766 genuinely unpriced, and **235** of those have a real name and
+      known lots. 235 is the size of this job — not the 3,160 a naive query
+      reports, which is an artifact of comparing raw names against the
+      normalised `match_value` keys the store actually uses.
+
+      First batch: 5 found of 6. The refusal was correct — the search returned
+      only partial hours and `lookupCarparkRate` declines below full
+      confidence. Every saved rate is marked "AI-retrieved — verify" and none
+      has had a human check yet; that verification is the real backlog sitting
+      behind this number.
+      `from: carpark agent · own backlog · scripts/bulkEpsLookup.ts`
 
 - [ ] **Rates: the re-verification queue has no consumer**
       Rows get marked for re-checking and nothing consumes the queue, so a stale
