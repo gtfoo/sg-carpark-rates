@@ -3,7 +3,14 @@
  *
  * The other half of this lives in the gtfoo repo, which reads every app's file
  * and renders `/admin/usage`. This is an interface with another agent, so the
- * field names below are theirs, not ours — see `Call` in `gtfoo/src/lib/usage.ts`.
+ * field names below are theirs, not ours.
+ *
+ * The contract is `gtfoo/docs/usage-tracking.md` — tracked, durable, and the
+ * place to look first. `Call` in `gtfoo/src/lib/usage.ts` is the types; read
+ * both, because the doc carries the two rules the types cannot express (UTC
+ * timestamps, and the 4096-byte line limit below). Do not take the schema from
+ * correspondence: mail is explicitly ephemeral, and recovering it from a
+ * deleted letter's git history is not a repeatable plan.
  *
  * Append-only JSONL rather than a shared database: no app can block another,
  * and a crash mid-write costs exactly one line. A single `write` with `O_APPEND`
