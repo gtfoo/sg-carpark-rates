@@ -30,6 +30,23 @@ function fee(raw: string, minutes: number, atMinutesOfDay = 13 * 60): number | n
   return d === null ? null : Math.round(d * 100) / 100;
 }
 
+/**
+ * Fee WITH the band's caps and grace applied — what the app actually charges.
+ *
+ * `fee()` above deliberately passes no limits, so every assertion using it is
+ * blind to caps. That is fine for testing a rate pattern in isolation and was
+ * invisible for a long time, but it also means no test in this file could ever
+ * have caught a cap bug: QUEEN ST's cap leaking across bands and Great World
+ * City's unparsed "Max." both priced correctly under `fee()`.
+ *
+ * Use this one for anything involving a cap, a maximum, or a grace period.
+ */
+function feeCapped(raw: string, minutes: number, atMinutesOfDay = 13 * 60): number | null {
+  const band = bandForTime(raw, atMinutesOfDay);
+  const d = estimateMallFee(parseRate(band), minutes, parseLimits(band));
+  return d === null ? null : Math.round(d * 100) / 100;
+}
+
 test("per-block rates", () => {
   // 18 Robinson — "half hourly" with no separator word before the unit.
   assert.equal(fee("$3.03 half hourly", 60), 6.06);
@@ -67,7 +84,10 @@ test("an abbreviated cap keyword still reads as a cap", () => {
   // against a stated $6.00 maximum, an overcharge no threshold would flag.
   const gwc = "$1.65 per hr (Max. of $6.00 per entry)";
   assert.equal(parseLimits(gwc).capDollars, 6);
-  assert.equal(fee(gwc, 480), 6);
+  // feeCapped, not fee: the plain helper passes no limits and would report the
+  // uncapped $13.20 as correct, which is how this survived unnoticed.
+  assert.equal(feeCapped(gwc, 480), 6);
+  assert.equal(feeCapped(gwc, 120), 3.3); // under the cap, unchanged
   // Still must not reach across a full stop into an unrelated amount.
   assert.equal(parseLimits("Max stay 2 hours. Season pass $90 monthly").capDollars, null);
 });
