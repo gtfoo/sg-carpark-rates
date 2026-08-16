@@ -155,6 +155,24 @@ if [ "${COUNT:-0}" -lt 1 ]; then
 fi
 echo "==> serving, ${COUNT} rates in the store"
 
+# ------------------------------------------- do the stored rates still hold?
+#
+# Audits the LIVE database, not the committed corpus fixture. That fixture is
+# refreshed by hand, and on 2026-08-16 it was six days behind: 684 strings
+# gated while production held 838, so every recently imported or AI-retrieved
+# rate was covered by nothing while the gate still reported green.
+#
+# Only two findings fail a run, because only these two are always a bug and
+# never a judgement call: a longer stay costing LESS than a shorter one, and a
+# cap applied to a band whose text never stated one — the QUEEN ST shape, which
+# quoted $5 for a stay that cost $22.40. Prose that cannot be priced ("URA
+# coupon parking") is neither, and does not fail anything.
+echo "==> auditing stored rates"
+RATES_BAD=""
+if ! npx tsx scripts/rateAudit.ts --from-db --ci --list 5; then
+  RATES_BAD=1
+fi
+
 echo "==> deployed $(git rev-parse --short HEAD) on $(hostname)"
 
 # ------------------------------------------------ does every brand render?
@@ -204,4 +222,17 @@ EOF
     echo "!!  brand. Check $BRANDS_FILE and the app's stderr for '[brand]'." >&2
     exit 1
   fi
+fi
+
+# Same contract as the brand check above: the app is up and serving, so this
+# costs no availability — it only turns the run red. A wrong PRICE is the one
+# defect this product cannot absorb quietly, so it must not sit inside a green
+# tick.
+if [ -n "$RATES_BAD" ]; then
+  echo "!!" >&2
+  echo "!!  DEPLOY OK, BUT A STORED RATE PRICES IMPOSSIBLY." >&2
+  echo "!!  Either a longer stay costs less than a shorter one, or a cap is" >&2
+  echo "!!  reaching a band that never declared it. Reproduce with:" >&2
+  echo "!!    npx tsx scripts/rateAudit.ts --from-db --list 20" >&2
+  exit 1
 fi

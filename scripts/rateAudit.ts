@@ -205,14 +205,43 @@ export function auditCaps(corpus: CorpusEntry[]): CapFinding[] {
   return out;
 }
 
-function main() {
+/**
+ * Every stored override, read from the database rather than the fixture.
+ *
+ * `tests/fixtures/rate-corpus.json` is a committed snapshot refreshed by hand
+ * with `npm run export-rate-corpus`. On 2026-08-16 it held 684 strings while
+ * production held 838 — so roughly 150 rates, including every one retrieved by
+ * the bulk lookup, were gated by nothing while the gate still reported green.
+ * A check that silently stops covering new data is worse than no check.
+ */
+async function corpusFromDb(): Promise<CorpusEntry[]> {
+  const { listOverrides } = await import("../src/lib/store/rates");
+  const out: CorpusEntry[] = [];
+  for (const o of listOverrides()) {
+    const name = o.displayName ?? o.matchValue;
+    for (const rate of [o.weekdayRate, o.fridayRate, o.saturdayRate, o.sundayPhRate]) {
+      if (rate) out.push({ name, rate, notes: o.notes ?? "" });
+    }
+  }
+  return out;
+}
+
+async function main() {
   const argv = process.argv.slice(2);
   const listIdx = argv.indexOf("--list");
   const listN = listIdx >= 0 ? Number(argv[listIdx + 1] ?? 10) : 10;
+  const fromDb = argv.includes("--from-db");
+  // Exit non-zero when a finding is ALWAYS a bug, never a judgement call:
+  // a longer stay costing less, or a cap reaching a band that never stated
+  // one. Prose that cannot be priced is neither, so it does not fail a run.
+  const ci = argv.includes("--ci");
 
-  const corpus = JSON.parse(
-    readFileSync(join(process.cwd(), "tests", "fixtures", "rate-corpus.json"), "utf8"),
-  ) as CorpusEntry[];
+  const corpus = fromDb
+    ? await corpusFromDb()
+    : (JSON.parse(
+        readFileSync(join(process.cwd(), "tests", "fixtures", "rate-corpus.json"), "utf8"),
+      ) as CorpusEntry[]);
+  if (fromDb) console.log(`(read ${corpus.length} day-columns from the database)`);
 
   const findings = audit(corpus);
   const by = (k: Finding["kind"]) => findings.filter((f) => f.kind === k);
@@ -267,6 +296,26 @@ function main() {
     if (uniq.length > listN) console.log(`  … ${uniq.length - listN} more strings`);
   }
   console.log();
+
+  if (ci) {
+    const fatal = [
+      ...findings.filter((f) => f.kind === "monotonic"),
+      ...caps.filter((c) => c.kind === "leaked-into-band"),
+    ];
+    if (fatal.length) {
+      console.error(`!!  ${fatal.length} finding(s) that are always a bug:`);
+      for (const f of fatal.slice(0, 10)) {
+        console.error(`!!    ${f.entry.name} — ${f.detail}`);
+      }
+      process.exit(1);
+    }
+    console.log("no monotonic breaks and no cap leaks.");
+  }
 }
 
-if (process.argv[1]?.endsWith("rateAudit.ts")) main();
+if (process.argv[1]?.endsWith("rateAudit.ts")) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
