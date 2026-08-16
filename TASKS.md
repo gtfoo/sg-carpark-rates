@@ -53,6 +53,34 @@ letter and a one-line task strands the *why*.
       behind this number.
       `from: carpark agent · own backlog · scripts/bulkEpsLookup.ts`
 
+- [ ] **Rates: two mispricings found by `npm run rates-audit`, both overcharges**
+      Both under the $50 implausibility threshold, so nothing flagged them.
+
+      **RWS weekend evenings quote $28 where the operator charges $8.**
+      `"$8 per entry (Max: $28 per 24 hrs)"` parses as per-block $28/24hr: the
+      per-block pattern takes `$28 per 24 hrs` out of the *max* clause and
+      treats it as the rate. The Mon-Thu string `"$6 per entry"` is correct, so
+      it is the trailing parenthetical that breaks it. Same entry, second
+      error: the weekend daytime band loses its cap (8h prices $36 against a
+      stated $28 max). Fix candidate: strip the max parenthetical before
+      `parseRate`, since `parseLimits` already reads it — do NOT reorder
+      flat-per-entry ahead of per-block without the full corpus diff.
+
+      **Jurong Lake Gardens says "not computable" when parking is free.**
+      `"$0.60 per 30 mins (8:30am-12pm, 2pm-5am); Free 5am-8:30am & 12pm-2pm"`
+      — at 8am and 1pm `bandForTime` returns `"5am-8:30am & 12pm-2pm"` with the
+      word "Free" stripped off, so it parses as unparsed. A free band written
+      after its hours is not recognised.
+      `from: carpark agent · npm run rates-audit · 2026-08-16`
+
+- [ ] **Rates: the corpus gate is six days stale and gates 154 fewer strings**
+      `tests/fixtures/rate-corpus.json` is a committed snapshot last exported
+      2026-08-10 with 684 strings; production now holds 838. Everything
+      imported or retrieved since — including the five AI-retrieved rates from
+      2026-08-16 — is gated by nothing. `npm run export-rate-corpus` refreshes
+      it, but nothing makes that happen, which is the actual defect.
+      `from: carpark agent · npm run rates-audit · 2026-08-16`
+
 - [ ] **Rates: the re-verification queue has no consumer**
       Rows get marked for re-checking and nothing consumes the queue, so a stale
       rate stays stale until a user notices. The marking half already works,
