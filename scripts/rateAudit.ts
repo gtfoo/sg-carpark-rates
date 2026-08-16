@@ -123,6 +123,88 @@ export function audit(corpus: CorpusEntry[]): Finding[] {
   return findings;
 }
 
+/**
+ * Cap-specific sweep. Every mispricing found this month involved a cap, and
+ * each of these asks a question with an objectively right answer — no
+ * thresholds, no judgement about what a car park "should" charge.
+ *
+ *   declared-not-parsed  the band says "max $X" and the parser found no cap
+ *   leaked-into-band     the parser found a cap the band text does not state
+ *   over-declared-cap    a fee exceeds a cap the string itself declares
+ *   cap-below-entry      the cap is less than the first hour, which is absurd
+ *
+ * `leaked-into-band` is the QUEEN ST shape exactly: a cap written in the night
+ * band reaching a morning arrival, quoting $5 for a stay that costs $22.40.
+ */
+const CAP_TEXT = /(?:max|cap(?:ped)?)[^$]{0,24}\$\s*(\d+(?:\.\d+)?)/gi;
+
+function declaredCaps(text: string): number[] {
+  return [...text.matchAll(CAP_TEXT)].map((m) => Number(m[1]));
+}
+
+export interface CapFinding {
+  entry: CorpusEntry;
+  kind: "declared-not-parsed" | "leaked-into-band" | "over-declared-cap" | "cap-below-entry";
+  detail: string;
+}
+
+export function auditCaps(corpus: CorpusEntry[]): CapFinding[] {
+  const out: CapFinding[] = [];
+  for (const e of corpus) {
+    const wholeCaps = declaredCaps(e.rate);
+
+    for (const h of HOURS) {
+      const band = bandForTime(e.rate, h * 60);
+      const parsed = parseRate(band);
+      if (!parsed || parsed.kind === "unparsed") continue;
+
+      const bandCaps = declaredCaps(band);
+      // parseLimits sees the notes too, and a cap stated there is legitimate.
+      const capFromBand = parseLimits(band)?.capDollars ?? null;
+
+      if (bandCaps.length && capFromBand === null) {
+        out.push({
+          entry: e,
+          kind: "declared-not-parsed",
+          detail: `${h}:00 — band states max $${bandCaps[0]} but no cap was parsed`,
+        });
+      }
+      if (!bandCaps.length && capFromBand !== null) {
+        out.push({
+          entry: e,
+          kind: "leaked-into-band",
+          detail: `${h}:00 — cap $${capFromBand} applied, band text states none`,
+        });
+      }
+
+      const fees = DURATIONS.map((d) => price(e, h, d)).filter((f): f is number => f !== null);
+      if (!fees.length) continue;
+      const worst = Math.max(...fees);
+      // Only against a cap stated in THIS band. Comparing to every cap in the
+      // string reproduces the QUEEN ST bug inside the auditor: a $5 cap in the
+      // night band does not bind a morning arrival, and flagging that as a
+      // violation would push someone to "fix" correct behaviour.
+      const lowestDeclared = bandCaps.length ? Math.min(...bandCaps) : null;
+      if (lowestDeclared !== null && worst > lowestDeclared + 1e-9) {
+        out.push({
+          entry: e,
+          kind: "over-declared-cap",
+          detail: `${h}:00 — prices up to $${worst.toFixed(2)} against a declared max of $${lowestDeclared}`,
+        });
+      }
+      const firstHour = price(e, h, 60);
+      if (capFromBand !== null && firstHour !== null && capFromBand < firstHour - 1e-9) {
+        out.push({
+          entry: e,
+          kind: "cap-below-entry",
+          detail: `${h}:00 — cap $${capFromBand} is below the first hour at $${firstHour.toFixed(2)}`,
+        });
+      }
+    }
+  }
+  return out;
+}
+
 function main() {
   const argv = process.argv.slice(2);
   const listIdx = argv.indexOf("--list");
@@ -153,6 +235,36 @@ function main() {
       console.log(`    ${f.entry.rate.slice(0, 100)}`);
     }
     if (rows.length > listN) console.log(`  … ${rows.length - listN} more`);
+  }
+
+  // --- caps ---------------------------------------------------------------
+  const caps = auditCaps(corpus);
+  const capBy = (k: CapFinding["kind"]) => caps.filter((c) => c.kind === k);
+  const withCaps = corpus.filter((e) => declaredCaps(e.rate).length).length;
+  console.log(`\ncaps: ${withCaps} of ${corpus.length} strings declare one\n`);
+  console.log(`  declared, not parsed : ${capBy("declared-not-parsed").length}`);
+  console.log(`  leaked into a band   : ${capBy("leaked-into-band").length}   <- the QUEEN ST shape`);
+  console.log(`  fee over its own cap : ${capBy("over-declared-cap").length}`);
+  console.log(`  cap below first hour : ${capBy("cap-below-entry").length}`);
+
+  for (const kind of [
+    "declared-not-parsed",
+    "leaked-into-band",
+    "over-declared-cap",
+    "cap-below-entry",
+  ] as const) {
+    const rows = capBy(kind);
+    if (!rows.length) continue;
+    // One line per distinct rate string: the same fault repeats at every hour.
+    const seen = new Set<string>();
+    const uniq = rows.filter((r) => !seen.has(r.entry.rate) && seen.add(r.entry.rate));
+    console.log(`\n--- ${kind.toUpperCase()} (${rows.length} across ${uniq.length} strings) ---`);
+    for (const f of uniq.slice(0, listN)) {
+      console.log(`  ${f.entry.name}`);
+      console.log(`    ${f.detail}`);
+      console.log(`    ${f.entry.rate.slice(0, 110)}`);
+    }
+    if (uniq.length > listN) console.log(`  … ${uniq.length - listN} more strings`);
   }
   console.log();
 }

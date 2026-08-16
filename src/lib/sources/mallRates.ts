@@ -624,7 +624,11 @@ export function parseLimits(text: string): RateLimits {
 
   let capDollars: number | null = null;
   for (const re of [
-    /(?:max(?:imum)?|cap(?:ped)?)[^.$]{0,24}\$\s*(\d+(?:\.\d{1,2})?)/i,
+    // The `\.?` is the abbreviating dot in "Max." / "Cap." — without it the
+    // gap below, which forbids "." so the match cannot cross a sentence
+    // boundary, ends the match on the abbreviation itself. Great World City
+    // priced eight hours at $13.20 against its own stated $6.00 maximum.
+    /(?:max(?:imum)?|cap(?:ped)?)\.?[^.$]{0,24}\$\s*(\d+(?:\.\d{1,2})?)/i,
     /\$\s*(\d+(?:\.\d{1,2})?)\s*(?:max(?:imum)?|cap)/i,
   ]) {
     const m = t.match(re);

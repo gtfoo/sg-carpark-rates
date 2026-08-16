@@ -59,6 +59,19 @@ test("first-then rates, including the published typos", () => {
   assert.equal(fee("$5.00 for 1st hr; $0.10 for next sub. min.", 90), 8);
 });
 
+test("an abbreviated cap keyword still reads as a cap", () => {
+  // Great World City, found by `npm run rates-audit`. The cap pattern skips up
+  // to 24 characters between the keyword and the amount but forbids a "." in
+  // them, so it cannot cross a sentence boundary — which also meant the dot in
+  // "Max." ended the match before it started. Eight hours priced $13.20
+  // against a stated $6.00 maximum, an overcharge no threshold would flag.
+  const gwc = "$1.65 per hr (Max. of $6.00 per entry)";
+  assert.equal(parseLimits(gwc).capDollars, 6);
+  assert.equal(fee(gwc, 480), 6);
+  // Still must not reach across a full stop into an unrelated amount.
+  assert.equal(parseLimits("Max stay 2 hours. Season pass $90 monthly").capDollars, null);
+});
+
 test("a FREE first period is a first-then rate, not an unparseable one", () => {
   // Orion @ Paya Lebar's Sunday rate, retrieved 2026-08-16 by the bulk EPS
   // lookup. Both first-then patterns require a "$" on each half, so a free
