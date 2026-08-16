@@ -378,6 +378,38 @@ export function parseRate(rawInput: string): ParsedRate {
     };
   }
 
+  // A FREE opening period, then a normal block rate: "1st 15 mins free, $1.00
+  // per subsequent 30 mins" (Orion @ Paya Lebar, Sundays).
+  //
+  // Both patterns above require a "$" on each half — deliberately, because
+  // dropping it is what made "30min" read as thirty dollars. A free first
+  // period has no amount to carry one, so it matched neither and the whole
+  // string came back unparsed. Rather than relax those, this handles the free
+  // case on its own terms: the price IS zero, so it is a first-then whose
+  // first half costs nothing, not a grace period bolted onto a block rate.
+  //
+  // Tried after both money-bearing forms so it can never steal their matches,
+  // and before per-block so the trailing "$1.00 per 30 mins" is not read alone
+  // — which would charge the free quarter-hour.
+  const firstFreeThen = raw.match(
+    new RegExp(
+      `${FIRST_PERIOD}\\s*(?:is\\s*|are\\s*)?free` +
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:sub[a-z]*\\.?\\s*)?` +
+        `(${RATE_UNIT})`,
+      "i",
+    ),
+  );
+  if (firstFreeThen) {
+    const units = firstFreeThen[1] ? Number(firstFreeThen[1]) : 1;
+    return {
+      kind: "first-then",
+      firstDollars: 0,
+      firstMinutes: units * unitToMinutes(firstFreeThen[2]!),
+      thenDollars: Number(firstFreeThen[3]),
+      thenBlockMinutes: unitToMinutes(firstFreeThen[4]!),
+    };
+  }
+
   // "$1.30 / 30 Mins", "$1.20 per half hour", "$3.20 every 30 min", "$2 hourly"
   //
   // MUST be tried before the per-minute pattern: in "$1.30 / 30 Mins" the

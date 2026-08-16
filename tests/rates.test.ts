@@ -59,6 +59,25 @@ test("first-then rates, including the published typos", () => {
   assert.equal(fee("$5.00 for 1st hr; $0.10 for next sub. min.", 90), 8);
 });
 
+test("a FREE first period is a first-then rate, not an unparseable one", () => {
+  // Orion @ Paya Lebar's Sunday rate, retrieved 2026-08-16 by the bulk EPS
+  // lookup. Both first-then patterns require a "$" on each half, so a free
+  // opening period matched neither and the whole string came back unparsed —
+  // the card read "not computable" beside a rate a human parses at a glance.
+  const orion = "1st 15 mins free, $1.00 per subsequent 30 mins";
+  assert.deepEqual(parseRate(orion), {
+    kind: "first-then",
+    firstDollars: 0,
+    firstMinutes: 15,
+    thenDollars: 1,
+    thenBlockMinutes: 30,
+  });
+  // 15 free, then 105 min billed in 30-min blocks rounded up: 4 × $1.00.
+  assert.equal(fee(orion, 120), 4);
+  // Inside the free period there is nothing to pay.
+  assert.equal(fee(orion, 10), 0);
+});
+
 test("a first period of more than one hour is charged as one period", () => {
   // 49 stored rates said "for 1st 2 hrs" and every one of them was quoting
   // $4.00 — the pattern below didn't allow a count after "1st", so it failed
