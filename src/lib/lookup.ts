@@ -7,6 +7,22 @@ import {
   type RateOverride,
 } from "./store/rates";
 import { resolveGapsByName } from "./store/gaps";
+import { parseRate, bandForTime, estimateMallFee, parseLimits } from "./sources/mallRates";
+
+/**
+ * Can the fee engine actually turn this string into a number?
+ *
+ * Checked at four arrival hours because a rate with clock bands prices in some
+ * and not others, and one probe cannot tell "no night band" from "does not
+ * parse at all".
+ */
+function pricesAtSomeHour(rate: string): boolean {
+  return [8, 13, 20, 1].some((h) => {
+    const band = bandForTime(rate, h * 60);
+    const fee = estimateMallFee(parseRate(band), 120, parseLimits(band));
+    return fee !== null;
+  });
+}
 
 /**
  * Extracted rate shape. Rate strings deliberately match the LTA-dataset text
@@ -148,6 +164,29 @@ export async function lookupCarparkRate(args: {
         found: false,
         status: "not-found",
         reason: object.notes ?? "No reliable current rate found online.",
+        sources,
+      };
+    }
+
+    // A rate we cannot price is worse than no rate at all. It renders "not
+    // computable" beside a confident-looking string, and — because the row now
+    // exists — the carpark counts as covered, so no later sweep or bulk run
+    // ever retries it. Refuse it here, where the cost is one wasted lookup,
+    // rather than discovering it in an audit weeks later.
+    //
+    // Only the weekday column gates the save. A model that produced an
+    // unpriceable weekday string got the extraction wrong; a Saturday column
+    // that cannot price is a narrower fault, and dropping it would be worse
+    // than keeping it — the day fallback would quietly show weekday prices on
+    // a Sunday that genuinely differs.
+    if (!pricesAtSomeHour(object.weekdayRate)) {
+      return {
+        found: false,
+        status: "not-found",
+        reason:
+          `Extracted a weekday rate the fee engine cannot price, so it was ` +
+          `not saved: "${object.weekdayRate}". Worth adding to the parser ` +
+          `tests if the format looks legitimate.`,
         sources,
       };
     }
