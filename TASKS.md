@@ -53,6 +53,32 @@ letter and a one-line task strands the *why*.
       behind this number.
       `from: carpark agent · own backlog · scripts/bulkEpsLookup.ts`
 
+- [ ] **Rates: a cap that lives in `notes` is never applied**
+      Singapore Botanic Gardens (#3408) stores `"07:00-22:30: $0.02 per min"`
+      with `"19:00-22:30 capped at max $2.00"` in the notes. `parseLimits`
+      reads caps out of the BAND TEXT, so a cap stated only in notes is
+      invisible to the fee engine: an 8pm arrival for two hours quotes $2.40
+      against a stated $2.00 maximum. Small in dollars, but it is an
+      overcharge, and the note makes it look handled.
+
+      Either the extraction should fold a cap into the rate string, or
+      `estimateMallFee` should be given the notes. The first is cheaper and
+      keeps one parser; the second is harder to get wrong later.
+      `from: owner report (blog source) · 2026-08-23 · #3408`
+
+- [ ] **Rates: two rows whose text is not a price**
+      `#705` Singapore General Hospital (Carpark G) reads `"7.00am-5.59pm: No
+      Entry (Staff Parking Only)"`, and `#860` The Arts House reads
+      `"Available at current Parliament House, The Adelphi and the road side
+      along Empress Place"`. Both now surface as "not computable" — honest, but
+      the first is really an OPENING-HOURS fact and belongs with the
+      commercial-hours task below rather than being shown as a broken rate.
+
+      They only became visible because the name matcher stopped shadowing them
+      with a different carpark's row, which had been quietly supplying a
+      plausible price for the wrong place.
+      `from: carpark agent · matcher fix fallout · 2026-08-23`
+
 - [ ] **Rates: verify the 149 carparks whose name match just changed**
       The bidirectional substring matcher returned the FIRST substring hit in
       table order, so "Orchard Central" resolved to "Central ©", "Nex Mall" to
