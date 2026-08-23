@@ -103,10 +103,30 @@ export function isLlmConfigured(): boolean {
  * quota/rate-limit, or the model being unavailable for this key. A genuine
  * bad-request (bad prompt/schema) is not retried — it'd fail on every model.
  */
-function shouldFallback(err: unknown): boolean {
-  const m = err instanceof Error ? err.message : String(err);
-  return /quota|rate.?limit|429|resource.?exhausted|exhausted|not found|no longer available|404|unavailable|permission|403/i.test(
-    m,
+export function shouldFallback(err: unknown): boolean {
+  const e = err as { statusCode?: number; responseBody?: string; message?: string };
+
+  // Status first, because the message alone is not enough and once was not.
+  // Gemini answered a 503 with the single sentence "This model is currently
+  // experiencing high demand. Spikes in demand are usually temporary." — no
+  // "unavailable", no "503", nothing this regex had ever matched. The word
+  // UNAVAILABLE and the code are in the response BODY. So the chain treated a
+  // routine overload as fatal and aborted instead of falling through to
+  // Anthropic, which is precisely the outage it exists for. The user saw
+  // "Web lookup failed" while two credentialed providers sat idle.
+  const status = typeof e?.statusCode === "number" ? e.statusCode : undefined;
+  if (status !== undefined) {
+    // 4xx worth moving on from: a bad or throttled key on THIS provider says
+    // nothing about the next one. 5xx is the provider being unwell.
+    if ([401, 403, 404, 408, 409, 429].includes(status)) return true;
+    if (status >= 500) return true;
+  }
+
+  // Then the text, now including the body — providers word overload a dozen
+  // ways and only some of them mention a number.
+  const text = [e?.message, e?.responseBody].filter(Boolean).join(" ");
+  return /quota|rate.?limit|429|resource.?exhausted|exhausted|not found|no longer available|404|unavailable|permission|403|overload|high demand|try again later|temporarily|capacity|503|529|too many requests/i.test(
+    text,
   );
 }
 
