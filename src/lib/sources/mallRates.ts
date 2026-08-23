@@ -333,6 +333,42 @@ function stripBandPrefix(seg: string): string {
   return stripped || seg;
 }
 
+/**
+ * A ceiling stated "per 24 hrs" or "per day" belongs to the whole schedule, not
+ * to the band it happens to be written beside.
+ *
+ * RWS weekend states "(Max: $28 per 24 hrs)" in its EVENING band, so an
+ * eight-hour daytime stay priced $36 against the operator's own stated maximum.
+ *
+ * Scoped tightly to caps that name a whole-day period, because a cross-band cap
+ * is otherwise a known way to be badly wrong: QUEEN ST's "(capped at $5.00)"
+ * belongs to its 10.30pm band, and letting it reach a morning arrival quoted $5
+ * for an eight-hour weekday stay. That one states no period, so this rule
+ * cannot see it — which is the whole point of requiring the period.
+ *
+ * Across the corpus only four strings state a whole-day cap and only one prices
+ * above it, so the blast radius is as small as the defect.
+ *
+ * Safe only because `withoutCaps` now strips these clauses before the rate
+ * patterns run. Appending one to a band before that fix would have had the band
+ * priced AS the cap.
+ */
+const DAY_CAP_CLAUSE = new RegExp(
+  String.raw`(?:max(?:imum)?|cap(?:ped)?)\.?[^.$\d]{0,16}\$\s*\d+(?:\.\d{1,2})?` +
+    String.raw`\s*(?:per|/)\s*(?:24\s*(?:hrs?|hours?)|day)`,
+  "i",
+);
+
+function withDayCap(seg: string, whole: string): string {
+  // A band that states its own ceiling keeps it; the day cap is a floor under
+  // the others, not an override.
+  if (parseLimits(seg).capDollars !== null) return seg;
+  const m = whole.match(DAY_CAP_CLAUSE);
+  // Appended rather than merged: this text is shown to the user as the applied
+  // rate, and the ceiling is part of what they are being charged under.
+  return m ? `${seg} (${m[0]})` : seg;
+}
+
 export function bandForTime(rawInput: string, minutesOfDay: number): string {
   const raw = repairEncoding(rawInput ?? "");
   const segments = splitBands(raw);
@@ -343,7 +379,7 @@ export function bandForTime(rawInput: string, minutesOfDay: number): string {
       const from = parseClock(m[1]!);
       const to = parseClock(m[2]!);
       if (from === null || to === null) continue;
-      if (covers(from, to, minutesOfDay)) return stripBandPrefix(seg);
+      if (covers(from, to, minutesOfDay)) return withDayCap(stripBandPrefix(seg), raw);
     }
   }
 
@@ -365,7 +401,7 @@ export function bandForTime(rawInput: string, minutesOfDay: number): string {
       // as the fallback there quoted the evening price at lunchtime.
       const covered =
         until === null ? minutesOfDay >= from : covers(from, until, minutesOfDay);
-      if (covered) return stripBandPrefix(seg);
+      if (covered) return withDayCap(stripBandPrefix(seg), raw);
     }
   }
   return raw;

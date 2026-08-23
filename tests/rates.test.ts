@@ -711,3 +711,28 @@ test("a free band written AFTER its hours still works", () => {
   assert.equal(fee(r, 120, 13 * 60), 0);
   assert.equal(fee(r, 120, 23 * 60), 5.4);
 });
+
+test("a ceiling stated per 24 hours applies to every band, not only its own", () => {
+  // RWS weekend: the "(Max: $28 per 24 hrs)" sits in the EVENING band, so an
+  // eight-hour daytime stay priced $36 against the operator's own stated $28
+  // maximum. A 24-hour ceiling is a property of the day, not of the clause it
+  // happens to be written next to.
+  const rws =
+    "Fri/Sat-Sun/PH: 7am-7pm: $8 for 1st hr; $2 for sub. ½ hr or part thereof." +
+    "  Aft 7pm: $8 per entry (Max: $28 per 24 hrs)";
+  assert.equal(feeCapped(rws, 480, 13 * 60), 28, "eight hours is capped");
+  assert.equal(feeCapped(rws, 120, 13 * 60), 12, "under the cap, unchanged");
+  assert.equal(feeCapped(rws, 60, 20 * 60), 8, "the evening band is untouched");
+});
+
+test("a cap with no stated period stays in its own band", () => {
+  // QUEEN ST is why cross-band caps are dangerous: its "(capped at $5.00)"
+  // belongs to the 10.30pm band, and applying it to a morning arrival quoted
+  // $5 for an eight-hour weekday stay. It states no period, so the rule above
+  // must not reach it.
+  const queen =
+    "07.00 AM-05.00 PM: $1.40 per 30 mins; 05.00 PM-10.30 PM: $0.75 per 30 mins; " +
+    "10.30 PM-07.00 AM: $0.60 per 30 mins (capped at $5.00)";
+  assert.equal(feeCapped(queen, 480, 8 * 60), 22.4, "morning is uncapped");
+  assert.equal(feeCapped(queen, 480, 23 * 60), 5, "the night band keeps its own cap");
+});
