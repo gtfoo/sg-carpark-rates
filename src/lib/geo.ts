@@ -42,3 +42,47 @@ export function haversineMetres(a: LatLng, b: LatLng): number {
 
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(h));
 }
+
+/**
+ * The furthest a rate's own address may sit from the place that was searched
+ * for before we treat them as different carparks.
+ *
+ * Measured, not chosen. Across the 46 AI-retrieved rows whose name OneMap can
+ * geocode, the distance between the stored point and the geocode of the row's
+ * own name runs: median 0 m, p95 153 m, max 390 m — nothing above 500 m. The
+ * two known wrong-building saves sit at 3.5 km (MOE Evans Road given MOE
+ * Building's rates at Buona Vista) and 13 km (Midview Building given Midview
+ * City's). So 1 km is 2.5x above the worst honest disagreement and 3.5x below
+ * the nearest real error, and the gap between those populations is 9x wide.
+ */
+export const MAX_LOCATION_MISMATCH_M = 1000;
+
+export type LocationVerdict =
+  | { ok: true; reason: "verified"; metres: number }
+  | { ok: true; reason: "unverifiable" }
+  | { ok: false; metres: number };
+
+/**
+ * Does a rate belong to the place that was asked for?
+ *
+ * Name similarity is the intuitive check and is provably useless here: both
+ * wrong saves SHARE their distinctive token with the building they were
+ * confused with ("Midview City"/"Midview Building", "MOE (Evans Road)"/
+ * "Ministry of Education Building (MOE)"). Names caused the error, so names
+ * cannot detect it. Geography is an independent signal.
+ *
+ * It answers "unverifiable" — never "no" — when either point is missing. A
+ * guard that fired on absent data would reject good rates and burn a lookup
+ * for each, which is how the first citation audit came to flag 330 rows and be
+ * wrong about 328 of them. Only two coordinates that genuinely disagree are
+ * evidence of anything.
+ */
+export function checkLocation(
+  queried: LatLng | null | undefined,
+  found: LatLng | null | undefined,
+  maxMetres: number = MAX_LOCATION_MISMATCH_M,
+): LocationVerdict {
+  if (!queried || !found) return { ok: true, reason: "unverifiable" };
+  const metres = Math.round(haversineMetres(queried, found));
+  return metres > maxMetres ? { ok: false, metres } : { ok: true, reason: "verified", metres };
+}

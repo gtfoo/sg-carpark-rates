@@ -9,6 +9,8 @@ import {
 import { resolveGapsByName } from "./store/gaps";
 import { parseRate, bandForTime, estimateMallFee, parseLimits } from "./sources/mallRates";
 import { citedUrl } from "./citation";
+import { checkLocation } from "./geo";
+import { geocode } from "./onemap";
 
 /**
  * Can the fee engine actually turn this string into a number?
@@ -50,6 +52,14 @@ export const RateExtraction = z.object({
     ),
   saturdayRate: z.string().nullable(),
   sundayPhRate: z.string().nullable(),
+  carparkAddress: z
+    .string()
+    .nullable()
+    .describe(
+      "the street address or 6-digit postal code of the carpark these rates " +
+        "are for, exactly as the source states it; null if the source never " +
+        "says. Do NOT infer it from the name you were asked about",
+    ),
   sourceUrl: z
     .string()
     .nullable()
@@ -156,6 +166,8 @@ export async function lookupCarparkRate(args: {
         `operator's own official page and pick that as the source URL. Copy ` +
         `that URL verbatim from the list below — never construct, guess or ` +
         `tidy one.\n` +
+        `Also report the carpark's own address or postal code as the source ` +
+        `states it, so it can be checked against the place asked for.\n` +
         `Rate strings must be concise and machine-parseable, like ` +
         `"$1.20 per half hour" or "$2 for 1st hr; $1 per 30 mins", or null if ` +
         `unknown.\n\n` +
@@ -190,6 +202,33 @@ export async function lookupCarparkRate(args: {
           `Extracted a weekday rate the fee engine cannot price, so it was ` +
           `not saved: "${object.weekdayRate}". Worth adding to the parser ` +
           `tests if the format looks legitimate.`,
+        sources,
+      };
+    }
+
+    // Two rates in one day were saved against the wrong building: MOE (Evans
+    // Road) got MOE Building's rates from Buona Vista, 3.5 km away, and
+    // Midview Building got Midview City's from 13 km away. Both times the
+    // destination had been geocoded correctly and the answer was already in
+    // hand — nothing ever compared the two.
+    //
+    // A wrong rate under a confident name is worse than no rate: it also marks
+    // the carpark as covered, so no sweep or bulk run retries it. Refuse here,
+    // where it costs one lookup.
+    const foundAt = object.carparkAddress ? await geocode(object.carparkAddress).catch(() => null) : null;
+    const where = checkLocation(
+      args.lat != null && args.lng != null ? { lat: args.lat, lng: args.lng } : null,
+      foundAt?.location ?? null,
+    );
+    if (!where.ok) {
+      return {
+        found: false,
+        status: "not-found",
+        reason:
+          `The rates found are for "${object.carparkAddress}", ` +
+          `${(where.metres / 1000).toFixed(1)} km from "${args.destination}" — ` +
+          `almost certainly a different carpark with a similar name, so it was ` +
+          `not saved.`,
         sources,
       };
     }
