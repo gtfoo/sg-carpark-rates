@@ -68,6 +68,29 @@ letter and a one-line task strands the *why*.
       indistinguishable.
       `from: owner report · 2026-08-23 · 8bef306`
 
+- [ ] **Rates: two rows for Resorts World Sentosa, and search hits the other one**
+      `#695` "Resorts World Sentosa (RWS)" and `#1552` "Resorts World Sentosa"
+      are the same car park with different rates - `$8 for 1st hr; $2 per sub
+      ½ hr (Max: $28 per 24 hrs)` against `$9.70 for 1st hr, $1.10 per sub half
+      hr (max cap $16.30)`. At least one is stale, and they cannot both be
+      right.
+
+      Found while verifying the RWS cap fixes: searching "Resorts World
+      Sentosa" returns `#1552`, so the row a user actually sees is not the one
+      those fixes corrected. The fixes are still right - `#695` prices $8 and
+      caps at $28 as the operator states - but they change nothing for anyone
+      until this is resolved.
+
+      Resolve by checking the operator's current published rates, keep one row,
+      and delete the other. Do NOT merge blindly: the two disagree on the first
+      hour, the subsequent block AND the cap, so one of them is simply old.
+
+      A general question sits behind it: nothing stops two rows describing one
+      car park under different names. `locationSweep.ts` finds rows that share
+      a citation while sitting far apart; the mirror check - rows sitting on
+      top of each other with different rates - would have caught this.
+      `from: carpark agent · found verifying 2d6af8d/80539c2 · 2026-08-23`
+
 - [ ] **Rates: bands delimited by BRACKETED hours never separate**
       Waterfront Plaza & King's Centre reads `"$3.50 for 1st hr, $2.00 for
       add'l hr (07:00-17:00); $4.00 per entry (17:00-07:00)"` and prices $4.00
