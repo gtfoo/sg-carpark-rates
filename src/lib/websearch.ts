@@ -31,6 +31,9 @@ export interface SearchHit {
 const SEARCH_KEYS: Record<string, string> = {
   tavily: "TAVILY_API_KEY",
   brave: "BRAVE_API_KEY",
+  // Anthropic's own server-side web search, as a last resort that depends on
+  // no dedicated search vendor at all — see anthropicSearch below.
+  anthropic: "ANTHROPIC_API_KEY",
 };
 
 /** The ordered providers to try, most-preferred first. */
@@ -90,6 +93,8 @@ export async function webSearch(query: string, maxResults = 6): Promise<SearchHi
           return await tavilySearch(query, maxResults);
         case "brave":
           return await braveSearch(query, maxResults);
+        case "anthropic":
+          return await anthropicSearch(query, maxResults);
         default:
           throw new Error(`Unknown search provider "${provider}". Add it in websearch.ts.`);
       }
@@ -246,4 +251,177 @@ async function braveSearch(query: string, maxResults: number): Promise<SearchHit
       content: (r.description ?? "").slice(0, 2500),
     }))
     .filter((h) => h.url);
+}
+
+/**
+ * Anthropic's own server-side web search, as the last link in the chain.
+ *
+ * Unlike Tavily and Brave this is not a search API that hands back documents —
+ * Claude searches, reads the pages server-side, and answers. Two facts from the
+ * API shape decided how it is used here:
+ *
+ *  - Each `web_search_result` carries `encrypted_content`, decryptable only by
+ *    the API on later turns. **The client cannot read the page text**, so there
+ *    is nothing to put in `SearchHit.content` from the results themselves.
+ *  - Structured outputs are rejected alongside citations (400), and web-search
+ *    citations are always on — so this call cannot return the rate schema
+ *    directly either.
+ *
+ * So it is asked to QUOTE the rate text, and its answer plus the citations it
+ * grounds become the hits. The existing extraction chain then runs unchanged,
+ * which keeps one extractor and one set of parser tests rather than a second
+ * private path that could drift.
+ *
+ * Its real value is dependency shape: this link needs no search vendor at all,
+ * so it survives Tavily and Brave being exhausted on the same day.
+ *
+ * Basic `web_search_20250305` on purpose — the dynamic-filtering versions need
+ * a 4.6-or-later model and default to running inside code execution, which is
+ * machinery this call has no use for.
+ */
+async function anthropicSearch(query: string, maxResults: number): Promise<SearchHit[]> {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) throw new Error("ANTHROPIC_API_KEY is not set.");
+  const model = process.env.SEARCH_ANTHROPIC_MODEL ?? "claude-haiku-4-5";
+
+  let res: Response;
+  try {
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 2048,
+        messages: [
+          {
+            role: "user",
+            content:
+              `Find the published public car parking rates for "${query}" in Singapore. ` +
+              `Quote the rate text VERBATIM from the operator's own page where you can, ` +
+              `including any weekday/Saturday/Sunday split, per-entry charges, caps and ` +
+              `grace periods. Do not convert or summarise the numbers. If you cannot find ` +
+              `rates, say so plainly rather than guessing.`,
+          },
+        ],
+        // Search AND fetch. Search alone returns result listings, so the model
+        // reasons from snippets and reports "rates not shown in previews" for
+        // carparks whose rates are plainly on their own page. web_fetch opens
+        // those pages — it can only fetch URLs already in the conversation,
+        // which is precisely what the preceding search puts there.
+        //
+        // Basic variants on both: the dynamic-filtering versions need a 4.6-or
+        // -later model, and this runs on Haiku for cost.
+        tools: [
+          { type: "web_search_20250305", name: "web_search", max_uses: 3 },
+          { type: "web_fetch_20250910", name: "web_fetch", max_uses: 3 },
+        ],
+      }),
+    });
+  } catch (err) {
+    await recordUsage({
+      provider: "anthropic",
+      model,
+      op: "web-search",
+      requests: 1,
+      units: 0,
+      usd: null,
+      status: "error",
+    });
+    throw err;
+  }
+
+  const body = (await res.json().catch(() => ({}))) as {
+    content?: unknown[];
+    usage?: { server_tool_use?: { web_search_requests?: number } };
+    error?: { message?: string };
+  };
+  const searches = body.usage?.server_tool_use?.web_search_requests ?? 0;
+
+  await recordUsage({
+    provider: "anthropic",
+    model,
+    op: "web-search",
+    requests: 1,
+    // Billed per search performed, not per request. An errored search is free.
+    units: res.ok ? searches : 0,
+    usd: null,
+    status: res.ok ? "ok" : res.status === 429 ? "rate_limited" : "error",
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      `Anthropic web search failed: HTTP ${res.status} ${(body.error?.message ?? "").slice(0, 200)}`,
+    );
+  }
+
+  const blocks = Array.isArray(body.content) ? body.content : [];
+  const answer: string[] = [];
+  const cited = new Map<string, { title: string; parts: string[] }>();
+
+  for (const raw of blocks) {
+    const b = raw as {
+      type?: string;
+      text?: string;
+      content?: unknown;
+      citations?: { url?: string; title?: string; cited_text?: string }[];
+    };
+
+    if (b.type === "text" && b.text) {
+      answer.push(b.text);
+      for (const c of b.citations ?? []) {
+        if (!c.url) continue;
+        const entry = cited.get(c.url) ?? { title: c.title ?? "", parts: [] };
+        if (c.cited_text) entry.parts.push(c.cited_text);
+        cited.set(c.url, entry);
+      }
+    }
+
+    // On an error the tool result's `content` is a single object, not a list —
+    // branching on that before iterating is required, not defensive.
+    if (b.type === "web_search_tool_result" && !Array.isArray(b.content)) {
+      const e = b.content as { error_code?: string } | undefined;
+      throw new Error(`Anthropic web search error: ${e?.error_code ?? "unknown"}`);
+    }
+  }
+
+  const text = answer.join("\n").trim();
+  const hits: SearchHit[] = [];
+
+  // Empty, never a placeholder, when nothing was cited. An earlier version put
+  // "https://api.anthropic.com/web_search" here and it was stored as a rate's
+  // source_url — a citation that looks real, resolves to nothing, and tells a
+  // verifier the rate was checked against a page that was never read. No source
+  // is honest; a fabricated one is not.
+  const primary = [...cited.keys()][0] ?? "";
+
+  // The synthesis first: it holds the quoted rate text the extractor needs.
+  //
+  // A much larger cap than the other providers use, deliberately. Theirs bounds
+  // RAW PAGE DUMPS, where 2,500 characters is generous. This is already the
+  // model's condensed answer, so the same cap truncated it mid-table and the
+  // extractor refused with "search results are truncated" on a carpark whose
+  // rates were right there — paying for a search and discarding the answer.
+  if (text) {
+    hits.push({
+      title: `Web search summary for ${query}`,
+      url: primary,
+      content: text.slice(0, 8000),
+    });
+  }
+
+  // Then the grounding quotes, so the extractor can prefer a real source.
+  // Skipping `primary` avoids listing one page twice: it is already the
+  // synthesis hit's URL, and a duplicated source reads as corroboration the
+  // extractor does not actually have.
+  for (const [url, { title, parts }] of cited) {
+    if (hits.length >= maxResults) break;
+    if (url === primary) continue;
+    hits.push({ title, url, content: parts.join(" … ").slice(0, 2500) });
+  }
+
+  return hits;
 }
