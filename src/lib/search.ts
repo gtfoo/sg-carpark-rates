@@ -382,7 +382,13 @@ export async function search(
   let destRate: CarparkResult | null = null;
   if (nearestOverrideM > COVERED_M && !fromCoordinates) {
     const nameOv = safe(
-      () => findOverrideForDestination({ postal: place.postal, name: place.name }),
+      () =>
+        findOverrideForDestination({
+          postal: place.postal,
+          name: place.name,
+          lat: place.location.lat,
+          lng: place.location.lng,
+        }),
       null,
     );
     // Only use the name match for coordless overrides — ones with coordinates

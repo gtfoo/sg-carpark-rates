@@ -1,4 +1,5 @@
 import { getDb } from "../db";
+import { checkLocation, type LatLng } from "../geo";
 
 export type RateSource = "manual" | "operator-site" | "web-llm";
 export type MatchType = "carpark_no" | "postal" | "name";
@@ -214,6 +215,9 @@ export function findOverrideForCarpark(carparkNo: string): RateOverride | null {
 export function findOverrideForDestination(args: {
   postal: string | null;
   name: string;
+  /** When known, used to reject a name match that is in the wrong place. */
+  lat?: number | null;
+  lng?: number | null;
 }): RateOverride | null {
   const db = getDb();
 
@@ -231,12 +235,71 @@ export function findOverrideForDestination(args: {
     const names = db
       .prepare("SELECT * FROM rate_overrides WHERE match_type = 'name'")
       .all() as Row[];
-    // match_value is already normalized at write time.
-    const hit = names.find(
-      (r) => r.match_value.includes(target) || target.includes(r.match_value),
+    const hit = chooseNameMatch(
+      names,
+      target,
+      args.lat != null && args.lng != null ? { lat: args.lat, lng: args.lng } : null,
     );
     if (hit) return toOverride(hit);
   }
 
   return null;
+}
+
+/**
+ * Pick the right stored row for a normalized destination name.
+ *
+ * The match is a bidirectional substring test, which is far looser than it
+ * looks: `"MOEHQEVANSROAD".includes("MOE")` is true, so a row stored under the
+ * three-letter name "MOE" captured EVERY MOE-prefixed destination. Asking for
+ * MOE HQ at Evans Road returned MOE Building's rates from Buona Vista, 3.5 km
+ * away — and because that counted as "we already have it", no fresh lookup was
+ * ever spent to find the real ones. The existing `target.length > 3` guard
+ * measures the QUERY, and so does nothing about a short stored value.
+ *
+ * Tightening the string rule alone would not fix it. "Midview City" and
+ * "Midview Building" are a legitimate-looking prefix match at any threshold,
+ * and requiring near-equality would break "Jurong Point" matching "Jurong
+ * Point Shopping Centre". So the tie is broken on GEOGRAPHY, the same evidence
+ * and the same 1 km threshold the write-time guard uses: a candidate whose
+ * coordinates contradict the place being asked about is dropped.
+ *
+ * When no coordinates are available on either side the verdict is
+ * "unverifiable" and the candidate survives — this must not start refusing
+ * matches it merely cannot check. There the most SPECIFIC (longest) name wins,
+ * so "MOE" no longer beats a fuller entry by being first in the table.
+ */
+export function chooseNameMatch<
+  T extends { match_value: string; lat: number | null; lng: number | null },
+>(rows: T[], target: string, point: LatLng | null): T | null {
+  if (target.length <= 3) return null;
+
+  // match_value is already normalized at write time.
+  const candidates = rows.filter(
+    (r) => r.match_value.includes(target) || target.includes(r.match_value),
+  );
+  if (!candidates.length) return null;
+
+  // An exact match is not a guess, so it needs no corroboration.
+  const exact = candidates.find((r) => r.match_value === target);
+  if (exact) return exact;
+
+  const scored = candidates
+    .map((r) => {
+      const v = checkLocation(
+        point,
+        r.lat != null && r.lng != null ? { lat: r.lat, lng: r.lng } : null,
+      );
+      return { r, ok: v.ok, m: v.ok && v.reason === "verified" ? v.metres : null };
+    })
+    .filter((c) => c.ok);
+  if (!scored.length) return null;
+
+  scored.sort((a, b) => {
+    if (a.m != null && b.m != null) return a.m - b.m;
+    if (a.m != null) return -1;
+    if (b.m != null) return 1;
+    return b.r.match_value.length - a.r.match_value.length;
+  });
+  return scored[0]!.r;
 }

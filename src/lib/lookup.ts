@@ -127,6 +127,8 @@ export async function lookupCarparkRate(args: {
   const existing = findOverrideForDestination({
     postal: args.postal,
     name: args.destination,
+    lat: args.lat,
+    lng: args.lng,
   });
   if (existing && (!args.force || existing.source === "manual")) {
     return { found: true, status: "found", override: existing, sources: [] };
