@@ -8,6 +8,7 @@ import {
 } from "./store/rates";
 import { resolveGapsByName } from "./store/gaps";
 import { parseRate, bandForTime, estimateMallFee, parseLimits } from "./sources/mallRates";
+import { citedUrl } from "./citation";
 
 /**
  * Can the fee engine actually turn this string into a number?
@@ -152,7 +153,9 @@ export async function lookupCarparkRate(args: {
         `parking rates for "${args.destination}" in Singapore.\n` +
         `Only set found=true if the results genuinely contain parking rates ` +
         `for THIS carpark/building (not a different one). Prefer the ` +
-        `operator's own official page and pick that as the source URL.\n` +
+        `operator's own official page and pick that as the source URL. Copy ` +
+        `that URL verbatim from the list below — never construct, guess or ` +
+        `tidy one.\n` +
         `Rate strings must be concise and machine-parseable, like ` +
         `"$1.20 per half hour" or "$2 for 1st hr; $1 per 30 mins", or null if ` +
         `unknown.\n\n` +
@@ -201,7 +204,7 @@ export async function lookupCarparkRate(args: {
       saturdayRate: object.saturdayRate,
       sundayPhRate: object.sundayPhRate,
       source: "web-llm",
-      sourceUrl: object.sourceUrl ?? sources[0] ?? null,
+      sourceUrl: citedUrl(object.sourceUrl, sources),
       verifiedAt: new Date().toISOString().slice(0, 10),
       lat: args.lat ?? null,
       lng: args.lng ?? null,

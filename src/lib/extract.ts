@@ -159,8 +159,14 @@ export async function extractRate(args: {
       sundayPhRate: object.sundayPhRate,
       carparkName: object.carparkName,
       notes: object.notes,
-      // Prefer the URL the user gave us; fall back to one the model spotted.
-      sourceUrl: sourceUrl ?? object.sourceUrl ?? null,
+      // Prefer the URL the user gave us — that one was actually fetched,
+      // and a non-2xx has already returned above. For pasted text there is
+      // nothing to fetch, so the model's URL is kept only when it appears
+      // verbatim in what was pasted; otherwise it is a guess wearing the
+      // costume of a citation.
+      sourceUrl:
+        sourceUrl ??
+        (object.sourceUrl && text.includes(object.sourceUrl) ? object.sourceUrl : null),
     };
   } catch (err) {
     console.error("extract provider error", err);
