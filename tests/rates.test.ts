@@ -751,21 +751,29 @@ test("a note naming 24-hour times is scoped to those hours", () => {
   assert.ok(notesForTime(notes, 13 * 60).includes("grace"));
 });
 
-test("a 24-hour clock is recognised as a clock at all", () => {
-  // The band SELECTION for this string is still wrong, and deliberately not
-  // asserted here — see TASKS.md. Waterfront Plaza writes each band's hours in
-  // brackets after its amount, and splitBands refuses to cut inside brackets
-  // because the Jurong Lake Gardens shape ("$0.60 per 30 mins (8:30am-12pm,
-  // 2pm-5am); Free …") is structurally identical and needs that protection.
-  // Cutting this one correctly means cutting at the SEMICOLON, which the
-  // cut-at-range-starts model cannot express.
+test("bands whose hours are bracketed still separate", () => {
+  // Waterfront Plaza & King's Centre. splitBands cuts at the START of a clock
+  // range and will not cut inside brackets, so this found no boundary at all:
+  // one band, last clause wins, $4.00 charged at every hour — undercharging a
+  // daytime stay that costs $5.50.
   //
-  // What is fixed is that the times parse at all, which is what the notes
-  // scoping above depends on.
+  // The bracket refusal could not just be relaxed; Jurong Lake Gardens below
+  // depends on it. So the semicolon is a separate boundary, tried only when
+  // the primary rule found nothing.
   const wp =
     "$3.50 for 1st hr, $2.00 for add'l hr (07:00-17:00); $4.00 per entry (17:00-07:00)";
-  assert.notEqual(fee(wp, 120, 13 * 60), null, "it still prices");
-  // Proof the clock itself parses: a single-band 24-hour string has nothing to
-  // select between, so it is returned whole — and it prices correctly.
-  assert.equal(fee("07:00-22:30: $0.02 per min", 120, 13 * 60), 2.4);
+  assert.equal(fee(wp, 120, 13 * 60), 5.5, "daytime: first hour plus one more");
+  assert.equal(fee(wp, 120, 20 * 60), 4, "evening is a flat entry fee");
+  assert.equal(fee(wp, 480, 20 * 60), 4, "flat means flat");
+
+  // A single-band string written in TIERS must not be cut at its semicolon:
+  // the second clause has a price and no hours, and cutting strands the first
+  // tier with no subsequent-block rate.
+  // $3.90 for the first hour, then TWO half-hour blocks at $1.95.
+  assert.equal(fee("7.00am-5.59pm: $3.90 for 1st hr; $1.95 per sub.½ hr", 120, 13 * 60), 7.8);
+
+  // And the string the bracket refusal exists for is unchanged.
+  const jlg = "$0.60 per 30 mins (8:30am-12pm, 2pm-5am); Free 5am-8:30am & 12pm-2pm";
+  assert.equal(fee(jlg, 120, 8 * 60), 0);
+  assert.equal(fee(jlg, 120, 20 * 60), 2.4);
 });

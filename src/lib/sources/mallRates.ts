@@ -170,6 +170,40 @@ function covers(from: number, to: number, t: number): boolean {
  * last cut" test is what keeps a band's own second range attached to it —
  * "7am-5pm & 11pm-7am: $1.50 …" is one band with two ranges, not two bands.
  */
+/**
+ * Fallback for bands whose hours are written in BRACKETS after the amount.
+ *
+ * Waterfront Plaza & King's Centre reads "$3.50 for 1st hr, $2.00 for add'l hr
+ * (07:00-17:00); $4.00 per entry (17:00-07:00)". splitBands cuts at the START
+ * of a clock range and refuses to cut inside brackets, so it found no boundary
+ * at all: the whole string parsed as one band, the last clause won, and every
+ * arrival was charged $4.00 — undercharging a daytime stay that costs $5.50.
+ *
+ * The bracket refusal cannot simply be relaxed. Jurong Lake Gardens
+ * ("$0.60 per 30 mins (8:30am-12pm, 2pm-5am); Free 5am-8:30am & 12pm-2pm")
+ * puts a band's own several ranges in brackets, and cutting inside them
+ * stranded the amount and handed the hours to the wrong rate.
+ *
+ * So this is a SEPARATE boundary, tried only when the primary rule found no
+ * cut. Two conditions make it safe:
+ *
+ *  - It never runs on a string the primary rule already split, so JLG — which
+ *    it does split — is untouched.
+ *  - EVERY semicolon clause must carry both a price and a clock range. That is
+ *    what excludes a single band written in tiers: "7.00am-5.59pm: $3.90 for
+ *    1st hr; $1.95 per sub.½ hr" has a second clause with a price and no
+ *    hours, so it is left whole. Cutting there would strand the first tier.
+ */
+function splitOnSemicolons(raw: string): string[] | null {
+  const clauses = raw
+    .split(/;\s*/)
+    .map((c) => c.trim())
+    .filter(Boolean);
+  if (clauses.length < 2) return null;
+  const complete = (c: string) => /\$\s*\d/.test(c) && timeRangeRe().test(c);
+  return clauses.every(complete) ? clauses : null;
+}
+
 function splitBands(raw: string): string[] {
   const marks = [...raw.matchAll(timeRangeRe()), ...raw.matchAll(openFromRe())]
     .map((m) => m.index ?? 0)
@@ -227,6 +261,13 @@ function splitBands(raw: string): string[] {
         : at;
     if (cut <= from) continue;
     starts.push(cut);
+  }
+
+  // Nothing cut: the hours may be bracketed rather than leading. See
+  // splitOnSemicolons for why that is a separate rule and not a relaxation.
+  if (starts.length === 1) {
+    const bracketed = splitOnSemicolons(raw);
+    if (bracketed) return bracketed;
   }
 
   return starts
@@ -494,7 +535,10 @@ export function parseRate(rawInput: string): ParsedRate {
         // "for each sub. ½ hr", "for next sub 30min", "per subsequent hour".
         // "sub" is optional: plenty of operators just write the follow-on rate
         // straight after a comma ("$3.27 for 1st 2 hrs, $1.64 per 30 mins").
-        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:sub[a-z]*\\.?\\s*)?` +
+        // "add'l" / "additional" is the same word as "subsequent" to an
+        // operator, and Waterfront Plaza writes it that way. Without it the
+        // whole first-then pattern fails and the band goes unpriced.
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next|add(?:itional|'?l)\\.?)\\s*)*(?:sub[a-z]*\\.?\\s*)?` +
         `(${RATE_UNIT})`,
       "i",
     ),
@@ -517,7 +561,10 @@ export function parseRate(rawInput: string): ParsedRate {
   const firstThenReversed = raw.match(
     new RegExp(
       `${FIRST_PERIOD}\\s*(?:at|@|[-–])\\s*${MONEY}` +
-        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:sub[a-z]*\\.?\\s*)?` +
+        // "add'l" / "additional" is the same word as "subsequent" to an
+        // operator, and Waterfront Plaza writes it that way. Without it the
+        // whole first-then pattern fails and the band goes unpriced.
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next|add(?:itional|'?l)\\.?)\\s*)*(?:sub[a-z]*\\.?\\s*)?` +
         `(${RATE_UNIT})`,
       "i",
     ),
@@ -549,7 +596,10 @@ export function parseRate(rawInput: string): ParsedRate {
   const firstFreeThen = raw.match(
     new RegExp(
       `${FIRST_PERIOD}\\s*(?:is\\s*|are\\s*)?free` +
-        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next)\\s*)*(?:sub[a-z]*\\.?\\s*)?` +
+        // "add'l" / "additional" is the same word as "subsequent" to an
+        // operator, and Waterfront Plaza writes it that way. Without it the
+        // whole first-then pattern fails and the band goes unpriced.
+        `[\\s\\S]*?${MONEY}${SEPS}(?:(?:the|each|next|add(?:itional|'?l)\\.?)\\s*)*(?:sub[a-z]*\\.?\\s*)?` +
         `(${RATE_UNIT})`,
       "i",
     ),
