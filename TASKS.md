@@ -53,6 +53,21 @@ letter and a one-line task strands the *why*.
       behind this number.
       `from: carpark agent · own backlog · scripts/bulkEpsLookup.ts`
 
+- [ ] **Rates: verify the 149 carparks whose name match just changed**
+      The bidirectional substring matcher returned the FIRST substring hit in
+      table order, so "Orchard Central" resolved to "Central ©", "Nex Mall" to
+      "KINEX Mall", "Singapore Turf Club" to "CLUB ST", and TUAS AVE 11/12/13
+      all to "TUAS AVE 1". Comparing old against new across all 1,146
+      name-matched rows: 997 unchanged, 149 changed, no regressions — every
+      change moved to a more specific row, mostly via the new exact-match-first
+      rule.
+
+      The fix is live and needs no data migration, since matching is computed
+      per query. What is owed is a spot-check that the 149 now show the right
+      RATES, not merely the right row: some of those rows were themselves
+      written while the matcher was wrong.
+      `from: owner report (MOE Evans Road) · 2026-08-23 · efd2456`
+
 - [ ] **Rates: two mispricings found by `npm run rates-audit`, both overcharges**
       Both under the $50 implausibility threshold, so nothing flagged them.
 
@@ -75,7 +90,8 @@ letter and a one-line task strands the *why*.
 
 - [ ] **Rates: the corpus gate is six days stale and gates 154 fewer strings**
       `tests/fixtures/rate-corpus.json` is a committed snapshot last exported
-      2026-08-10 with 684 strings; production now holds 838. Everything
+      2026-08-10 with 684 strings; production held 838 on 2026-08-16 and 721
+      distinct strings on 2026-08-23 (the drop is dedup, not loss). Everything
       imported or retrieved since — including the five AI-retrieved rates from
       2026-08-16 — is gated by nothing. `npm run export-rate-corpus` refreshes
       it, but nothing makes that happen, which is the actual defect.
