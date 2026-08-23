@@ -10,6 +10,7 @@ import { resolveGapsByName } from "./store/gaps";
 import { parseRate, bandForTime, estimateMallFee, parseLimits } from "./sources/mallRates";
 import { citedUrl } from "./citation";
 import { checkLocation } from "./geo";
+import { trustworthySources } from "./sourceQuality";
 import { geocode } from "./onemap";
 
 /**
@@ -97,6 +98,13 @@ export function classifyError(err: unknown): string {
  * labelled in the UI as AI-retrieved so the user knows to sanity-check).
  */
 export async function lookupCarparkRate(args: {
+  /**
+   * Extra address text for the SEARCH QUERY only — never for identity.
+   * EPS files a handful of carparks under an opaque code ("TLF", "BTC / NUS"),
+   * and searching that alone finds nothing. The street address is the only
+   * usable handle those have. It is not used to match or name anything.
+   */
+  addressHint?: string | null;
   destination: string;
   postal: string | null;
   /** The destination's coordinates, stored so the saved rate is spatially matchable. */
@@ -138,7 +146,9 @@ export async function lookupCarparkRate(args: {
   try {
     // Step 1 — web search (Tavily). Bias the query toward official rate pages.
     const query =
-      `${args.destination} Singapore car park parking rates per hour` +
+      `${args.destination} ` +
+      (args.addressHint ? `${args.addressHint} ` : "") +
+      `Singapore car park parking rates per hour` +
       (args.postal ? ` ${args.postal}` : "");
     const hits = await webSearch(query, 6);
     sources = hits.map((h) => h.url);
@@ -231,6 +241,22 @@ export async function lookupCarparkRate(args: {
     // A wrong rate under a confident name is worse than no rate: it also marks
     // the carpark as covered, so no sweep or bulk run retries it. Refuse here,
     // where it costs one lookup.
+    // A blog is not a price list. Singapore Botanic Gardens was stored from a
+    // personal WordPress post: the URL resolved, the page existed and the
+    // location was right, so every other guard passed it. Nothing about
+    // fetching a page tells you whether anyone maintains it.
+    const citable = trustworthySources(sources);
+    if (!citable.length) {
+      return {
+        found: false,
+        status: "not-found",
+        reason:
+          `Every result was a blog, forum or other self-published page, so ` +
+          `there is no source worth citing for a price. Not saved.`,
+        sources,
+      };
+    }
+
     const foundAt = object.carparkAddress ? await geocode(object.carparkAddress).catch(() => null) : null;
     const where = checkLocation(
       args.lat != null && args.lng != null ? { lat: args.lat, lng: args.lng } : null,
@@ -259,7 +285,7 @@ export async function lookupCarparkRate(args: {
       saturdayRate: object.saturdayRate,
       sundayPhRate: object.sundayPhRate,
       source: "web-llm",
-      sourceUrl: citedUrl(object.sourceUrl, sources),
+      sourceUrl: citedUrl(object.sourceUrl, citable),
       verifiedAt: new Date().toISOString().slice(0, 10),
       lat: args.lat ?? null,
       lng: args.lng ?? null,

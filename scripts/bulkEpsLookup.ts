@@ -91,6 +91,7 @@ async function main() {
     .default as Array<{
     id: string;
     name: string;
+    address: string;
     postal: string;
     lat: number;
     lng: number;
@@ -140,6 +141,10 @@ async function main() {
     try {
       const res = await lookupCarparkRate({
         destination: c.name,
+        // EPS files some carparks under a code ("TLF" at 1 Cluny Road), and a
+        // search for the code alone returns nothing. Query-only; the name is
+        // still what identifies and displays the carpark.
+        addressHint: c.address || null,
         postal: c.postal || null,
         lat: c.lat,
         lng: c.lng,
