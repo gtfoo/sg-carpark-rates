@@ -685,3 +685,29 @@ test("caps in the other shapes operators use are still not rates", () => {
   assert.equal(feeCapped("$0.60 per 30 mins (capped at $12)", 60), 1.2);
   assert.equal(feeCapped("$1.20 per hour (Max. of $6.00)", 60), 1.2);
 });
+
+test("a free band written BEFORE its hours is still free", () => {
+  // Jurong Lake Gardens. Bands are cut at the start of a clock range, so
+  // "…; Free 5am-8:30am" cuts between the word and the hours: "Free" is
+  // stranded on the previous band and the hours arrive with no rate at all.
+  // The card read "not computable" at exactly the hours parking is free.
+  //
+  // The reverse order — "7.00am-10.00pm: Free; 10.00pm-7.00am: $2.70/hr" —
+  // already worked, because there the word follows its hours.
+  const jlg = "$0.60 per 30 mins (8:30am-12pm, 2pm-5am); Free 5am-8:30am & 12pm-2pm";
+  assert.equal(fee(jlg, 120, 8 * 60), 0, "8am is inside the free band");
+  assert.equal(fee(jlg, 120, 13 * 60), 0, "1pm is inside the free band");
+  assert.equal(fee(jlg, 120, 20 * 60), 2.4, "8pm is inside the paid band");
+
+  const sat = "$0.60 per 30 mins (8:30am-5am); Free 5am-8:30am";
+  assert.equal(fee(sat, 120, 8 * 60), 0);
+  assert.equal(fee(sat, 120, 13 * 60), 2.4);
+});
+
+test("a free band written AFTER its hours still works", () => {
+  // The shape that already worked, pinned so the fix above cannot break it by
+  // moving the word onto the wrong side.
+  const r = "7.00am-10.00pm: Free; 10.00pm-7.00am: $2.70/hr";
+  assert.equal(fee(r, 120, 13 * 60), 0);
+  assert.equal(fee(r, 120, 23 * 60), 5.4);
+});

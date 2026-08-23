@@ -181,8 +181,37 @@ function splitBands(raw: string): string[] {
   for (const at of marks) {
     const from = starts[starts.length - 1]!;
     if (at <= from) continue;
-    if (!closesBand(raw.slice(from, at)) || bracketed(raw.slice(0, at))) continue;
-    starts.push(at);
+    const before = raw.slice(from, at);
+    if (!closesBand(before) || bracketed(raw.slice(0, at))) continue;
+    // "5am-8:30am & 12pm-2pm" is ONE band listing two ranges, not two bands.
+    // Normally the "$ seen since the last cut" test keeps them together, but
+    // "free" also counts as a price, so a free band with two ranges was split
+    // and the second range left with no rate — Jurong Lake Gardens priced 1pm
+    // as unparseable while 8am, its first range, was fine.
+    //
+    // Only "&"/"and" join ranges within a band. A comma is deliberately not
+    // here: operators use it both ways, and guessing wrong merges two real
+    // bands into one.
+    if (/(?:&|\band\b)\s*$/i.test(before)) continue;
+
+    // "…; Free 5am-8:30am" writes the word BEFORE the hours it applies to, so
+    // the cut lands between them: "Free" is stranded on the band above and the
+    // hours arrive with no rate at all. Jurong Lake Gardens read "not
+    // computable" at 8am and 1pm — exactly the hours parking there is free.
+    //
+    // Only a word still TRAILING at the cut moves. The reverse order,
+    // "7.00am-10.00pm: Free; 10.00pm-7.00am: $2.70/hr", has a semicolon after
+    // it, so it stays where it belongs and keeps working.
+    const trailingFree = before.match(/\bfree\b[ \t]*$/i);
+    // And it only moves if the band above still stands up without it. "Free"
+    // counts as a price in closesBand, so handing it to the next band could
+    // otherwise leave the one above with hours and nothing to charge.
+    const cut =
+      trailingFree?.index !== undefined && closesBand(before.slice(0, trailingFree.index))
+        ? from + trailingFree.index
+        : at;
+    if (cut <= from) continue;
+    starts.push(cut);
   }
 
   return starts

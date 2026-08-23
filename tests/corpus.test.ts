@@ -70,9 +70,18 @@ import { loadCorpus, checkCorpus, IMPLAUSIBLE_2H } from "../scripts/rateHealth";
 // shouldn't have been counted against it. The rest came from teaching the
 // parser "4-hourly" and the "subseqent" misspelling.
 //
-// Of the 10 left, 7 are prose rather than rates — "URA coupon parking", "No
-// Entry (Staff Parking Only)" — so the real backlog is three strings.
-const MAX_UNPRICEABLE = 10;
+// Now 9, after the band splitter learned that "Free" can be written BEFORE the
+// hours it applies to. Jurong Lake Gardens' two strings were cut between the
+// word and its range, stranding "Free" on the band above and handing the hours
+// to nothing, so the card read "not computable" at exactly the hours parking
+// there is free. Both now price at $0, and the whole-corpus diff moved 15 cells
+// of 14,600 — every one of them a gain, none lost, none repriced.
+//
+// Of the 9 left, 8 are prose rather than rates — "URA coupon parking", "Closed",
+// "No Entry (Staff Parking Only)", three "nearest car park is…" notes — so the
+// real backlog is ONE string: "$0.80 for sub. 1 per 2 hr or part thereof",
+// which is malformed at source.
+const MAX_UNPRICEABLE = 9;
 
 test("every stored rate still prices, or was already known not to", () => {
   const health = checkCorpus(loadCorpus());
