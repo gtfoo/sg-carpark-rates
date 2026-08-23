@@ -640,3 +640,20 @@ test("rateForDay falls back the way the datasets expect", () => {
     saturday,
   );
 });
+
+test("an hour written as a bare 'h' is an hour, not a minute", () => {
+  // The Robertson House By The Crest Collection. The write-time guard refused
+  // this string outright, so the carpark stayed unpriced: BLOCK_UNIT knew
+  // hr/hrs/hour/hourly but not a bare "h".
+  //
+  // The trap is that teaching the PATTERN alone would have been worse than
+  // leaving it broken. `unitToMinutes` ends in a bare-number fallback, so "1h"
+  // would have come back as one MINUTE and quoted $3.40 a minute — $408 for a
+  // two-hour stay. Exactly the shape of the "4-hourly" bug that priced $3.80
+  // per four minutes. The two changes only make sense together.
+  const rh = "$3.40 per 1h (max $7.90)";
+  assert.equal(fee(rh, 60), 3.4);
+  assert.equal(fee(rh, 120), 6.8);
+  // feeCapped, not fee: the plain helper passes no limits and cannot see caps.
+  assert.equal(feeCapped(rh, 480), 7.9);
+});

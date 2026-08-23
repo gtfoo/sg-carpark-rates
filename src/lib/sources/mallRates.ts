@@ -81,7 +81,12 @@ const NUM = String.raw`\$?\s*(\d+(?:\.\d+)?)`;
 // multi-hour branch, or the "2" of "1/2" reads as a two-hour block.
 // The hyphen is for Palais Renaissance's "$3.80 per 4-hourly"; without it the
 // multi-hour branch can't cross it and the whole pattern falls through.
-const BLOCK_UNIT = String.raw`(?:½|half|1/2)\s*(?:hr|hour)|\d+\s*min(?:ute)?s?|\d+\s*-?\s*(?:hrs?|hours?)|hrs?|hours?`;
+// "1h" (The Robertson House) needs its own branch after the spelled-out one,
+// so "2 hrs" still matches the fuller form first. The lookahead stops the bare
+// "h" swallowing the start of a word — and note this branch is USELESS without
+// the matching case in unitToMinutes, which would otherwise read "1h" as one
+// minute.
+const BLOCK_UNIT = String.raw`(?:½|half|1/2)\s*(?:hr|hour)|\d+\s*min(?:ute)?s?|\d+\s*-?\s*(?:hrs?|hours?)|\d+\s*-?\s*h(?![a-z])|hrs?|hours?`;
 
 // Words operators put between an amount and its unit. These sources are
 // hand-written prose, so the same rate appears as "per", "for", "every",
@@ -479,7 +484,10 @@ function unitToMinutes(unit: string): number {
   // teaching this priced it as $3.80 per FOUR MINUTES, i.e. $114 for two
   // hours. The implausibility check caught that; it should never have needed
   // to.
-  const hrs = u.match(/^(\d+)-?(?:hrs?|hours?|hourly)$/);
+  // The bare "h" of "per 1h" belongs here, NOT in the bare-number fallback at
+  // the bottom of this function — that would return 1, i.e. one minute, and
+  // price The Robertson House at $3.40 a minute.
+  const hrs = u.match(/^(\d+)-?(?:h|hrs?|hours?|hourly)$/);
   if (hrs) return Number(hrs[1]) * 60;
   if (u.startsWith("hr") || u.startsWith("hour")) return 60;
   const mins = u.match(/(\d+)min/);
