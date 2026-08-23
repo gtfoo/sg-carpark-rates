@@ -185,6 +185,21 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
+  "name": "Alexandra Technopark",
+  "rate": "8am-6pm: $1.10 per 30 mins; 6pm-8am: $1.10 per 30 mins (capped at $5.00)",
+  "notes": "AI-retrieved — verify. Rates include prevailing GST. 6 EV charging stations available at basement carpark."
+ },
+ {
+  "name": "Alexandra Technopark",
+  "rate": "8am-1pm: $1.10 per 30 mins; 1pm-6pm: $2.20 per entry; 6pm-8am: $1.10 per 30 mins (capped at $5.00)",
+  "notes": "AI-retrieved — verify. Rates include prevailing GST. 6 EV charging stations available at basement carpark."
+ },
+ {
+  "name": "Alexandra Technopark",
+  "rate": "8am-6pm: $2.20 per entry; 6pm-8am: $1.10 per 30 mins (capped at $5.00)",
+  "notes": "AI-retrieved — verify. Rates include prevailing GST. 6 EV charging stations available at basement carpark."
+ },
+ {
   "name": "ALIWAL ST",
   "rate": "07.00 AM-08.30 AM: Free; 08.30 AM-05.00 PM: $0.60 per 30 mins; 05.00 PM-10.00 PM: $0.60 per 30 mins; 10.00 PM-07.00 AM: Free",
   "notes": "URA official rates (08.30 AM-05.00 PM), 69 lots."
@@ -298,6 +313,16 @@
   "name": "Aperia Mall",
   "rate": "Free for 1st hr; $2.55 per entry thereafter",
   "notes": "AI-retrieved — verify. Motorcycle parking is $1.51 per entry daily."
+ },
+ {
+  "name": "Apex @ Henderson",
+  "rate": "$0.80 per 30 mins (7am-6pm); $2.50 per entry (6pm-7am)",
+  "notes": "AI-retrieved — verify. 10 mins grace period applies to all rates"
+ },
+ {
+  "name": "Apex @ Henderson",
+  "rate": "$2.50 per entry (all day)",
+  "notes": "AI-retrieved — verify. 10 mins grace period applies to all rates"
  },
  {
   "name": "ARAB ST - QUEEN ST OFF ST",
@@ -525,14 +550,29 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
-  "name": "Bukit Timah Plaza (Multi-Storey Car Park)",
-  "rate": "7.30am-5pm: $1.28 per hr; 5pm-12am: $2.25 per entry. Aft 12am: $2.25 per entry",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "name": "Bukit Timah Plaza (Level 3 & Basement Carpark)",
+  "rate": "7:30am-5:00pm: $1.65 per hr; 5:00pm-7:30am: $2.85 per entry",
+  "notes": "AI-retrieved — verify. Rates include 9% GST effective 1 January 2024. Motorcycle parking is $1.25 per entry."
+ },
+ {
+  "name": "Bukit Timah Plaza (Level 3 & Basement Carpark)",
+  "rate": "7:30am-5:00pm: $1.80 per hr; 5:00pm-7:30am: $2.85 per entry",
+  "notes": "AI-retrieved — verify. Rates include 9% GST effective 1 January 2024. Motorcycle parking is $1.25 per entry."
+ },
+ {
+  "name": "Bukit Timah Plaza (Level 3 & Basement Carpark)",
+  "rate": "7:30am-5:00pm: $2.85 for 1st 3 hrs, $1.65 per subsequent hr; 5:00pm-7:30am: $2.85 per entry",
+  "notes": "AI-retrieved — verify. Rates include 9% GST effective 1 January 2024. Motorcycle parking is $1.25 per entry."
  },
  {
   "name": "Bukit Timah Shopping Centre",
-  "rate": "8am-5pm: $1.25 per hr; Aft 5pm: $2.10 per entry",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "rate": "$1.93 per hour",
+  "notes": "10 mins grace period. Mon-Sat 5:00 PM - 7:00 AM: $3.64 per entry."
+ },
+ {
+  "name": "Bukit Timah Shopping Centre",
+  "rate": "$3.64 per entry",
+  "notes": "10 mins grace period. Mon-Sat 5:00 PM - 7:00 AM: $3.64 per entry."
  },
  {
   "name": "Burghley Lifestyle Hub",
@@ -640,6 +680,11 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
+  "name": "Cendex Centre",
+  "rate": "$0.60 per 30 mins (7am-6pm); $2.00 per entry (6pm-12am); $5.00 per hour (12am-7am)",
+  "notes": "AI-retrieved — verify. Rates apply uniformly across all days including weekends and public holidays. Different rates by time of day."
+ },
+ {
   "name": "Centennial Tower",
   "rate": "7.00am-5.59pm: $3.90 for 1st hr; $1.95 per sub.½ hr",
   "notes": "Weekday evening: 6.00pm-7.00am: $3.00 per entry. Mon-Thurs (Overnight Parking): 12.00am-6.59am: $3.90 for 1st hr; $1.95 per sub.½ hr. From LTA OneMotoring — verify before relying on it."
@@ -688,6 +733,11 @@
   "name": "Changi City Point",
   "rate": "7.01am-5pm: $2.50 for 1st 2hrs or part thereof; $1.20 for sub. ½ hr or part thereof. 5.01pm-7am: $2.50 per entry",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+ },
+ {
+  "name": "Changi General Hospital (CGH)",
+  "rate": "$1.50 for 1st hr; $0.03 per min thereafter",
+  "notes": "AI-retrieved — verify. Rates apply 12:00 AM - 12:00 AM daily"
  },
  {
   "name": "Changi Village Hotel",
@@ -790,6 +840,16 @@
   "notes": "Weekday evening: Aft 6.00pm: $5.50 per entry. From LTA OneMotoring — verify before relying on it."
  },
  {
+  "name": "Cluny Court Car Park",
+  "rate": "$2.20 for 1st hour; $1.53 per subsequent half hour",
+  "notes": "AI-retrieved — verify. Grace period 8 minutes; rates subject to GST; motorcycle rates also available ($1.00 1st hour, $0.40 subsequent half hour); height limit 2m; rates last updated Feb 2020"
+ },
+ {
+  "name": "CMPB",
+  "rate": "$0.02 per minute (max $12 daily from 6am to 11pm)",
+  "notes": "AI-retrieved — verify. Maximum daily rate of $12 applies from 6am to 11pm. Handicap parking available at L1 and B1. EV charging available (6 normal-charging, 2 fast-charging)."
+ },
+ {
   "name": "Coliwoo Hotel Pasir Panjang",
   "rate": "7.00am-5.00pm: $1.10 per hr",
   "notes": "Weekday evening: 5.00pm-7.00am: $1.10 per hr (Capped at $3.03). From LTA OneMotoring — verify before relying on it."
@@ -850,6 +910,11 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
+  "name": "Crown Centre",
+  "rate": "$2.18 per hour; capped at $9.80",
+  "notes": "AI-retrieved — verify. 3 mins grace period; rates apply 07:00 AM - 07:00 AM daily"
+ },
+ {
   "name": "CT Hub",
   "rate": "$1.80 per hour (12:00 AM - 7:00 PM); $2.00 per entry (7:00 PM - 12:00 AM)",
   "notes": "AI-retrieved from the web — verify before relying on it."
@@ -878,6 +943,16 @@
   "name": "D'Resort",
   "rate": "Fri-Sat (Including PH, Eve of PH & School Holiday) $0.024 per min; 5pm-12am: $5 per entry. Max/day: $19.",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+ },
+ {
+  "name": "Dairy Farm Mall",
+  "rate": "$1.38 for 1st hr (12:00 AM-5:59 PM); $0.48 per 15 mins thereafter; $2.76 per entry (6:00 PM-11:59 PM)",
+  "notes": "AI-retrieved — verify. Grace period: 10 minutes for cars, 15 minutes for motorcycles. Free parking: 12:00 PM-2:00 PM and 6:30 PM-8:30 PM daily. Rates subject to GST."
+ },
+ {
+  "name": "Dairy Farm Mall",
+  "rate": "$2.76 for first 2 hrs; $0.46 per 15 mins thereafter; $2.76 per entry (6:00 PM-11:59 PM)",
+  "notes": "AI-retrieved — verify. Grace period: 10 minutes for cars, 15 minutes for motorcycles. Free parking: 12:00 PM-2:00 PM and 6:30 PM-8:30 PM daily. Rates subject to GST."
  },
  {
   "name": "Defu Industrial City (DIC)",
@@ -911,8 +986,8 @@
  },
  {
   "name": "Devan Nair Institute for Employment and Employability",
-  "rate": "6.00am-12 midnight: $0.45 per 15min. No parking after 12 midnight.",
-  "notes": "Weekday evening: 6.00am-12 midnight: $0.45 per 15min. No parking after 12 midnight.. From LTA OneMotoring — verify before relying on it."
+  "rate": "$0.36 per 15 mins (06:00 - 00:00)",
+  "notes": "AI-retrieved — verify. Limited parking available. Parking hours listed as 06:00 to 00:00."
  },
  {
   "name": "Downtown East",
@@ -1010,6 +1085,16 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
+  "name": "Four Points by Sheraton Singapore, Riverview",
+  "rate": "$4.20 per hour (7:00 AM - 6:00 PM); $6.50 per entry (6:00 PM - 7:00 AM)",
+  "notes": "AI-retrieved — verify. In-house hotel guests enjoy unlimited carpark usage at $10 per day."
+ },
+ {
+  "name": "Four Points by Sheraton Singapore, Riverview",
+  "rate": "$4.20 per hour (7:00 AM - 6:00 PM); $8.50 per entry (6:00 PM - 7:00 AM)",
+  "notes": "AI-retrieved — verify. In-house hotel guests enjoy unlimited carpark usage at $10 per day."
+ },
+ {
   "name": "Four Seasons Hotel",
   "rate": "6am-5pm: $6 for 1st hr; $3 for sub. ½ hr; Aft 5pm: $6 per entry",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
@@ -1065,6 +1150,16 @@
   "notes": "Weekday evening: 6.00pm-7.00am : $1.00 per entry. From LTA OneMotoring — verify before relying on it."
  },
  {
+  "name": "Galaxis",
+  "rate": "First hour $2.16; Subsequent 30 mins $1.62 (12:00 AM - 05:59 PM); $1.08 per entry (06:00 PM - 11:59 PM)",
+  "notes": "AI-retrieved — verify. 20 mins grace period applies Mon-Fri and Sat-Sun & PH"
+ },
+ {
+  "name": "Galaxis",
+  "rate": "$1.08 per entry",
+  "notes": "AI-retrieved — verify. 20 mins grace period applies Mon-Fri and Sat-Sun & PH"
+ },
+ {
   "name": "Gardens by the Bay (Bay South)",
   "rate": "$0.035 per minute",
   "notes": "Capped at $30 per day. Same rate applies at Bay South (Main Entrance, The Meadow, Bayfront Plaza, Satay by the Bay) and Bay East."
@@ -1103,6 +1198,11 @@
   "name": "Gillman Barracks",
   "rate": "Free Parking",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+ },
+ {
+  "name": "Gleneagles Hospital",
+  "rate": "$3 for first 30 minutes (10-minute grace period); $1 for subsequent 15 minutes",
+  "notes": "AI-retrieved — verify. Carpark open 24 hours daily. Grace period of 10 minutes on first 30 minutes. Valet parking available Monday-Friday 8:30am-5:00pm and Saturday 8:30am-1:00pm at $10 (excludes park"
  },
  {
   "name": "Golden Landmark Shopping Complex",
@@ -1265,6 +1365,16 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
+  "name": "Hillion Mall",
+  "rate": "$1.48 for 1st hour; $0.48 per 15 mins (12am-5:59pm); $2.85 per entry (6pm-11pm)",
+  "notes": "AI-retrieved — verify. Grace period: 30 minutes (7am-10am), 10 minutes (10:01am-6:59am). Prices inclusive of GST."
+ },
+ {
+  "name": "Hillion Mall",
+  "rate": "$2.85 for first 2 hours; $0.48 per 15 mins (12am-5:59pm); $2.85 per entry (6pm-11pm)",
+  "notes": "AI-retrieved — verify. Grace period: 30 minutes (7am-10am), 10 minutes (10:01am-6:59am). Prices inclusive of GST."
+ },
+ {
   "name": "hillV2",
   "rate": "Daily: $1.53 for 1st hr; $0.92 for every sub. 30min",
   "notes": "Weekday evening: Daily: $1.53 for 1st hr; $0.92 for every sub. 30min. From LTA OneMotoring — verify before relying on it."
@@ -1328,6 +1438,16 @@
   "name": "Hotel Indigo Singapore Katong",
   "rate": "6.01am-10.00am: $0.54 for 1st hr; $0.16 per 15min; 10.01am-9.00pm: $1.28 for 1st hr; $0.65 per 15min. 9.01pm-6.00am: $0.54 for 1st hr, $0.16 per 15min",
   "notes": "Weekday evening: 6.01pm-10.00pm: $1.00 for 1st hr, $0.25 per 15min; 10.01pm-6.00am: $0.32 for 1st hr, $0.08 per 15min. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Hotel Miramar Singapore",
+  "rate": "$2.68 for 1st hr, $1.07 per sub 30 mins (7am-5pm); $3.75 per entry (5pm-7am)",
+  "notes": "AI-retrieved from the web — verify before relying on it."
+ },
+ {
+  "name": "Hotel Miramar Singapore",
+  "rate": "$3.75 per entry (7am-7am)",
+  "notes": "AI-retrieved from the web — verify before relying on it."
  },
  {
   "name": "Hougang Green Shopping Mall",
@@ -1560,6 +1680,11 @@
   "notes": "From JTC's carpark details document (Jan 2025 edition), jtc.gov.sg. Operated by TOP Parking. Motorcycle/heavy-vehicle and season rates are in the source."
  },
  {
+  "name": "KAP Mall",
+  "rate": "$1.60 per hour",
+  "notes": "Grace period: 10 minutes"
+ },
+ {
   "name": "Katong Shopping Centre",
   "rate": "7am-6pm: $1 per hr; Aft 6pm: $2 per entry",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
@@ -1628,6 +1753,11 @@
   "name": "Kranji Green",
   "rate": "7.00am-7.00am: $0.60 per ½ hr.",
   "notes": "Weekday evening: 7.00am-7.00am:. $0.60 per ½ hr.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Lam Soon Industrial Building",
+  "rate": "$2.40 per 2 hours",
+  "notes": "AI-retrieved — verify. 300 spaces at $2.40 per 2 hours; 140 spaces at $2.40 per 2 hours. Rates from Parkopedia; operator not explicitly identified."
  },
  {
   "name": "Landmark Village Hotel",
@@ -1820,6 +1950,16 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
+  "name": "Midview City",
+  "rate": "$1.00 per hour (7am-7pm); free (7pm-12midnight); $6.00 per entry (12midnight-7am)",
+  "notes": "AI-retrieved — verify. Weekday rates apply Mon-Fri. Weekend rates (Sat-Sun & PH) match Sunday rate structure. Overnight rate of $6.00 per entry applies 12midnight-7am daily."
+ },
+ {
+  "name": "Midview City",
+  "rate": "free (7am-7pm); free (7pm-12midnight); $6.00 per entry (12midnight-7am)",
+  "notes": "AI-retrieved — verify. Weekday rates apply Mon-Fri. Weekend rates (Sat-Sun & PH) match Sunday rate structure. Overnight rate of $6.00 per entry applies 12midnight-7am daily."
+ },
+ {
   "name": "Millenia Walk (Surface parking @ L1)",
   "rate": "7am-6pm: $4.28 for 1st hr; $1.605 for sub. ½ hr; Aft 6pm: $4.28 for 1st 2hrs; $1.605 for sub. hr",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
@@ -1828,6 +1968,21 @@
   "name": "Millenia Walk (Surface parking @ L1)",
   "rate": "$4.28 for 1st 2hrs; $1.605 for sub. hr",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+ },
+ {
+  "name": "Ministry of Education Building (MOE)",
+  "rate": "6:00am-4:59pm: $2.00 for 1st 2 hrs, $3.00 per subsequent hr; 6:00pm-5:59am: $1.20 per hr",
+  "notes": "AI-retrieved — verify. 10-minute grace period applies."
+ },
+ {
+  "name": "Ministry of Education Building (MOE)",
+  "rate": "6:00am-5:59am: $1.20 per hr",
+  "notes": "AI-retrieved — verify. 10-minute grace period applies."
+ },
+ {
+  "name": "MOE (Evans Road)",
+  "rate": "$1.20 per 1h",
+  "notes": "AI-retrieved — verify. Grace period: 15 minutes. Open Mon-Sun 6:00 AM - next day 5:59 AM. Verified on 21 June 2026."
  },
  {
   "name": "Mount Elizabeth Hospital",
@@ -1898,6 +2053,11 @@
   "name": "Nex Mall",
   "rate": "Sat, Sun / Ph: $1.40 for 1st hr; $0.70 for sub. ½ hr",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+ },
+ {
+  "name": "Ng Teng Fong General Hospital and Jurong Community Hospital",
+  "rate": "$0.03 per min",
+  "notes": "AI-retrieved — verify. 10-minute grace period. Capped at $18 daily (12:00 AM - 11:59 PM). Motorcycle parking is $1.30 per entry per day."
  },
  {
   "name": "Ngee Ann City",
@@ -2130,6 +2290,21 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
+  "name": "Orion @ Paya Lebar",
+  "rate": "7:00 AM - 5:00 PM: $1.00 per 30 mins; 5:00 PM - 12:00 AM: $2.00 per entry; 12:00 AM - 7:00 AM: $8.00 per entry",
+  "notes": "AI-retrieved — verify. 15-minute grace period."
+ },
+ {
+  "name": "Orion @ Paya Lebar",
+  "rate": "7:00 AM - 12:00 PM: Free; 12:00 PM - 12:00 AM: $2.00 per entry; 12:00 AM - 7:00 AM: $8.00 per entry",
+  "notes": "AI-retrieved — verify. 15-minute grace period."
+ },
+ {
+  "name": "Orion @ Paya Lebar",
+  "rate": "7:00 AM - 12:00 AM: 1st 15 mins free, $1.00 per subsequent 30 mins; 12:00 AM - 7:00 AM: $8.00 per entry",
+  "notes": "AI-retrieved — verify. 15-minute grace period."
+ },
+ {
   "name": "OUE Bayfront",
   "rate": "7am-5.59pm: $0.86 per 10mins block; Aft 6pm: $3.21 per entry",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
@@ -2293,6 +2468,11 @@
   "name": "People's Park Complex",
   "rate": "12am-6pm: $3.38 for 1st hr; $0.84 for sub. 30min.",
   "notes": "Weekday evening: 6.00pm-12am: $5.07 per entry. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "Perennial Business City",
+  "rate": "0001-1700: $1.63 1st hr, $0.82 for subsequent 30 mins; 1701-0000: $2.73 per entry",
+  "notes": "AI-retrieved — verify. 15-minute grace period. Motorcycle parking is $1.60 per entry all day."
  },
  {
   "name": "Perennial Business City (formerly known as Big Box)",
@@ -2525,6 +2705,11 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
+  "name": "Science Centre Singapore",
+  "rate": "$0.72 per 30 mins",
+  "notes": "AI-retrieved — verify. 15-minute grace period. New parking session starts after 6:00pm. Rates inclusive of 9% GST."
+ },
+ {
   "name": "Scotts Square",
   "rate": "8.00am-5.29pm : $3.27 for 1st hr; $1.64 for sub. ½ hr or part thereof.",
   "notes": "Weekday evening: 5.30pm-7.59am: $4.91 per entry. From LTA OneMotoring — verify before relying on it."
@@ -2561,8 +2746,8 @@
  },
  {
   "name": "Serene Centre",
-  "rate": "8am-10pm: $1.53 for 1st hr; $1.53 for sub. ½ hr; Aft 10pm: $1.53 per entry",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "rate": "$2.51 for 1st hr; $2.18 per 30 mins",
+  "notes": "AI-retrieved — verify. 10 mins grace period; rates apply 7am-7am the following day, Mon-Sun & PH"
  },
  {
   "name": "SGX Centre",
@@ -2636,8 +2821,8 @@
  },
  {
   "name": "Singapore Botanic Gardens",
-  "rate": "7am-10.30pm: $0.02 per min (8am-9am: $1 peak hr charge for all passing vehicles that enter from Kheam Hock Road and exit at Evans/Cluny Road) - Closed from 12am-5am daily; 7pm-10.30pm: $2 per maximum cap",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "rate": "07:00-22:30: $0.02 per min",
+  "notes": "AI-retrieved — verify. 15 mins grace period; 19:00-22:30 capped at max $2.00"
  },
  {
   "name": "Singapore Chinese Cultural Centre",
@@ -2930,6 +3115,11 @@
   "notes": "Weekday evening: 5.00pm to 1.00am: $2.60 per entry; 1.00am to 8.00am: $2.10 for 1st 120 min; $1.05 sub. 30min. From LTA OneMotoring — verify before relying on it."
  },
  {
+  "name": "Tanah Merah Ferry Terminal",
+  "rate": "$1.50 per hour; Capped at $28.00",
+  "notes": "AI-retrieved — verify. Daily parking is capped at $28.00 per 24-hour block."
+ },
+ {
   "name": "Tang Plaza",
   "rate": "6am-6.00pm: $3.00 for 1st hr; $0.05/min up to a maximum charge of $18.00",
   "notes": "Weekday evening: Aft 6.00pm: $6 per entry. From LTA OneMotoring — verify before relying on it."
@@ -3106,13 +3296,13 @@
  },
  {
   "name": "The Metropolis",
-  "rate": "6am-6pm: $2.50 for 1st hr, sub $1.25 per 1/2 hr; Time period 1: 6pm-12am: $2.50 per entry; Time period 2: 12am-6am: $2.50 per entry",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "rate": "6:00am-6:00pm: $2.68 for 1st hr, $1.34 per subsequent 30 mins; 6:00pm-6:00am: $2.68 per entry",
+  "notes": "AI-retrieved from the web — verify before relying on it."
  },
  {
   "name": "The Metropolis",
-  "rate": "6am - 6pm: $1.00 per hour or part thereof; Aft 6pm same as wkdays",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "rate": "6:00am-6:00pm: $1.07 per hr; 6:00pm-6:00am: $2.68 per entry",
+  "notes": "AI-retrieved from the web — verify before relying on it."
  },
  {
   "name": "The Mill",
@@ -3123,6 +3313,16 @@
   "name": "The Oval @ Seletar Aerospace Park",
   "rate": "7.00am-10.30pm: $0.60 per 30 mins; 10.30pm-7.00am: $0.60 per 30 mins (capped at $5)",
   "notes": "From JTC's carpark details document (Jan 2025 edition), jtc.gov.sg. Operated by TOP Parking. Motorcycle/heavy-vehicle and season rates are in the source."
+ },
+ {
+  "name": "The Rail Mall",
+  "rate": "$1.40 per hour",
+  "notes": "AI-retrieved — verify. Rate applies Mon-Sun & PH, 7:00 AM - 7:00 AM next day. Motorcycles $1.35 per entry."
+ },
+ {
+  "name": "The Robertson House By The Crest Collection",
+  "rate": "$3.40 per 1h (max $7.90)",
+  "notes": "AI-retrieved — verify. Grace period: 10 min; rates apply Mon-Sun 12:00 AM - 11:59 PM"
  },
  {
   "name": "The Sail@Marina Bay",
@@ -3165,6 +3365,11 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
+  "name": "Tiong Bahru Market",
+  "rate": "$0.60 per 30 mins (7am-10:30pm); $0.60 per 30 mins capped at $5.00 (10:30pm-7am)",
+  "notes": "AI-retrieved — verify. 10 mins grace period."
+ },
+ {
   "name": "Tiong Bahru Plaza",
   "rate": "$1.50 for 1st hr; $0.80 for sub. ½ hr",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
@@ -3198,6 +3403,16 @@
   "name": "Tong Eng Building",
   "rate": "10.00am-11.00pm: $3.00 per entry.",
   "notes": "Weekday evening: 5.00pm-11.00pm: $3.00 per entry.. From LTA OneMotoring — verify before relying on it."
+ },
+ {
+  "name": "TradeHub 21",
+  "rate": "7:00 AM - 7:00 PM: $1.20 per hour; 7:00 PM - 12:00 AM: Free parking",
+  "notes": "AI-retrieved from the web — verify before relying on it."
+ },
+ {
+  "name": "TradeHub 21",
+  "rate": "$1.00 per entry (7:00 AM - 7:00 AM)",
+  "notes": "AI-retrieved from the web — verify before relying on it."
  },
  {
   "name": "trendspace (formerly Furniture Hub)",
@@ -3265,9 +3480,9 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
-  "name": "UP@Robertson Quay",
-  "rate": "6.00am-6.00pm: $1.50 for 1st hr; $0.50 for sub. 30min",
-  "notes": "Weekday evening: 6.00pm-6.00am: $4.00 per entry. From LTA OneMotoring — verify before relying on it."
+  "name": "Up @ Robertson Quay",
+  "rate": "6am-6pm: $1.50 1st hr, $0.50 per 30 mins; 6pm-6am: $4.00 per entry",
+  "notes": "AI-retrieved — verify. Includes 10-minute grace period. Alternative source lists daytime rates as $2.00 for 1st hr and $0.80 per 30 mins."
  },
  {
   "name": "Uptown@Farrer",
@@ -3325,6 +3540,16 @@
   "notes": "URA official rates (11.00 AM-10.30 PM), 42 lots."
  },
  {
+  "name": "Waterfront Plaza & King's Centre",
+  "rate": "$3.50 for 1st hr, $2.00 for add'l hr (07:00-17:00); $4.00 per entry (17:00-07:00)",
+  "notes": "AI-retrieved from the web — verify before relying on it."
+ },
+ {
+  "name": "Waterfront Plaza & King's Centre",
+  "rate": "$5.35 per entry",
+  "notes": "AI-retrieved from the web — verify before relying on it."
+ },
+ {
   "name": "Waterway Point",
   "rate": "6.00am-5.59am: $1.50 for 1st hr; $0.80 for sub. ½ hr or part thereof.",
   "notes": "Weekday evening: 6.00am-5.59am: $1.50 for 1st hr; $0.80 for sub. ½ hr or part thereof.. From LTA OneMotoring — verify before relying on it."
@@ -3361,8 +3586,13 @@
  },
  {
   "name": "Westgate",
-  "rate": "Daily: $1.30 for 1st hr; $0.50 for sub. 15 mins; 6pm - 11.59pm: $2.50 per entry",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "rate": "$1.60 for 1st hr, $0.55 per subsequent 15 mins (7:00 AM - 4:59 PM / 12:00 AM - 5:59 PM); $3.25 per entry (6:00 PM - 11:59 PM)",
+  "notes": "AI-retrieved from the web — verify before relying on it."
+ },
+ {
+  "name": "Westgate",
+  "rate": "$1.60 for 1st hr, $0.55 per subsequent 15 mins (7:00 AM - 4:59 PM); $3.25 per entry (6:00 PM - 11:59 PM)",
+  "notes": "AI-retrieved from the web — verify before relying on it."
  },
  {
   "name": "Wheelock Place",
