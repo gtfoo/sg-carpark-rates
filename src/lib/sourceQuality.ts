@@ -48,8 +48,29 @@ const BLOCKED_HOSTS = [
   "hardwarezone.com.sg",
 ];
 
-/** Free hosting: unaccountable, but frequently a genuine directory. */
+/**
+ * Derivative sources: they may state the rate correctly, but citing one adds no
+ * verification, because they got it the same way we did.
+ *
+ * Two shapes, one category. Free hosting is a proxy for "someone's side
+ * project"; a peer parking app is the thing itself. parkaholic.sg is another
+ * Singapore parking app assembling rates from the public web, so a citation
+ * pointing there is circular — it looks like corroboration and is really our
+ * own method reflected back.
+ *
+ * Weak rather than blocked, deliberately. A blocked source is refused even when
+ * it is all that exists, and that is too strong here: these are often accurate,
+ * and MOE (Evans Road) was correctly priced from exactly such a page when no
+ * better one stated the rate. Weak means "cite only when nothing better does".
+ *
+ * The line against motorist.sg and parkopedia, which stay `ok`, is a judgement
+ * rather than a principle: those are established directories with their own
+ * operations, and these are peers doing what this app does. Worth saying out
+ * loud, because the underlying "they aggregate the public web" is true of all
+ * of them.
+ */
 const WEAK_HOSTS = [
+  "parkaholic.sg",
   "vercel.app",
   "netlify.app",
   "pages.dev",

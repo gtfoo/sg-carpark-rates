@@ -82,3 +82,32 @@ test("junk input is unusable, not untrusted", () => {
   assert.equal(sourceTier(null), "ok");
   assert.equal(hostOf("not a url"), "");
 });
+
+test("a peer parking app is a derivative source, not a citation", () => {
+  // parkaholic.sg assembles rates from the public web, exactly as this app
+  // does, so pointing a citation there is circular: it reads as corroboration
+  // and is really our own method reflected back. Weak, not blocked — these are
+  // often accurate, and refusing a save when one is all that exists would cost
+  // real coverage.
+  const peer = "https://parkaholic.sg/M0001";
+  assert.equal(sourceTier(peer), "weak");
+
+  // An operator or established directory that states the rate still wins.
+  assert.equal(
+    rankCitations([
+      { url: peer, content: "$1.20 per half hour" },
+      { url: "https://www.motorist.sg/carpark/x", content: "$1.20 per half hour" },
+    ])[0],
+    "https://www.motorist.sg/carpark/x",
+  );
+
+  // But it is still cited ahead of a reputable page that quotes no price at
+  // all — evidence outranks reputation, as MOE (Evans Road) established.
+  assert.equal(
+    rankCitations([
+      { url: "https://www.streetdirectory.com/x", content: "Map and directions" },
+      { url: peer, content: "$1.20 per half hour" },
+    ])[0],
+    peer,
+  );
+});
