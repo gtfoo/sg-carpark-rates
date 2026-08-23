@@ -198,13 +198,48 @@ function splitBands(raw: string): string[] {
 }
 
 /**
- * Removes a daily-cap clause before the rate patterns run. "Capped at $35 per
+ * A ceiling clause: the cap keyword, a short gap, and an amount.
+ *
+ * Deliberately the same shape `parseLimits` matches, because the two must
+ * agree. They did not: parseLimits read `max|maximum|cap|capped` followed by an
+ * amount, while withoutCaps stripped only the literal word "capped". So
+ * "$8 per entry (Max: $28 per 24 hrs)" had its ceiling read as a limit AND
+ * left in the text, where the per-block pattern found "$28 per 24 hrs" and took
+ * it for the rate — Resorts World Sentosa quoted $28 for every evening stay
+ * against a real charge of $8. Its weekday twin, "$6 per entry" with no
+ * parenthetical, was right all along, which is what hid it.
+ *
+ * The gap forbids DIGITS as well as "." and "$", which parseLimits does not.
+ * That matters here and not there: "maximum stay 3 hours, $2 per hour" would
+ * otherwise be swallowed whole and the real rate deleted. Misreading a cap is
+ * recoverable; deleting the rate is not.
+ */
+const CAP_CLAUSE =
+  String.raw`(?:max(?:imum)?|cap(?:ped)?)\.?[^.$\d]{0,16}\$\s*\d+(?:\.\d{1,2})?` +
+  // "$28 per 24 hrs", "$12 per day" — the period belongs to the ceiling, and
+  // leaving it behind is exactly what the per-block pattern latched onto.
+  String.raw`(?:\s*(?:per|/)\s*\d*\s*(?:hrs?|hours?|days?|entry))?`;
+
+/**
+ * Removes a ceiling clause before the rate patterns run. "Capped at $35 per
  * 24hrs" is a ceiling, not a rate, but it looks exactly like one — Changi
  * Airport's South car park was quoting it as $35 for two hours when the real
  * charge is 3.5 cents a minute. parseLimits reads the cap separately.
  */
 function withoutCaps(s: string): string {
-  return s.replace(/capp?ed\s*(?:at)?\s*\$?\s*[\d.]+[^,.;]*/gi, " ").trim();
+  return (
+    s
+      // The whole parenthetical, so no empty "( )" is left behind for band
+      // splitting to trip over.
+      .replace(new RegExp(String.raw`\s*\([^)]*` + CAP_CLAUSE + String.raw`[^)]*\)`, "gi"), " ")
+      .replace(new RegExp(CAP_CLAUSE, "gi"), " ")
+      .replace(/\$\s*\d+(?:\.\d{1,2})?\s*(?:max(?:imum)?|cap)\b/gi, " ")
+      // The original bare-number form, kept last so anything the shapes above
+      // miss still behaves as it did: "capped at 12".
+      .replace(/capp?ed\s*(?:at)?\s*\$?\s*[\d.]+[^,.;]*/gi, " ")
+      .replace(/\s{2,}/g, " ")
+      .trim()
+  );
 }
 
 /**

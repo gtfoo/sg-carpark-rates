@@ -657,3 +657,31 @@ test("an hour written as a bare 'h' is an hour, not a minute", () => {
   // feeCapped, not fee: the plain helper passes no limits and cannot see caps.
   assert.equal(feeCapped(rh, 480), 7.9);
 });
+
+test("a maximum written beside a flat entry fee is not the rate", () => {
+  // Resorts World Sentosa. The evening band is "$8 per entry (Max: $28 per 24
+  // hrs)" and quoted $28 for every stay — 3.5x the real charge.
+  //
+  // parseLimits reads `max|cap` followed by an amount; withoutCaps stripped
+  // only the literal word "capped". So the ceiling was read as a limit AND
+  // left in the text, where the per-block pattern found "$28 per 24 hrs" and
+  // took it for the rate. The weekday twin, "$6 per entry" with no
+  // parenthetical, was correct all along — which is what made this invisible.
+  const rws =
+    "Fri/Sat-Sun/PH: 7am-7pm: $8 for 1st hr; $2 for sub. ½ hr or part thereof." +
+    "  Aft 7pm: $8 per entry (Max: $28 per 24 hrs)";
+  for (const mins of [60, 120, 480]) {
+    assert.equal(feeCapped(rws, mins, 20 * 60), 8, `${mins} min after 7pm`);
+  }
+  // The daytime band of the same string must not change.
+  assert.equal(feeCapped(rws, 60, 13 * 60), 8);
+  assert.equal(feeCapped(rws, 120, 13 * 60), 12);
+});
+
+test("caps in the other shapes operators use are still not rates", () => {
+  // Each of these was already read correctly as a LIMIT; the point is that the
+  // same clause must also be invisible to the rate patterns.
+  assert.equal(feeCapped("$6.50 for 1st hr, $1.10 per sub half hr (max cap $13.10)", 60), 6.5);
+  assert.equal(feeCapped("$0.60 per 30 mins (capped at $12)", 60), 1.2);
+  assert.equal(feeCapped("$1.20 per hour (Max. of $6.00)", 60), 1.2);
+});
