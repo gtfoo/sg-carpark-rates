@@ -43,7 +43,8 @@ test("the three renames rejected on review stayed rejected", () => {
   // Each was wrong in a way no heuristic here separates from the good ones —
   // "CCK CHOA CHU KANG PARK" shares three words with the WRONG answer, while
   // "TLF" shares none with the right one.
-  assert.equal(nameOf("HAMPSHIRE ROAD"), "HSO CAR PARK");
+  // HSO is no longer here: the GENERATOR still refuses it, but a hand-written
+  // alias now covers it (see the test below). The other two stand.
   assert.equal(nameOf("CHOA CHU KANG DRIVE, CCK"), "CCK CHOA CHU KANG PARK");
   assert.equal(nameOf("GOPENG STREET, ICON"), "THE ICON");
 });
@@ -59,4 +60,15 @@ test("a hand-curated name covers what the postal cannot reach", () => {
   // 259659 answers with "19 CLUNY HILL" and no building, and OneMap has no
   // entry for the campus at all, so the generator correctly refuses it.
   assert.equal(nameOf("CLUNY ROAD, BTC_NUS"), "NUS Bukit Timah Campus");
+});
+
+test("a curated name keeps the answer's content, not its filing", () => {
+  // HSO CAR PARK sits 5 m from OneMap's Blk 1 at 1 Hampshire Road and its
+  // postal 219428 matches, so the LOCATION was never wrong -- only the name
+  // was opaque. epsNameFix refuses OneMap's own answer here, "BLK 1 (LAND
+  // TRANSPORT AUTHORITY) (LTA)", because a block reference is not a better
+  // name and the doubled parenthetical reads as broken. This keeps what that
+  // answer identifies and drops how it files it, which is a tidy of the
+  // evidence rather than a guess -- nothing in the data says what HSO means.
+  assert.equal(nameOf("HAMPSHIRE ROAD"), "Land Transport Authority (Hampshire Road)");
 });

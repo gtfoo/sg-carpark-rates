@@ -133,6 +133,14 @@ export function displayName(name: string, address: string): string {
  * These are JUDGEMENT, not evidence, and the bar is correspondingly high: the
  * abbreviation must be unambiguous and the location must corroborate it.
  *
+ * - 2 "HSO CAR PARK" at 1 Hampshire Road. Its coordinates are right — 5 m from
+ *   OneMap's Blk 1, and the postal 219428 matches — so only the name is
+ *   opaque. `epsNameFix` correctly refuses OneMap's own answer here, "BLK 1
+ *   (LAND TRANSPORT AUTHORITY) (LTA)": a block reference is not a better name
+ *   and the doubled parenthetical reads as broken. This keeps that answer's
+ *   CONTENT and drops its filing, which is a tidy of the evidence rather than
+ *   a guess about what HSO stands for — nothing in the data says.
+ *
  * - 4383 "BTC_NUS" at 1 Cluny Road. Its postal (259659) answers with
  *   "19 CLUNY HILL" and no building name, and OneMap has no entry for NUS's
  *   Bukit Timah Campus at all, so the generator correctly refuses it — an
