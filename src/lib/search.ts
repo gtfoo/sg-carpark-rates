@@ -14,6 +14,7 @@ import {
   bandForTime,
   rateForDay,
   rateTextForDay,
+  describeNonRate,
   notesForTime,
   parseRate,
   describeRate,
@@ -698,7 +699,13 @@ function overrideResult(
     feeSource: o.source,
     feeVerifiedAt: o.verifiedAt,
     feeSourceUrl: o.sourceUrl,
-    feeNote: o.notes ?? "",
+    feeNote: [
+      dollars === null ? describeNonRate(rawRateForDay(o, dayType, startMod)) : null,
+      o.notes ?? "",
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .trim(),
     feeBreakdown: commercialBreakdown(
       rawRateForDay(o, dayType, startMod),
       dayType,
@@ -869,9 +876,13 @@ function commercialBreakdown(
   if (limits.capDollars !== null && dollars !== null && dollars >= limits.capDollars) {
     rows.push({ label: "Cap", value: `capped at ${formatFee(limits.capDollars)}` });
   }
+  // "not computable" is the right words only when we FAILED. When the text
+  // states that there is no public parking, saying so is both more useful and
+  // more honest — the row is not broken.
+  const stated = dollars === null ? describeNonRate(rateText) : null;
   rows.push({
     label: "Total",
-    value: dollars === null ? "not computable" : formatFee(dollars),
+    value: dollars === null ? (stated ?? "not computable") : formatFee(dollars),
   });
   return rows;
 }

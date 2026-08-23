@@ -422,6 +422,41 @@ export function bandForTime(rawInput: string, minutesOfDay: number): string {
   return raw;
 }
 
+/**
+ * Why a piece of rate text has no price, when the reason is stated rather than
+ * broken.
+ *
+ * Several stored rows are not rates at all: "7.00am-5.59pm: No Entry (Staff
+ * Parking Only)", "10.30pm-7.00am: Reserved Parking only", "Available at
+ * current Parliament House, The Adelphi and the road side along Empress
+ * Place". The fee engine returns null for each, and the card said "not
+ * computable" — which reads as a parser failure and invites someone to
+ * distrust the whole row, when the operator has in fact told us something
+ * useful and specific.
+ *
+ * Returns null for text that genuinely failed to parse. That distinction is
+ * the point: "we could not read this" and "there is no parking here" deserve
+ * different words, and only one of them is a bug.
+ */
+export function describeNonRate(text: string): string | null {
+  const t = repairEncoding(text ?? "").trim();
+  if (!t) return null;
+  // Anything quoting money is a rate we failed to read, not a statement.
+  if (/\$\s*\d/.test(t)) return null;
+
+  if (/\b(?:carpark|car park)?\s*closed\b/i.test(t)) return "Closed at this time.";
+  if (/\bno entry\b/i.test(t) || /\b(?:staff|season|reserved|tenant)\s+parking\s+only\b/i.test(t)) {
+    return "No public parking at this time.";
+  }
+  if (/\bcoupon parking\b/i.test(t)) {
+    return "URA coupon parking — buy a coupon; there is no hourly rate to compute.";
+  }
+  if (/\b(?:available at|nearest car ?parks?|parking is available|street parking)\b/i.test(t)) {
+    return "No parking here — the rate text names where to park instead.";
+  }
+  return null;
+}
+
 export function parseRate(rawInput: string): ParsedRate {
   const raw = normaliseAmounts(withoutCaps(repairEncoding(rawInput ?? "")));
   if (!raw || raw === "-" || raw.toLowerCase() === "na") return { kind: "none" };
