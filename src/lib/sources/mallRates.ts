@@ -111,10 +111,25 @@ function parseClock(s: string): number | null {
     const v = m[1]!.padStart(4, "0");
     return parseInt(v.slice(0, 2), 10) * 60 + parseInt(v.slice(2), 10);
   }
+  // Bare 24-hour, colon only: "19:00", "07:00", "00:00". AI-retrieved rates
+  // write times this way where LTA writes "7.00am".
+  //
+  // The DOT form is deliberately excluded. "7.00" is indistinguishable from an
+  // amount, and rate text is full of them.
+  m = t.match(/^(\d{1,2}):(\d{2})$/);
+  if (m) {
+    const h = parseInt(m[1]!, 10);
+    const min = parseInt(m[2]!, 10);
+    // 24:00 is a legitimate way to write midnight as a closing time.
+    if (h > 24 || min > 59) return null;
+    return ((h % 24) * 60 + min) % (24 * 60);
+  }
   return null;
 }
 
-const CLOCK = String.raw`\d{1,2}(?:[.:]\d{2})?\s*(?:am|pm)|\d{3,4}\s*hrs?`;
+// The bare 24-hour form is listed LAST so "7:00am" is still captured with its
+// meridiem by the first alternative rather than truncated to "7:00".
+const CLOCK = String.raw`\d{1,2}(?:[.:]\d{2})?\s*(?:am|pm)|\d{3,4}\s*hrs?|\d{1,2}:\d{2}`;
 /** Fresh each call — a global regex carries lastIndex between uses. */
 const timeRangeRe = () =>
   new RegExp(`(${CLOCK})\\s*(?:-|–|to)\\s*(${CLOCK})`, "gi");

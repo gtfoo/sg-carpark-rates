@@ -736,3 +736,36 @@ test("a cap with no stated period stays in its own band", () => {
   assert.equal(feeCapped(queen, 480, 8 * 60), 22.4, "morning is uncapped");
   assert.equal(feeCapped(queen, 480, 23 * 60), 5, "the night band keeps its own cap");
 });
+
+test("a note naming 24-hour times is scoped to those hours", () => {
+  // Singapore Botanic Gardens. CLOCK accepted "7.00am" and "0700hrs" but not
+  // "19:00", so the clause named no range that notesForTime could see, was
+  // therefore treated as global, and its $2.00 ceiling applied all day. A 2h
+  // stay at 1pm quoted $2.00 against a real $2.40 — an undercharge wearing the
+  // app's most confident voice, and the same shape as the QUEEN ST cap leak,
+  // one field over.
+  const notes = "AI-retrieved — verify. 15 mins grace period; 19:00-22:30 capped at max $2.00";
+  assert.ok(!notesForTime(notes, 13 * 60).includes("$2.00"), "1pm is outside 19:00-22:30");
+  assert.ok(notesForTime(notes, 20 * 60).includes("$2.00"), "8pm is inside it");
+  // A clause naming no hours stays global either way.
+  assert.ok(notesForTime(notes, 13 * 60).includes("grace"));
+});
+
+test("a 24-hour clock is recognised as a clock at all", () => {
+  // The band SELECTION for this string is still wrong, and deliberately not
+  // asserted here — see TASKS.md. Waterfront Plaza writes each band's hours in
+  // brackets after its amount, and splitBands refuses to cut inside brackets
+  // because the Jurong Lake Gardens shape ("$0.60 per 30 mins (8:30am-12pm,
+  // 2pm-5am); Free …") is structurally identical and needs that protection.
+  // Cutting this one correctly means cutting at the SEMICOLON, which the
+  // cut-at-range-starts model cannot express.
+  //
+  // What is fixed is that the times parse at all, which is what the notes
+  // scoping above depends on.
+  const wp =
+    "$3.50 for 1st hr, $2.00 for add'l hr (07:00-17:00); $4.00 per entry (17:00-07:00)";
+  assert.notEqual(fee(wp, 120, 13 * 60), null, "it still prices");
+  // Proof the clock itself parses: a single-band 24-hour string has nothing to
+  // select between, so it is returned whole — and it prices correctly.
+  assert.equal(fee("07:00-22:30: $0.02 per min", 120, 13 * 60), 2.4);
+});
