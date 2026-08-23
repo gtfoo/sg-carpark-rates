@@ -68,125 +68,57 @@ letter and a one-line task strands the *why*.
       indistinguishable.
       `from: owner report · 2026-08-23 · 8bef306`
 
-- [ ] **Rates: two rows for Resorts World Sentosa, and search hits the other one**
-      `#695` "Resorts World Sentosa (RWS)" and `#1552` "Resorts World Sentosa"
-      are the same car park with different rates - `$8 for 1st hr; $2 per sub
-      ½ hr (Max: $28 per 24 hrs)` against `$9.70 for 1st hr, $1.10 per sub half
-      hr (max cap $16.30)`. At least one is stale, and they cannot both be
-      right.
+- [x] **Rates: the duplicate RWS rows are resolved - done 2026-08-23**
+      `#695` was an LTA open-dataset snapshot with `verified_at 2024-06-06`;
+      `#1552` cites the operator's own page and was verified 2026-08-10. All
+      five of `#1552`'s figures - 9.70, 6.50, 1.10, 16.30, 13.10 - appear
+      verbatim on rwsentosa.com, which states "SGD9.70 for 1st hour, SGD1.10
+      for half hour or part thereof, Capped at SGD16.30 per day". So `#695` was
+      two years stale and is deleted (backed up to `/home/deploy/backups/`).
 
-      Found while verifying the RWS cap fixes: searching "Resorts World
-      Sentosa" returns `#1552`, so the row a user actually sees is not the one
-      those fixes corrected. The fixes are still right - `#695` prices $8 and
-      caps at $28 as the operator states - but they change nothing for anyone
-      until this is resolved.
+      Worth recording what the check found, because it was not what the task
+      assumed: the NAME path returned `#695` while the SPATIAL path returned
+      `#1552`. Two lookup routes were serving different prices for one car park,
+      and which one a user saw depended on how they arrived. The name path now
+      returns nothing and the spatial path serves `#1552`, priced $9.70 / $11.90
+      / $16.30 for 1h / 2h / 8h on a Saturday.
+      `from: carpark agent · 2026-08-23`
 
-      Resolve by checking the operator's current published rates, keep one row,
-      and delete the other. Do NOT merge blindly: the two disagree on the first
-      hour, the subsequent block AND the cap, so one of them is simply old.
+- [x] **Rates: bracketed band hours now separate - done 2026-08-23**
+      Twenty strings, not the three the task estimated. Every rate shaped
+      "<rate> (<hours>); <rate> (<hours>)" was unable to reach its second band,
+      so one wrong band was applied around the clock: Four Points by Sheraton
+      charged $33.60 for an eight-hour evening stay against a $8.50 flat entry
+      fee, while Apex @ Henderson charged 80 cents for an evening half hour
+      costing $2.50. Same defect, opposite signs.
 
-      A general question sits behind it: nothing stops two rows describing one
-      car park under different names. `locationSweep.ts` finds rows that share
-      a citation while sitting far apart; the mirror check - rows sitting on
-      top of each other with different rates - would have caught this.
-      `from: carpark agent · found verifying 2d6af8d/80539c2 · 2026-08-23`
+      Fixed with a SEPARATE boundary rather than by relaxing the bracket
+      refusal, which Jurong Lake Gardens depends on. It runs only when the
+      primary rule found no cut, and every semicolon clause must carry both a
+      price and a clock range - which is what leaves a single band written in
+      tiers alone.
 
-- [ ] **Rates: bands delimited by BRACKETED hours never separate**
-      Waterfront Plaza & King's Centre reads `"$3.50 for 1st hr, $2.00 for
-      add'l hr (07:00-17:00); $4.00 per entry (17:00-07:00)"` and prices $4.00
-      at every hour — the last clause wins — so a daytime stay is undercharged
-      ($4.00 against $5.50) and the evening is right only by accident.
+      163 of 14,600 cells moved across 20 strings; none lost a price. 16 rose
+      and 18 fell, the signature of the right band being chosen rather than
+      prices moving.
+      `from: carpark agent · 8dc2f57`
 
-      `splitBands` cuts at the START of a clock range and refuses to cut inside
-      brackets. That refusal is load-bearing: Jurong Lake Gardens
-      (`"$0.60 per 30 mins (8:30am-12pm, 2pm-5am); Free …"`) is structurally
-      identical and breaks without it. Here the correct cut is the SEMICOLON,
-      which the cut-at-range-starts model cannot express — so this needs the
-      splitter to gain a second kind of boundary, not a tweak to the existing
-      one.
+- [x] **Rates: a row that is not a price now says why - done 2026-08-23**
+      SGH Carpark G ("No Entry (Staff Parking Only)"), The Arts House
+      ("Available at current Parliament House..."), Defu Lanes 11 and 12
+      ("Reserved Parking only") all rendered "not computable", which reads as a
+      parser failure - it invites distrust of the whole row and discards the
+      specific thing the operator said.
 
-      Only three corpus strings use bracketed band hours, so the payoff is
-      small and the regression surface is the entire band splitter. Do it with
-      the full corpus diff, and keep the JLG strings as the guard.
-      `from: carpark agent · found while fixing the 24-hour clock · 2026-08-23`
+      `describeNonRate` separates "we could not read this" from "there is no
+      parking here". Anything quoting money still returns null however many
+      restriction words surround it, because a string with a dollar sign that we
+      failed to price IS a defect and must not be explained away. That guard is
+      what makes showing the rest safe.
 
-- [ ] **Rates: two rows whose text is not a price**
-      `#705` Singapore General Hospital (Carpark G) reads `"7.00am-5.59pm: No
-      Entry (Staff Parking Only)"`, and `#860` The Arts House reads
-      `"Available at current Parliament House, The Adelphi and the road side
-      along Empress Place"`. Both now surface as "not computable" — honest, but
-      the first is really an OPENING-HOURS fact and belongs with the
-      commercial-hours task below rather than being shown as a broken rate.
-
-      `#3268` and `#3269` Defu Industrial Estate (Lanes 11 and 12) are the same
-      shape: `"10.30pm-7.00am: Reserved Parking only"`. Found by the 149 audit,
-      and the only survivors of it.
-
-      They only became visible because the name matcher stopped shadowing them
-      with a different carpark's row, which had been quietly supplying a
-      plausible price for the wrong place.
-      `from: carpark agent · matcher fix fallout · 2026-08-23`
-
-- [x] **Rates: the 149 changed name matches are verified — done 2026-08-23**
-      Priced every row now targeted by a changed match across four arrival
-      hours and five durations. **No mispricings.** 148 of the 149 targets are
-      `operator-site` rows, which is the point: the matcher bug affected READS,
-      and `upsertOverride` keys on the destination, so no rate was ever
-      corrupted by it.
-
-      The first pass reported 72 anomalies and was wrong about 68 of them — it
-      counted a flat "per entry" charge costing the same for 30 minutes and
-      eight hours as a cap binding too early, which is exactly what a flat rate
-      should do. The same shape of error as the citation audit that flagged 330
-      dead links and was wrong about 328: a check that fires on correct data is
-      worse than no check.
-
-      The 4 that survived are Defu Lane 11 and 12, both `"10.30pm-7.00am:
-      Reserved Parking only"` — an access restriction, not a price. Folded into
-      the non-price-rows task below rather than treated as a rate defect.
-      `from: owner report (MOE Evans Road) · 2026-08-23 · efd2456`
-
-- [x] **Rates: the two `rates-audit` mispricings are fixed - done 2026-08-23**
-      **RWS quoted $28 for an $8 stay.** "$8 per entry (Max: $28 per 24 hrs)"
-      had its ceiling read as a limit AND left in the text, where the per-block
-      pattern took "$28 per 24 hrs" for the rate. `parseLimits` matched
-      max|cap|capped; `withoutCaps` matched only the literal word "capped". Two
-      functions that must agree about what a cap looks like did not, and only
-      one of them was ever wrong out loud.
-
-      **RWS weekend daytime lost that cap**, pricing 8h at $36 against the same
-      stated $28. A ceiling naming a whole-day period now applies to every
-      band. Scoped to caps that NAME the period, because QUEEN ST's
-      "(capped at $5.00)" states none and must stay in its own band - that leak
-      once quoted $5 for an eight-hour weekday stay.
-
-      **Jurong Lake Gardens said "not computable" while parking was free.**
-      Bands cut at the start of a clock range, so "...; Free 5am-8:30am" split
-      the word from its hours. Two rules were needed: back the cut over a
-      trailing "Free", and keep ranges joined by "&" in one band - "free"
-      counts as a price, so it walked straight past the "$ seen since the last
-      cut" guard that normally holds a band's ranges together.
-
-      Each change was diffed across all 730 corpus strings x 4 arrival hours x
-      5 durations. Nothing lost a price; MAX_UNPRICEABLE fell 10 -> 9.
-      `from: carpark agent · 2d6af8d, 5a079e6, 80539c2`
-
-- [x] **Rates: the corpus gate is refreshed - done 2026-08-23**
-      684 -> 730 strings. Everything imported or AI-retrieved since 2026-08-10
-      was gated by nothing, including the rates added this week, so a
-      regression net with holes in it was reading as a passing build.
-
-      Refreshed BEFORE the parser work that followed, so the RWS, Jurong Lake
-      Gardens and 24-hour-clock edits were each diffed against the full corpus
-      rather than two-thirds of it. MAX_UNPRICEABLE held at 10 on refresh (the
-      46 new strings all priced) and then fell to 9.
-
-      **The actual defect is still open**: nothing makes this happen. It was
-      six days stale because refreshing is a manual step nobody is prompted to
-      take. Worth a check that fails when the fixture is materially smaller
-      than the store - `rateAudit --from-db --ci` already runs on the droplet
-      at deploy and could compare the counts.
-      `from: carpark agent · f0ffd80`
+      The HDB path has had this since `shortTermParking=NO`; overrides never
+      did, carrying prose instead of a flag.
+      `from: carpark agent · b2dc849`
 
 - [ ] **Rates: the re-verification queue has no consumer**
       Rows get marked for re-checking and nothing consumes the queue, so a stale
