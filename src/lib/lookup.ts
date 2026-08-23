@@ -170,6 +170,20 @@ export async function lookupCarparkRate(args: {
         `tidy one.\n` +
         `Also report the carpark's own address or postal code as the source ` +
         `states it, so it can be checked against the place asked for.\n` +
+        // Identity by name is what produced every wrong-carpark save we have
+        // had. Asked about MOE HQ (Evans Road) the model held a source giving
+        // 21 Evans Road — which IS MOE HQ — with a rate, and refused anyway
+        // for want of "a definitive source using the exact name". It threw
+        // away the strong signal because the weak one was imperfect.
+        `Identify the carpark by ADDRESS, not by name. Every aggregator names ` +
+        `the same carpark differently, and genuinely different carparks share ` +
+        `names, so a source whose ADDRESS matches the place asked about is ` +
+        `stronger evidence than one whose name matches.\n` +
+        `Do not lower confidence merely because sources word the name ` +
+        `differently, or because one of several agreeing sources cites a ` +
+        `neighbouring address. If a source with the right address states a ` +
+        `rate, that is enough. Reserve low confidence for a real conflict in ` +
+        `the RATE, or for results that are all about a different place.\n` +
         `Rate strings must be concise and machine-parseable, like ` +
         `"$1.20 per half hour" or "$2 for 1st hr; $1 per 30 mins", or null if ` +
         `unknown.\n\n` +
