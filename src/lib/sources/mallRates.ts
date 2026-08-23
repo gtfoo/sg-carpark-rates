@@ -195,13 +195,53 @@ function covers(from: number, to: number, t: number): boolean {
  *    hours, so it is left whole. Cutting there would strand the first tier.
  */
 function splitOnSemicolons(raw: string): string[] | null {
-  const clauses = raw
-    .split(/;\s*/)
-    .map((c) => c.trim())
-    .filter(Boolean);
-  if (clauses.length < 2) return null;
-  const complete = (c: string) => /\$\s*\d/.test(c) && timeRangeRe().test(c);
-  return clauses.every(complete) ? clauses : null;
+  const parts = raw.split(/;/);
+  if (parts.length < 2) return null;
+  // A band is complete once it carries both a price and its hours — the same
+  // test the primary rule uses, applied at semicolons instead of range starts.
+  //
+  // "Free" counts as a price, exactly as it does there. Aperia Mall states
+  // "…; Free (6:30 PM - 9:59 PM); $2.55 per entry (10:00 PM - 11:59 PM)", and
+  // without this the free band carries no "$", fails the test, and is swallowed
+  // into the 10pm band — charging $2.55 for hours the mall gives away.
+  const complete = (c: string) =>
+    (/\$\s*\d/.test(c) || /\bfree\b/i.test(c)) && timeRangeRe().test(c);
+
+  // A clause that names no hours and reads as a CONTINUATION belongs to the
+  // band above it, not the one below. Dairy Farm Mall writes "$1.38 for 1st hr
+  // (12:00 AM-5:59 PM); $0.48 per 15 mins thereafter; $2.76 per entry (6:00
+  // PM-11:59 PM)": attaching that middle tier to the evening band left the
+  // daytime band as "$1.38 for 1st hr" with no follow-on rate, so it stopped
+  // pricing at all — a blank where there had been a correct number.
+  const continues = (c: string) =>
+    !timeRangeRe().test(c) && /\b(?:thereafter|subsequent|sub\.?|onwards?)\b/i.test(c);
+
+  // Requiring EVERY clause to be complete on its own was too strict: SAFRA
+  // Mount Faber writes "$2.37 for first hour; $0.60 per 15 mins thereafter
+  // (6am-5.59pm); $4.09 flat rate (6pm-5.59am)", where the hours belong to the
+  // second clause. That left the string unsplit and its evening flat rate
+  // unreachable, so an 8pm arrival was billed the daytime tier.
+  const out: string[] = [];
+  let buf = "";
+  for (const part of parts) {
+    if (!buf && out.length && continues(part)) {
+      out[out.length - 1] = `${out[out.length - 1]};${part}`;
+      continue;
+    }
+    buf = buf ? `${buf};${part}` : part;
+    if (complete(buf)) {
+      out.push(buf.trim());
+      buf = "";
+    }
+  }
+  // Trailing text that never completed a band is a continuation of the last
+  // one, not a band of its own — "…; $1.95 per sub.½ hr" is a second tier, and
+  // cutting it off strands the first with no subsequent-block rate.
+  if (buf.trim()) {
+    if (!out.length) return null;
+    out[out.length - 1] = `${out[out.length - 1]}; ${buf.trim()}`;
+  }
+  return out.length >= 2 ? out : null;
 }
 
 function splitBands(raw: string): string[] {
@@ -498,8 +538,54 @@ export function describeNonRate(text: string): string | null {
   return null;
 }
 
+/**
+ * Rewrites "period then amount" into "amount then period", so one set of
+ * patterns can read both orders.
+ *
+ * Galaxis states "First hour $2.16; Subsequent 30 mins $1.62 (12:00 AM - 05:59
+ * PM)". A reversed FIRST clause was already handled ("1st hour @ $1.60"), but
+ * only when a separator sits between the period and the price, and only for the
+ * first tier — this string reverses both and separates with a bare space.
+ *
+ * Rewriting is preferred to a fourth pattern: the patterns are already the
+ * hardest part of this file to reason about, and every new one multiplies with
+ * the others. This runs before them and leaves one shape to match.
+ *
+ * Whitespace-only between the two, deliberately: ";" and "," are not
+ * whitespace, so "…for 1st hr; $1.95 per sub. ½ hr" — where the amount belongs
+ * to the NEXT tier, not this period — cannot be rewritten by accident.
+ */
+function normaliseReversedAmounts(s: string): string {
+  const AMOUNT = String.raw`\$\s*\d+(?:\.\d{1,2})?`;
+  const UNIT = String.raw`(?:hrs?|hours?|mins?|minutes?|½\s*hrs?)`;
+  // The period must START its clause. Golden Landmark writes "$2.35 for 1st hr
+  // $1.07 for sub 30min or part thereof", where "1st hr" is already in the
+  // normal order and the "$1.07" after it belongs to the NEXT tier. Rewriting
+  // there produced "$2.35 for $1.07 for 1st hr for sub 30min" and the string
+  // stopped parsing altogether — a correct price turned into a blank.
+  const STARTS = String.raw`(^|[;:.]\s*)`;
+  return s
+    .replace(
+      new RegExp(
+        STARTS + String.raw`((?:the\s+)?(?:1st|first)\s+(?:\d+\s+)?${UNIT})[ \t]+(${AMOUNT})`,
+        "gi",
+      ),
+      "$1$3 for $2",
+    )
+    .replace(
+      new RegExp(
+        STARTS +
+          String.raw`((?:sub(?:sequent)?\.?|next|add(?:itional|'?l)\.?)\s+(?:\d+\s+)?${UNIT})[ \t]+(${AMOUNT})`,
+        "gi",
+      ),
+      "$1$3 per $2",
+    );
+}
+
 export function parseRate(rawInput: string): ParsedRate {
-  const raw = normaliseAmounts(withoutCaps(repairEncoding(rawInput ?? "")));
+  const raw = normaliseReversedAmounts(
+    normaliseAmounts(withoutCaps(repairEncoding(rawInput ?? ""))),
+  );
   if (!raw || raw === "-" || raw.toLowerCase() === "na") return { kind: "none" };
   // Republic Plaza's row reads "Same s Saturday". Missing the typo left Sunday
   // unpriced when it should simply have billed as Saturday, so the day word is
@@ -668,8 +754,18 @@ export function parseRate(rawInput: string): ParsedRate {
     return { kind: "unparsed", raw };
   }
 
-  // "$2.00 per entry"
-  const flat = raw.match(new RegExp(`${NUM}\\s*(?:per|/)\\s*entry`, "i"));
+  // "$2.00 per entry", and "$4.09 flat rate" / "$4.09 flat fee".
+  //
+  // SAFRA Mount Faber showed "Applied rate: $4.09 flat rate (all day)" directly
+  // above "Total: not computable" — a rate the card printed in full and could
+  // not price, which reads as broken rather than unknown.
+  //
+  // The amount must sit immediately before the word. "$5 (additional flat fee)"
+  // puts prose in between, and those strings are bands of a larger schedule
+  // that the patterns above already price correctly.
+  const flat = raw.match(
+    new RegExp(`${NUM}\\s*(?:(?:per|/)\\s*entry|flat\\s*(?:rate|fee)?\\b)`, "i"),
+  );
   if (flat) return { kind: "flat-per-entry", dollars: Number(flat[1]) };
 
   return { kind: "unparsed", raw };

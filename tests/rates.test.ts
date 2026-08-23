@@ -777,3 +777,76 @@ test("bands whose hours are bracketed still separate", () => {
   assert.equal(fee(jlg, 120, 8 * 60), 0);
   assert.equal(fee(jlg, 120, 20 * 60), 2.4);
 });
+
+test("a flat charge is flat however the operator words it", () => {
+  // SAFRA Mount Faber. The card read "Applied rate: $4.09 flat rate (all day)"
+  // directly above "Total: not computable" — the parser knew "per entry" and
+  // nothing else, so a rate it displayed in full it could not price.
+  assert.equal(fee("$4.09 flat rate (all day)", 120), 4.09);
+  assert.equal(fee("$4.09 flat rate (all day)", 480), 4.09);
+  assert.equal(fee("$2.00 per entry", 480), 2, "the wording it already knew");
+});
+
+test("a band may take more than one clause to complete", () => {
+  // Same carpark, weekday: the hours belong to the SECOND clause, so requiring
+  // every semicolon clause to carry its own range left this unsplit and the
+  // evening flat rate unreachable — an 8pm arrival was billed the daytime
+  // tier. Clauses accumulate until a band has both a price and its hours.
+  const safra =
+    "$2.37 for first hour; $0.60 per 15 mins thereafter (6am-5.59pm); $4.09 flat rate (6pm-5.59am)";
+  assert.equal(fee(safra, 120, 13 * 60), 4.77, "$2.37 then four 15-min blocks");
+  assert.equal(fee(safra, 120, 20 * 60), 4.09, "evening is the flat rate");
+  assert.equal(fee(safra, 480, 20 * 60), 4.09, "flat means flat");
+
+  // Still must not cut a single band written in tiers, where the trailing
+  // clause has a price and no hours of its own.
+  assert.equal(fee("7.00am-5.59pm: $3.90 for 1st hr; $1.95 per sub.½ hr", 120, 13 * 60), 7.8);
+});
+
+test("a free band between two paid ones is not swallowed", () => {
+  // Aperia Mall. "Free" carries no "$", so a band-complete test that looks only
+  // for money merged the free band into the 10pm one and charged $2.55 for
+  // hours the mall gives away.
+  const aperia =
+    "$1.64 for 1st hr, $1.09 per 30 mins (12:00 AM - 6:29 PM); Free (6:30 PM - 9:59 PM); " +
+    "$2.55 per entry (10:00 PM - 11:59 PM)";
+  assert.equal(fee(aperia, 120, 20 * 60), 0, "8pm is inside the free band");
+  assert.equal(fee(aperia, 120, 23 * 60), 2.55, "11pm is the flat entry band");
+  assert.equal(fee(aperia, 120, 13 * 60), 3.82, "daytime is unchanged");
+});
+
+test("a continuation tier stays with the band above it", () => {
+  // Dairy Farm Mall. "…thereafter" names no hours of its own and belongs to the
+  // daytime band; attaching it to the evening band left the daytime one as
+  // "$1.38 for 1st hr" with no follow-on rate, and it stopped pricing at all.
+  const dfm =
+    "$1.38 for 1st hr (12:00 AM-5:59 PM); $0.48 per 15 mins thereafter; " +
+    "$2.76 per entry (6:00 PM-11:59 PM)";
+  assert.equal(fee(dfm, 60, 8 * 60), 1.38, "first hour");
+  assert.equal(fee(dfm, 120, 8 * 60), 3.3, "then four 15-min blocks");
+  assert.equal(fee(dfm, 120, 20 * 60), 2.76, "evening is the flat entry fee");
+});
+
+test("a period written before its amount reads the same as after", () => {
+  // Galaxis reverses both tiers: "First hour $2.16; Subsequent 30 mins $1.62".
+  assert.equal(
+    fee("First hour $2.16; Subsequent 30 mins $1.62 (12:00 AM - 05:59 PM); $1.08 per entry (06:00 PM - 11:59 PM)", 120, 8 * 60),
+    5.4,
+  );
+  // Tampines 1 reverses only the first: it had been charging $0.55 for the
+  // opening half hour — the SECOND hour's rate — because "1st hr $1.07" did
+  // not parse and the next tier won.
+  assert.equal(fee("1st hr $1.07; 2nd hr $0.55 per ½ hr; Aft 2hrs: $0.35 per 15 mins", 30, 8 * 60), 1.07);
+  assert.equal(fee("1st hr $1.07; 2nd hr $0.55 per ½ hr; Aft 2hrs: $0.35 per 15 mins", 120, 8 * 60), 2.17);
+});
+
+test("an amount already before its period is not rewritten", () => {
+  // Golden Landmark: "$2.35 for 1st hr $1.07 for sub 30min or part thereof".
+  // The "1st hr" here is ALREADY in the normal order and the $1.07 after it
+  // belongs to the next tier. Rewriting produced "$2.35 for $1.07 for 1st hr
+  // for sub 30min" and the string stopped parsing — a correct price turned
+  // into a blank, which is why the rewrite only fires at a clause start.
+  const gl = "8.00am-5.00pm: $2.35 for 1st hr $1.07 for sub 30min or part thereof";
+  assert.equal(fee(gl, 60, 13 * 60), 2.35);
+  assert.equal(fee(gl, 120, 13 * 60), 4.49);
+});
