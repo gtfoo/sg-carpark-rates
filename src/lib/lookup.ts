@@ -145,9 +145,24 @@ export async function lookupCarparkRate(args: {
   let sources: string[] = [];
   try {
     // Step 1 — web search (Tavily). Bias the query toward official rate pages.
+    // The street address, not just the postal, decides which pages come back.
+    // Searching "MOE (Evans Road) … 259366" returned a streetdirectory listing
+    // with no prices on it; adding "21 Evans Road" surfaced
+    // parkopedia's page for that exact carpark, which quotes them. The
+    // citation can only be as good as the results, so this is upstream of
+    // every ranking rule.
+    //
+    // Resolved here rather than threaded through each caller: the API route
+    // takes its address from the client and the scripts geocode separately, so
+    // one lookup in one place keeps them consistent. OneMap is free and this
+    // path already spends a paid search and an LLM call.
+    const hint =
+      args.addressHint ??
+      (await geocode(args.destination).catch(() => null))?.address ??
+      null;
     const query =
       `${args.destination} ` +
-      (args.addressHint ? `${args.addressHint} ` : "") +
+      (hint ? `${hint} ` : "") +
       `Singapore car park parking rates per hour` +
       (args.postal ? ` ${args.postal}` : "");
     const hits = await webSearch(query, 6);
