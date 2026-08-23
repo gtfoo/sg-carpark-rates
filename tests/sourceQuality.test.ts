@@ -1,73 +1,84 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isLowTrustSource, trustworthySources, hostOf } from "../src/lib/sourceQuality";
+import {
+  sourceTier,
+  statesAPrice,
+  rankCitations,
+  allBlocked,
+  hostOf,
+} from "../src/lib/sourceQuality";
 
 /**
- * Singapore Botanic Gardens was stored against a personal WordPress post. The
- * URL resolved, the page existed and the location was right, so the citation
- * guard, the reachability audit and the location guard all passed it. What was
- * wrong cannot be detected by fetching: nobody maintains it and it carries no
- * revision date.
+ * Two properties, deliberately kept apart:
+ *
+ *   EVIDENCE  does the page state the rate?
+ *   TRUST     is the publisher accountable?
+ *
+ * MOE (Evans Road) proved trust alone is worthless. It was re-cited from a
+ * free-hosting carpark directory to streetdirectory.com — the better-known
+ * host — whose page contains no dollar amount in 86 KB of HTML, while the page
+ * it replaced states "$1.20", "Parking Rates" and "Grace period".
+ *
+ * Singapore Botanic Gardens proved evidence alone is worthless too: a personal
+ * WordPress post quoting a rate that contradicted itself.
  */
 
-test("free publishing platforms are low trust", () => {
-  for (const u of [
-    "https://jimsonfyp.wordpress.com/tourist-spot/singapore-botanic-garden",
-    "https://someone.blogspot.com/2019/parking",
-    "https://medium.com/@x/sg-parking",
-    "https://foo.wixsite.com/rates",
-  ]) {
-    assert.equal(isLowTrustSource(u), true, u);
-  }
+const VERCEL = "https://parking-go-where.vercel.app/carpark/moe-evans-road";
+const SD = "https://www.streetdirectory.com/sd_mobile/place/108107_27152";
+const BLOG = "https://jimsonfyp.wordpress.com/tourist-spot/singapore-botanic-garden";
+const OPERATOR = "https://www.nparks.gov.sg/sbg/visit-us/parking";
+
+test("tiers separate a blog from a side project from an operator", () => {
+  assert.equal(sourceTier(BLOG), "blocked");
+  assert.equal(sourceTier(VERCEL), "weak");
+  assert.equal(sourceTier(SD), "ok");
+  assert.equal(sourceTier(OPERATOR), "ok");
+  assert.equal(sourceTier("https://a.b.wordpress.com/x"), "blocked");
+  // Must not match by substring: an unrelated real domain.
+  assert.equal(sourceTier("https://wordpress.com.sg.example.org/x"), "ok");
 });
 
-test("free app hosting is low trust", () => {
-  // A real trade-off, not a free win: this exact host carried a MOE rate that
-  // appears to be correct. It survives because other sources had it too.
-  assert.equal(isLowTrustSource("https://parking-go-where.vercel.app/carpark/moe-evans-road"), true);
-  assert.equal(isLowTrustSource("https://x.netlify.app/a"), true);
-  assert.equal(isLowTrustSource("https://y.github.io/parking"), true);
+test("a page quoting money is evidence", () => {
+  assert.equal(statesAPrice("Parking Rates: $1.20 per hour"), true);
+  assert.equal(statesAPrice("$ 2"), true);
+  assert.equal(statesAPrice("Find car parks near you. Directions and reviews."), false);
+  assert.equal(statesAPrice(null), false);
 });
 
-test("operators, aggregators and government are not", () => {
-  for (const u of [
-    "https://www.nparks.gov.sg/sbg/visit-us/parking",
-    "https://eservice.ura.gov.sg/uraDataService/invokeUraDS/v1",
-    "https://www.motorist.sg/carpark/midview-city",
-    "https://en.parkopedia.sg/parking/carpark/x/1/singapore",
-    "https://parking-go-where.com/carpark/rail-mall",
-    "https://www.railmall.com.sg/parking",
-  ]) {
-    assert.equal(isLowTrustSource(u), false, u);
-  }
-});
-
-test("a bare domain and its subdomains are both caught", () => {
-  assert.equal(isLowTrustSource("https://wordpress.com/x"), true);
-  assert.equal(isLowTrustSource("https://a.b.wordpress.com/x"), true);
-  // Must not match by mere substring: this is a real, unrelated company.
-  assert.equal(isLowTrustSource("https://wordpress.com.sg.example.org/x"), false);
-});
-
-test("junk input is not low trust, it is just unusable", () => {
-  assert.equal(isLowTrustSource(null), false);
-  assert.equal(isLowTrustSource(""), false);
-  assert.equal(isLowTrustSource("not a url"), false);
-  assert.equal(hostOf("not a url"), "");
-});
-
-test("filtering keeps order and can empty the list", () => {
-  const hits = [
-    "https://jimsonfyp.wordpress.com/a",
-    "https://www.nparks.gov.sg/b",
-    "https://x.vercel.app/c",
-    "https://www.motorist.sg/d",
-  ];
-  assert.deepEqual(trustworthySources(hits), [
-    "https://www.nparks.gov.sg/b",
-    "https://www.motorist.sg/d",
+test("the page that states the rate wins over the better-known host", () => {
+  // The exact regression: streetdirectory outranked the page with the price.
+  const ranked = rankCitations([
+    { url: SD, content: "MOE HQ Evans Road. Map, directions, nearby." },
+    { url: VERCEL, content: "Parking Rates $1.20 per hour. Grace period 15 min." },
   ]);
-  // All-blog results must come back empty so the caller refuses the save,
-  // rather than quietly citing the first blog anyway.
-  assert.deepEqual(trustworthySources(["https://a.wordpress.com/x"]), []);
+  assert.equal(ranked[0], VERCEL);
+});
+
+test("among pages that all state the rate, reputation decides", () => {
+  const ranked = rankCitations([
+    { url: VERCEL, content: "$1.20 per hour" },
+    { url: OPERATOR, content: "$1.20 per hour" },
+  ]);
+  assert.equal(ranked[0], OPERATOR);
+});
+
+test("blogs are dropped, not merely ranked last", () => {
+  const ranked = rankCitations([
+    { url: BLOG, content: "$0.02 per minute" },
+    { url: OPERATOR, content: "no prices here" },
+  ]);
+  assert.deepEqual(ranked, [OPERATOR]);
+  assert.equal(ranked.includes(BLOG), false);
+});
+
+test("an all-blog result set is refused rather than cited", () => {
+  assert.equal(allBlocked([{ url: BLOG }]), true);
+  assert.equal(allBlocked([{ url: BLOG }, { url: VERCEL }]), false);
+  assert.equal(allBlocked([]), false);
+  assert.deepEqual(rankCitations([{ url: BLOG, content: "$5" }]), []);
+});
+
+test("junk input is unusable, not untrusted", () => {
+  assert.equal(sourceTier(null), "ok");
+  assert.equal(hostOf("not a url"), "");
 });

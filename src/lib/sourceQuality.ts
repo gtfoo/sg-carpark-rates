@@ -1,30 +1,35 @@
 /**
- * Whether a URL is a publication we should be willing to cite for a price.
+ * How much a URL is worth as the citation on a price.
  *
- * Singapore Botanic Gardens was stored against a personal WordPress blog. The
- * URL resolved, the page existed, and the location was right — so every guard
- * we have passed it. What was wrong is unfixable by fetching: a blog carries no
- * revision date, answers to nobody, and may have been copied from a sign years
- * ago. The stored rate was also self-contradictory ("$0.02 per minute (7:00 AM
- * - 10:30 PM); $1 (8:00 AM - 9:00 AM)" — overlapping bands), which is what an
- * unmaintained source looks like from the outside.
+ * Two properties get confused here, and keeping them apart is the whole point:
  *
- * This is deliberately a list of PLATFORMS, not of sites. Judging individual
- * domains would mean maintaining an opinion about every carpark aggregator in
- * Singapore, and getting it wrong quietly. Free publishing and user-generated
- * platforms are a structural signal: anyone can put anything there, and nothing
- * about the host implies an operator stands behind the number.
+ *   EVIDENCE  does this page actually state the rate?
+ *   TRUST     is whoever published it accountable for it?
  *
- * Free app-hosting subdomains are included for the same reason — `*.vercel.app`
- * is someone's side project until proven otherwise. Note this is a real
- * trade-off and not a free win: `parking-go-where.vercel.app` was the citation
- * on a MOE rate that is, as far as we can tell, correct. That rate survives
- * because other sources carried it too, which is exactly the distinction being
- * drawn — low trust demotes a citation, and only refuses a save when there is
- * nothing better anywhere in the results.
+ * A citation needs both, and trust alone is worthless. Proven the hard way:
+ * MOE (Evans Road) was re-cited from a free-hosting carpark directory to
+ * streetdirectory.com because the latter is the more reputable host — and
+ * streetdirectory's page carries no dollar amount anywhere in 86 KB of HTML,
+ * while the one it replaced states "$1.20", "Parking Rates" and "Grace
+ * period". The upgrade made the citation strictly worse: a reader following it
+ * finds nothing, and nothing about the rate was ever verified.
+ *
+ * Trust is also not one thing. A personal WordPress travel post and a
+ * structured carpark directory on a `.vercel.app` subdomain are both
+ * "self-published" and are not the same risk, so they get different tiers:
+ *
+ *   blocked  personal blogs, forums, user-generated pages. Never cite. If
+ *            these are the ONLY results, refuse the save — Singapore Botanic
+ *            Gardens came from a WordPress post and its rate was internally
+ *            contradictory, which is what an unmaintained source looks like.
+ *   weak     free app hosting. Someone's side project, but often a real
+ *            directory. Cite it when nothing better states the rate.
+ *   ok       everything else: operators, aggregators, government.
  */
-const LOW_TRUST_HOSTS = [
-  // Free publishing — no editorial process, no revision date.
+export type SourceTier = "ok" | "weak" | "blocked";
+
+/** Self-published opinion. Never a price authority. */
+const BLOCKED_HOSTS = [
   "wordpress.com",
   "blogspot.com",
   "blogspot.sg",
@@ -35,14 +40,16 @@ const LOW_TRUST_HOSTS = [
   "tumblr.com",
   "livejournal.com",
   "blogger.com",
-  // User-generated / discussion.
   "reddit.com",
   "facebook.com",
   "quora.com",
   "tripadvisor.com",
   "tripadvisor.com.sg",
   "hardwarezone.com.sg",
-  // Free app hosting — a side project until shown otherwise.
+];
+
+/** Free hosting: unaccountable, but frequently a genuine directory. */
+const WEAK_HOSTS = [
   "vercel.app",
   "netlify.app",
   "pages.dev",
@@ -61,19 +68,49 @@ export function hostOf(url: string): string {
   }
 }
 
-export function isLowTrustSource(url: string | null | undefined): boolean {
-  if (!url) return false;
+const matches = (host: string, list: string[]) =>
+  list.some((bad) => host === bad || host.endsWith(`.${bad}`));
+
+export function sourceTier(url: string | null | undefined): SourceTier {
+  if (!url) return "ok";
   const host = hostOf(url);
-  if (!host) return false;
-  return LOW_TRUST_HOSTS.some((bad) => host === bad || host.endsWith(`.${bad}`));
+  if (!host) return "ok";
+  if (matches(host, BLOCKED_HOSTS)) return "blocked";
+  if (matches(host, WEAK_HOSTS)) return "weak";
+  return "ok";
+}
+
+/** A page that quotes money is evidence; one that does not is a pointer. */
+export function statesAPrice(content: string | null | undefined): boolean {
+  return Boolean(content && /\$\s?\d/.test(content));
+}
+
+export interface Citable {
+  url: string;
+  content?: string | null;
 }
 
 /**
- * Sources worth citing, in order, with low-trust ones removed.
+ * Best citation first: evidence outranks reputation, reputation breaks ties.
  *
- * Returns an empty array when everything found was low-trust — which the caller
- * must treat as "no usable source", not as "cite the first one anyway".
+ * `blocked` hosts are dropped entirely rather than sorted last — citing one is
+ * never the right answer, and leaving them in the list would let a save
+ * proceed on nothing but a blog.
  */
-export function trustworthySources(urls: string[]): string[] {
-  return urls.filter((u) => u && !isLowTrustSource(u));
+export function rankCitations(hits: Citable[]): string[] {
+  const scored = hits
+    .filter((h) => h.url && sourceTier(h.url) !== "blocked")
+    .map((h, i) => ({
+      url: h.url,
+      i,
+      // 0 is best. Stating the price dominates; tier only orders within that.
+      rank: (statesAPrice(h.content) ? 0 : 2) + (sourceTier(h.url) === "weak" ? 1 : 0),
+    }));
+  scored.sort((a, b) => a.rank - b.rank || a.i - b.i);
+  return scored.map((s) => s.url);
+}
+
+/** True when every result was a blog, forum or other self-published page. */
+export function allBlocked(hits: Citable[]): boolean {
+  return hits.length > 0 && hits.every((h) => sourceTier(h.url) === "blocked");
 }

@@ -1,5 +1,6 @@
 import raw from "./eps-carparks.json";
 import aliasJson from "./eps-aliases.json";
+import manualAliasJson from "./eps-aliases-manual.json";
 import type { LatLng } from "../geo";
 
 /**
@@ -125,7 +126,25 @@ export function displayName(name: string, address: string): string {
  * by finding the postal agrees with the existing name, rather than by me
  * deciding which ones look fake.
  */
-const aliases = aliasJson as Record<string, string>;
+/**
+ * Hand-written names for the few the postal cannot reach, kept in a separate
+ * file so regenerating the derived ones never silently drops them.
+ *
+ * These are JUDGEMENT, not evidence, and the bar is correspondingly high: the
+ * abbreviation must be unambiguous and the location must corroborate it.
+ *
+ * - 4383 "BTC_NUS" at 1 Cluny Road. Its postal (259659) answers with
+ *   "19 CLUNY HILL" and no building name, and OneMap has no entry for NUS's
+ *   Bukit Timah Campus at all, so the generator correctly refuses it — an
+ *   address is not a better name. BTC is the university's own long-standing
+ *   abbreviation for that campus, the row literally reads "BTC_NUS", and it
+ *   sits beside the campus. Left as filed it reaches a card as "Btc / Nus",
+ *   which also makes it unsearchable when looking up its rate.
+ */
+const aliases: Record<string, string> = {
+  ...(aliasJson as Record<string, string>),
+  ...(manualAliasJson as Record<string, string>),
+};
 
 const all: EpsCarpark[] = (raw as RawEps[]).map((c) => ({
   id: c.id,

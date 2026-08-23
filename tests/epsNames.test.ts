@@ -54,3 +54,9 @@ test("no alias is blank or an address", () => {
     assert.ok(!/\bSINGAPORE\s+\d{6}\b/i.test(c.name), `address as name: ${c.name}`);
   }
 });
+
+test("a hand-curated name covers what the postal cannot reach", () => {
+  // 259659 answers with "19 CLUNY HILL" and no building, and OneMap has no
+  // entry for the campus at all, so the generator correctly refuses it.
+  assert.equal(nameOf("CLUNY ROAD, BTC_NUS"), "NUS Bukit Timah Campus");
+});

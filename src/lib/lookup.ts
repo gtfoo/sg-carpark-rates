@@ -10,7 +10,7 @@ import { resolveGapsByName } from "./store/gaps";
 import { parseRate, bandForTime, estimateMallFee, parseLimits } from "./sources/mallRates";
 import { citedUrl } from "./citation";
 import { checkLocation } from "./geo";
-import { trustworthySources } from "./sourceQuality";
+import { rankCitations, allBlocked } from "./sourceQuality";
 import { geocode } from "./onemap";
 
 /**
@@ -241,12 +241,17 @@ export async function lookupCarparkRate(args: {
     // A wrong rate under a confident name is worse than no rate: it also marks
     // the carpark as covered, so no sweep or bulk run retries it. Refuse here,
     // where it costs one lookup.
-    // A blog is not a price list. Singapore Botanic Gardens was stored from a
-    // personal WordPress post: the URL resolved, the page existed and the
-    // location was right, so every other guard passed it. Nothing about
-    // fetching a page tells you whether anyone maintains it.
-    const citable = trustworthySources(sources);
-    if (!citable.length) {
+    // Evidence first, reputation second. Re-citing MOE (Evans Road) from a
+    // free-hosting carpark directory to streetdirectory.com looked like an
+    // upgrade and was the opposite: streetdirectory's page carries no dollar
+    // amount at all, while the page it replaced states the rate outright. A
+    // citation nobody can follow to the number is not a citation.
+    //
+    // Blogs are still dropped entirely — Singapore Botanic Gardens came from a
+    // personal WordPress post whose rate contradicted itself — and a result set
+    // that is nothing but blogs is refused rather than cited.
+    const citable = rankCitations(hits.map((h) => ({ url: h.url, content: h.content })));
+    if (!citable.length || allBlocked(hits.map((h) => ({ url: h.url })))) {
       return {
         found: false,
         status: "not-found",
