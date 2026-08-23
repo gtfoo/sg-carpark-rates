@@ -74,24 +74,32 @@ letter and a one-line task strands the *why*.
       the first is really an OPENING-HOURS fact and belongs with the
       commercial-hours task below rather than being shown as a broken rate.
 
+      `#3268` and `#3269` Defu Industrial Estate (Lanes 11 and 12) are the same
+      shape: `"10.30pm-7.00am: Reserved Parking only"`. Found by the 149 audit,
+      and the only survivors of it.
+
       They only became visible because the name matcher stopped shadowing them
       with a different carpark's row, which had been quietly supplying a
       plausible price for the wrong place.
       `from: carpark agent · matcher fix fallout · 2026-08-23`
 
-- [ ] **Rates: verify the 149 carparks whose name match just changed**
-      The bidirectional substring matcher returned the FIRST substring hit in
-      table order, so "Orchard Central" resolved to "Central ©", "Nex Mall" to
-      "KINEX Mall", "Singapore Turf Club" to "CLUB ST", and TUAS AVE 11/12/13
-      all to "TUAS AVE 1". Comparing old against new across all 1,146
-      name-matched rows: 997 unchanged, 149 changed, no regressions — every
-      change moved to a more specific row, mostly via the new exact-match-first
-      rule.
+- [x] **Rates: the 149 changed name matches are verified — done 2026-08-23**
+      Priced every row now targeted by a changed match across four arrival
+      hours and five durations. **No mispricings.** 148 of the 149 targets are
+      `operator-site` rows, which is the point: the matcher bug affected READS,
+      and `upsertOverride` keys on the destination, so no rate was ever
+      corrupted by it.
 
-      The fix is live and needs no data migration, since matching is computed
-      per query. What is owed is a spot-check that the 149 now show the right
-      RATES, not merely the right row: some of those rows were themselves
-      written while the matcher was wrong.
+      The first pass reported 72 anomalies and was wrong about 68 of them — it
+      counted a flat "per entry" charge costing the same for 30 minutes and
+      eight hours as a cap binding too early, which is exactly what a flat rate
+      should do. The same shape of error as the citation audit that flagged 330
+      dead links and was wrong about 328: a check that fires on correct data is
+      worse than no check.
+
+      The 4 that survived are Defu Lane 11 and 12, both `"10.30pm-7.00am:
+      Reserved Parking only"` — an access restriction, not a price. Folded into
+      the non-price-rows task below rather than treated as a rate defect.
       `from: owner report (MOE Evans Road) · 2026-08-23 · efd2456`
 
 - [ ] **Rates: two mispricings found by `npm run rates-audit`, both overcharges**
