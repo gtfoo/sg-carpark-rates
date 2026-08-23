@@ -1,4 +1,6 @@
 import { google } from "@ai-sdk/google";
+import { anthropic } from "@ai-sdk/anthropic";
+import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import type { LanguageModel } from "ai";
 import type { z } from "zod";
@@ -8,22 +10,58 @@ import { isRateLimit, recordUsage } from "./usage";
  * The single place the extraction model is chosen, built on the Vercel AI SDK
  * so swapping labs is a config change, not a code change.
  *
- *   LLM_PROVIDER  google (default) | openai | anthropic | ...
- *   LLM_MODELS    ordered, comma-separated fallback chain, e.g.
- *                 "gemini-flash-latest,gemini-2.5-flash". When the first model
- *                 hits its free-tier quota, the next is tried automatically.
+ *   LLM_PROVIDER  default provider for entries that don't name one
+ *   LLM_MODELS    ordered, comma-separated fallback chain. Entries MAY carry
+ *                 their own provider, and for resilience they should:
+ *                 "google:gemini-flash-latest,anthropic:claude-haiku-4-5"
  *   LLM_MODEL     single-model fallback if LLM_MODELS is unset.
+ *
+ * **Cross the provider boundary in the chain.** A chain of same-provider models
+ * shares one quota and buys nothing when that quota runs out — see splitEntry.
  *
  * This model only does structured extraction, so any chat-capable model works.
  */
-function resolveModel(id: string): LanguageModel {
-  const provider = process.env.LLM_PROVIDER ?? "google";
+/**
+ * One chain entry, which may name its own provider:
+ * `"anthropic:claude-haiku-4-5"`. A bare id uses `LLM_PROVIDER`, so existing
+ * config keeps working untouched.
+ *
+ * Per-entry providers are the whole point of the chain. Entries sharing a
+ * provider share a quota — so when the Google free tier was exhausted, the
+ * fallback loop dutifully tried every Gemini model in turn and each failed
+ * identically. The machinery worked; it just had nowhere to go. **A fallback
+ * chain that cannot leave its provider is not a fallback chain.**
+ */
+export function splitEntry(entry: string): { provider: string; id: string } {
+  const at = entry.indexOf(":");
+  if (at === -1) return { provider: process.env.LLM_PROVIDER ?? "google", id: entry.trim() };
+  return { provider: entry.slice(0, at).trim(), id: entry.slice(at + 1).trim() };
+}
+
+/** Where each provider's key lives. Also what the configured check reads. */
+const PROVIDER_KEYS: Record<string, string> = {
+  google: "GOOGLE_GENERATIVE_AI_API_KEY",
+  anthropic: "ANTHROPIC_API_KEY",
+  openai: "OPENAI_API_KEY",
+};
+
+export function hasCredentials(provider: string): boolean {
+  const key = PROVIDER_KEYS[provider];
+  return key ? Boolean(process.env[key]) : false;
+}
+
+function resolveModel(entry: string): LanguageModel {
+  const { provider, id } = splitEntry(entry);
   switch (provider) {
     case "google":
       return google(id);
+    case "anthropic":
+      return anthropic(id);
+    case "openai":
+      return openai(id);
     default:
       throw new Error(
-        `Unknown LLM_PROVIDER "${provider}". Add a case in src/lib/llm.ts.`,
+        `Unknown LLM provider "${provider}". Add a case in src/lib/llm.ts.`,
       );
   }
 }
@@ -45,14 +83,19 @@ export function getModel(): LanguageModel {
   return resolveModel(getModelIds()[0]!);
 }
 
-/** Whether the extraction model has credentials, so the UI only offers lookup when it'll work. */
+/**
+ * Whether ANY entry in the chain has credentials, so the UI only offers lookup
+ * when it will actually work.
+ *
+ * This used to return `true` for every non-Google provider on the theory that
+ * they "resolve their own credentials" — which meant setting
+ * `LLM_PROVIDER=anthropic` with no key showed the user a working button that
+ * failed on every press. Checking the real env var per provider is the point.
+ *
+ * Any, not all: a chain is usable while one link holds.
+ */
 export function isLlmConfigured(): boolean {
-  const provider = process.env.LLM_PROVIDER ?? "google";
-  if (provider === "google") {
-    return Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY);
-  }
-  // Other providers resolve their own credentials from the environment.
-  return true;
+  return getModelIds().some((entry) => hasCredentials(splitEntry(entry).provider));
 }
 
 /**
@@ -78,14 +121,24 @@ export async function generateObjectFallback<T>(args: {
   /** Labels the call in the usage log, e.g. "rate-lookup". */
   op?: string;
 }): Promise<{ object: T; modelId: string }> {
-  const ids = getModelIds();
-  const provider = process.env.LLM_PROVIDER ?? "google";
+  // Entries without a key are dropped before the loop, not attempted. A
+  // missing-credential error does not match shouldFallback(), so attempting one
+  // would abort the whole chain — the opposite of what a fallback list is for.
+  const all = getModelIds();
+  const ids = all.filter((entry) => hasCredentials(splitEntry(entry).provider));
+  if (!ids.length) {
+    throw new Error(
+      `No model in the chain has credentials. Checked: ${all.join(", ")}. ` +
+        `Set the key for at least one provider (see .env.example).`,
+    );
+  }
   let lastErr: unknown;
   for (let i = 0; i < ids.length; i++) {
-    const id = ids[i]!;
+    const entry = ids[i]!;
+    const { provider, id } = splitEntry(entry);
     try {
       const { object, usage } = await generateObject({
-        model: resolveModel(id),
+        model: resolveModel(entry),
         schema: args.schema,
         prompt: args.prompt,
       });
@@ -103,7 +156,7 @@ export async function generateObjectFallback<T>(args: {
         usd: null,
         status: "ok",
       });
-      return { object: object as T, modelId: id };
+      return { object: object as T, modelId: entry };
     } catch (err) {
       lastErr = err;
       // Recorded before deciding whether to fall back, so an exhausted model

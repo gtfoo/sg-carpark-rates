@@ -24,7 +24,9 @@
     "demo": "tsx scripts/demo.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.111",
     "@ai-sdk/google": "^3.0.99",
+    "@ai-sdk/openai": "^3.0.99",
     "@types/leaflet": "^1.9.21",
     "ai": "^6.0.234",
     "better-sqlite3": "^12.11.1",
