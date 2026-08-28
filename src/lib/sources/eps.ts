@@ -1,6 +1,7 @@
 import raw from "./eps-carparks.json";
 import aliasJson from "./eps-aliases.json";
 import manualAliasJson from "./eps-aliases-manual.json";
+import suppressedJson from "./eps-suppressed.json";
 import type { LatLng } from "../geo";
 
 /**
@@ -207,6 +208,26 @@ function isHeavyVehicleOnly(name: string): boolean {
  *
  * Still excluded: the HDB-coded duplicates above, and heavy-vehicle parks.
  */
+/**
+ * EPS entries confirmed NOT to be public car parks, with the reason in the file
+ * beside each id.
+ *
+ * A judgement, like the manual aliases, and held to the same bar: the entry has
+ * to be wrong in a way the data itself cannot settle. URA_P0013 is filed at
+ * "31, SHENTON WAY", which is the Shenton Way Bus Terminal — its coordinates
+ * land exactly on the terminal, it carries no rate and no lot count, and the
+ * real URA off-street car park sits 98 m away, already listed under its own
+ * name.
+ *
+ * Suppressing rather than renaming, because a better name would still put a
+ * card on a bus terminal. Reversible, and the reason is recorded so the next
+ * reader can disagree with it.
+ *
+ * NOT a lever for tidying: 0 public lots means "not stated" in this feed for
+ * 1,205 of 1,587 surfaced rows, so it is evidence of nothing on its own.
+ */
+const suppressed = new Set(Object.keys(suppressedJson as Record<string, string>));
+
 export const publicEpsCarparks: EpsCarpark[] = all.filter(
-  (c) => !isHdbCode(c.name) && !isHeavyVehicleOnly(c.name),
+  (c) => !isHdbCode(c.name) && !isHeavyVehicleOnly(c.name) && !suppressed.has(String(c.id)),
 );
