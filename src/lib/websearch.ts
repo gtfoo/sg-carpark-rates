@@ -19,6 +19,7 @@
  */
 
 import { recordUsage } from "./usage";
+import { cleanUrl } from "./sourceQuality";
 
 export interface SearchHit {
   title: string;
@@ -34,6 +35,10 @@ const SEARCH_KEYS: Record<string, string> = {
   // Anthropic's own server-side web search, as a last resort that depends on
   // no dedicated search vendor at all — see anthropicSearch below.
   anthropic: "ANTHROPIC_API_KEY",
+  // OpenAI's is the same shape as Anthropic's and exists for the same reason:
+  // a second link that needs no search vendor, so both dedicated vendors going
+  // down on one day is survivable.
+  openai: "OPENAI_API_KEY",
 };
 
 /** The ordered providers to try, most-preferred first. */
@@ -95,6 +100,8 @@ export async function webSearch(query: string, maxResults = 6): Promise<SearchHi
           return await braveSearch(query, maxResults);
         case "anthropic":
           return await anthropicSearch(query, maxResults);
+        case "openai":
+          return await openaiSearch(query, maxResults);
         default:
           throw new Error(`Unknown search provider "${provider}". Add it in websearch.ts.`);
       }
@@ -279,6 +286,151 @@ async function braveSearch(query: string, maxResults: number): Promise<SearchHit
  * a 4.6-or-later model and default to running inside code execution, which is
  * machinery this call has no use for.
  */
+/**
+ * OpenAI's server-side web search, via the Responses API.
+ *
+ * The same shape as `anthropicSearch` and here for the same reason: a link in
+ * the chain that depends on no dedicated search vendor, so Tavily and Brave
+ * both failing on one day is survivable. It is placed last because it is the
+ * newest and least exercised of the four, not because it is worst.
+ *
+ * Two differences from the Anthropic path, both forced by the API rather than
+ * chosen:
+ *
+ * Citations arrive as `url_citation` ANNOTATIONS on the text, not as separate
+ * tool-result blocks, so the grounding URLs have to be read off the answer
+ * itself. An annotation carries no page extract, only a title and a URL — so
+ * unlike Anthropic's, the per-source hits here have no content of their own.
+ * That is why the synthesis hit does the work and the citations exist mainly so
+ * `rankCitations` has real URLs to choose between.
+ *
+ * There is no separate fetch tool to pair with search. Anthropic needed
+ * `web_fetch` because search alone returned listings and the model reasoned
+ * from snippets; OpenAI's tool already reads the pages it finds, so asking for
+ * verbatim quotes is enough.
+ */
+async function openaiSearch(query: string, maxResults: number): Promise<SearchHit[]> {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) throw new Error("OPENAI_API_KEY is not set.");
+  const model = process.env.SEARCH_OPENAI_MODEL ?? "gpt-5-mini";
+  // The tool was `web_search_preview` before it stabilised, and old accounts
+  // still see that name. Overridable so a rename does not need a deploy.
+  const toolType = process.env.SEARCH_OPENAI_TOOL ?? "web_search";
+
+  let res: Response;
+  try {
+    res = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${key}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        tools: [{ type: toolType }],
+        input:
+          `Find the published public car parking rates for "${query}" in Singapore. ` +
+          `Quote the rate text VERBATIM from the operator's own page where you can, ` +
+          `including any weekday/Saturday/Sunday split, per-entry charges, caps and ` +
+          `grace periods. Do not convert or summarise the numbers. If you cannot find ` +
+          `rates, say so plainly rather than guessing.`,
+      }),
+    });
+  } catch (err) {
+    await recordUsage({
+      provider: "openai",
+      model,
+      op: "web-search",
+      requests: 1,
+      units: 0,
+      usd: null,
+      status: "error",
+    });
+    throw err;
+  }
+
+  const body = (await res.json().catch(() => ({}))) as {
+    output?: Array<{
+      type?: string;
+      content?: Array<{
+        type?: string;
+        text?: string;
+        annotations?: Array<{ type?: string; url?: string; title?: string }>;
+      }>;
+    }>;
+    error?: { message?: string };
+  };
+
+  if (!res.ok) {
+    await recordUsage({
+      provider: "openai",
+      model,
+      op: "web-search",
+      requests: 1,
+      units: 0,
+      usd: null,
+      status: res.status === 429 ? "rate_limited" : "error",
+    });
+    throw new Error(
+      `OpenAI web search failed: HTTP ${res.status}${
+        body.error?.message ? ` — ${body.error.message}` : ""
+      }`,
+    );
+  }
+
+  const answer: string[] = [];
+  const cited = new Map<string, string>();
+  for (const item of body.output ?? []) {
+    for (const part of item.content ?? []) {
+      if (typeof part.text === "string" && part.text.trim()) answer.push(part.text);
+      for (const a of part.annotations ?? []) {
+        if (a.type === "url_citation" && a.url) {
+          const url = cleanUrl(a.url);
+          if (!cited.has(url)) cited.set(url, a.title?.trim() || url);
+        }
+      }
+    }
+  }
+
+  await recordUsage({
+    provider: "openai",
+    model,
+    op: "web-search",
+    requests: 1,
+    units: cited.size,
+    usd: null,
+    status: "ok",
+  });
+
+  const text = answer.join("\n").trim();
+  const hits: SearchHit[] = [];
+
+  // Empty rather than a placeholder when nothing was cited — same rule as the
+  // Anthropic path, and for the same reason: a fabricated URL gets STORED as a
+  // rate's source and tells a verifier the rate was checked against a page
+  // nobody read.
+  const primary = [...cited.keys()][0] ?? "";
+
+  // The synthesis carries the quoted rate text, so it leads.
+  if (text) {
+    hits.push({
+      title: `Web search summary for ${query}`,
+      url: primary,
+      content: text.slice(0, 8000),
+    });
+  }
+
+  // The citations have no extract of their own, so they carry the answer's
+  // title only. They earn their place by giving rankCitations real URLs.
+  for (const [url, title] of cited) {
+    if (hits.length >= maxResults) break;
+    if (url === primary) continue;
+    hits.push({ title, url, content: "" });
+  }
+
+  return hits;
+}
+
 async function anthropicSearch(query: string, maxResults: number): Promise<SearchHit[]> {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error("ANTHROPIC_API_KEY is not set.");

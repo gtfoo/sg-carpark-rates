@@ -80,6 +80,34 @@ const WEAK_HOSTS = [
   "replit.app",
 ];
 
+/**
+ * Strips the tracking parameters a search provider adds to the URLs it returns.
+ *
+ * OpenAI appends `?utm_source=openai` to every citation. Left in place it is
+ * stored verbatim as a rate's `source_url`, which is wrong twice: the reader
+ * gets a link advertising how we found it, and the same page fetched with and
+ * without the parameter compares as two different sources — so dedup and the
+ * "did the search actually return this URL" check both quietly fail.
+ *
+ * Only the tracking keys are removed. A query string is often load-bearing in a
+ * rates URL (`?service=Car_Park_Details` on URA's endpoint is the whole
+ * request), so dropping the query wholesale would break real citations.
+ */
+const TRACKING_PARAMS = /^(utm_[a-z_]+|gclid|fbclid|mc_[a-z]+|ref|ref_src|source)$/i;
+
+export function cleanUrl(url: string): string {
+  try {
+    const u = new URL(url.trim());
+    for (const k of [...u.searchParams.keys()]) {
+      if (TRACKING_PARAMS.test(k)) u.searchParams.delete(k);
+    }
+    // Avoid leaving a bare "?" behind once the last parameter goes.
+    return u.searchParams.size ? u.toString() : u.toString().replace(/\?$/, "");
+  } catch {
+    return url.trim();
+  }
+}
+
 /** Host, lowercased, without a leading `www.`; empty string if unparseable. */
 export function hostOf(url: string): string {
   try {

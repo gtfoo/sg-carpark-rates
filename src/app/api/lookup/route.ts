@@ -7,13 +7,19 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
-  // Every call here spends Tavily and Gemini quota, and the endpoint is open
-  // to anyone who finds it. Checked before anything else so a rejected request
-  // costs nothing. Two limits: per-address for fairness, and a global daily
-  // ceiling so a spread of addresses still can't drain the keys.
+  // Every call here spends a web search and at least one LLM call, and the
+  // endpoint is open to anyone who finds it. Checked before anything else so a
+  // rejected request costs nothing. Two limits: per-address for fairness, and a
+  // global daily ceiling so a spread of addresses still can't drain the keys.
+  //
+  // The daily ceiling was 40, set when a single free Gemini key and a single
+  // Tavily key were the whole budget. Search and extraction now each fall
+  // through several providers, so one vendor's cap no longer ends the day, and
+  // 40 was stopping the owner testing their own app long before it was
+  // protecting anything. Raised to 100 on request.
   if (
     !allow(`lookup:${clientIp(request)}`, 5, 60 * 60 * 1000) ||
-    !allow("lookup:all", 40, 24 * 60 * 60 * 1000)
+    !allow("lookup:all", 100, 24 * 60 * 60 * 1000)
   ) {
     return Response.json(
       {
