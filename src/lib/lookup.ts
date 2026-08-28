@@ -4,6 +4,7 @@ import { webSearch, isSearchConfigured } from "./websearch";
 import {
   upsertOverride,
   findOverrideForDestination,
+  findOverlappingOverride,
   type RateOverride,
 } from "./store/rates";
 import { resolveGapsByName } from "./store/gaps";
@@ -291,6 +292,32 @@ export async function lookupCarparkRate(args: {
           `${(where.metres / 1000).toFixed(1)} km from "${args.destination}" — ` +
           `almost certainly a different carpark with a similar name, so it was ` +
           `not saved.`,
+        sources,
+      };
+    }
+
+    // One car park, one row. upsertOverride keys on a NAME, so the same
+    // basement reached under a second name becomes a second row: Oxley Tower
+    // ended up with "OXLEYTOWER" at $3.50 and "OXLEYTOWERBASEMENTCARPARK" at
+    // $15.00, both saved the same day from the same geocode. Refusing costs one
+    // lookup; the duplicate costs a driver four times the price and is invisible
+    // until someone reads two cards side by side.
+    const savingKey = {
+      matchType: args.postal ? "postal" : "name",
+      matchValue: args.postal ?? args.destination,
+    };
+    const clash =
+      args.lat != null && args.lng != null
+        ? findOverlappingOverride({ lat: args.lat, lng: args.lng }, savingKey)
+        : null;
+    if (clash) {
+      return {
+        found: false,
+        status: "not-found",
+        reason:
+          `A rate for this place is already saved as "${clash.displayName ?? clash.matchValue}" ` +
+          `(#${clash.id}). Saving this would create a second row for one car park, ` +
+          `so it was not saved — update that one instead.`,
         sources,
       };
     }

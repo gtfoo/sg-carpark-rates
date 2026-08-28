@@ -1,5 +1,5 @@
 import { getDb } from "../db";
-import { checkLocation, type LatLng } from "../geo";
+import { checkLocation, haversineMetres, type LatLng } from "../geo";
 
 export type RateSource = "manual" | "operator-site" | "web-llm";
 export type MatchType = "carpark_no" | "postal" | "name";
@@ -102,6 +102,70 @@ export function listOverrides(): RateOverride[] {
     .prepare("SELECT * FROM rate_overrides ORDER BY updated_at DESC")
     .all() as Row[];
   return rows.map(toOverride);
+}
+
+/**
+ * How close two rows must be before they are treated as one car park.
+ *
+ * Deliberately tiny. A 60 m radius, tried first for the duplicate sweep,
+ * reported eight conflicts along Orchard Road — 313@Somerset against Pan
+ * Pacific Suites, Cathay Cineleisure against Mandarin Gallery — every one a
+ * genuinely different car park next door to another. In a dense belt,
+ * proximity means almost nothing.
+ *
+ * At 25 m it is really asking "written from the same geocode", which is how
+ * these arise: Oxley Tower's two rows shared coordinates to the last digit
+ * because the second was saved from the first's lookup.
+ */
+export const SAME_PLACE_M = 25;
+
+/**
+ * A row already covering this point, other than the one this write would
+ * update.
+ *
+ * `upsertOverride` keys on (match_type, match_value), so a car park is
+ * identified by a NAME while it is really a PLACE. "OXLEYTOWER" and
+ * "OXLEYTOWERBASEMENTCARPARK" are two keys for one basement, and the second
+ * write created a row charging $15.00 where the first charged $3.50. A forced
+ * re-lookup that resolves a postal does the same thing under a third key —
+ * that is how MOE (Evans Road) and Mackenzie Road each gained a duplicate.
+ *
+ * Only INSERTS are caught. A write whose key already exists is an update, which
+ * is the mechanism working rather than a duplicate.
+ *
+ * It does not catch everything, and the gap is worth stating: Mackenzie's web
+ * rows sat ~90 m from the official URA ones, so nothing here would have stopped
+ * them. That is a different problem — a web lookup duplicating a dataset we
+ * already hold — and wants its own check.
+ */
+export function overlappingOverride<
+  T extends { match_type: string; match_value: string; lat: number | null; lng: number | null },
+>(
+  rows: T[],
+  point: LatLng,
+  key: { matchType: string; matchValue: string },
+  metres: number = SAME_PLACE_M,
+): T | null {
+  const wanted = key.matchType === "name" ? normalizeName(key.matchValue) : key.matchValue;
+  for (const r of rows) {
+    if (r.lat === null || r.lng === null) continue;
+    // The row this write would UPDATE is not a clash with itself.
+    if (r.match_type === key.matchType && r.match_value === wanted) continue;
+    if (haversineMetres(point, { lat: r.lat, lng: r.lng }) <= metres) return r;
+  }
+  return null;
+}
+
+/** `overlappingOverride` against the store. */
+export function findOverlappingOverride(
+  point: LatLng,
+  key: { matchType: string; matchValue: string },
+): RateOverride | null {
+  const rows = getDb()
+    .prepare("SELECT * FROM rate_overrides WHERE lat IS NOT NULL AND lng IS NOT NULL")
+    .all() as Row[];
+  const hit = overlappingOverride(rows, point, key);
+  return hit ? toOverride(hit) : null;
 }
 
 export function upsertOverride(input: RateOverrideInput): RateOverride {
