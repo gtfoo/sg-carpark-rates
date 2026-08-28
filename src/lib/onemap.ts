@@ -18,6 +18,31 @@ export interface GeocodeResult {
   location: LatLng;
 }
 
+/**
+ * A second spelling of a query worth retrying, or null if there isn't one.
+ *
+ * OneMap's search cannot find a building by its own name when that name
+ * contains "&". "ABC BRICKWORKS MARKET & FOOD CENTRE" is indexed under exactly
+ * that string and returns nothing; drop the ampersand and it is found at once.
+ * The same holds for "TEKKA MARKET & FOOD CENTRE" and, in our own store,
+ * "Waterfront Plaza & King's Centre".
+ *
+ * That matters more here than the one hawker centre suggests: "Market & Food
+ * Centre" is a naming convention across Singapore, so every one of them was
+ * unsearchable.
+ *
+ * Substituting "and" does NOT work — that returns nothing too. The ampersand
+ * has to go entirely.
+ *
+ * Tried only after the verbatim query, so a future fix on their side simply
+ * makes this branch stop firing.
+ */
+export function retrySpelling(query: string): string | null {
+  if (!query.includes("&")) return null;
+  const stripped = query.replace(/&/g, " ").replace(/\s{2,}/g, " ").trim();
+  return stripped && stripped !== query.trim() ? stripped : null;
+}
+
 export async function geocode(query: string): Promise<GeocodeResult | null> {
   const url = `${SEARCH}?searchVal=${encodeURIComponent(query)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
 
@@ -43,7 +68,12 @@ export async function geocode(query: string): Promise<GeocodeResult | null> {
   };
 
   const hit = body.results?.[0];
-  if (!hit) return null;
+  if (!hit) {
+    // Only ever one retry deep: retrySpelling returns null for its own output,
+    // so this cannot recurse.
+    const again = retrySpelling(query);
+    return again ? geocode(again) : null;
+  }
 
   return {
     name: hit.SEARCHVAL,
@@ -93,6 +123,11 @@ export async function suggest(query: string, limit = 6): Promise<Suggestion[]> {
       LONGITUDE: string;
     }[];
   };
+
+  if (!(body.results ?? []).length) {
+    const again = retrySpelling(trimmed);
+    if (again) return suggest(again, limit);
+  }
 
   const seen = new Set<string>();
   const out: Suggestion[] = [];
