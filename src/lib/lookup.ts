@@ -66,7 +66,16 @@ export const RateExtraction = z.object({
     .string()
     .nullable()
     .describe("the single most authoritative URL, ideally the operator's site"),
-  notes: z.string().nullable().describe("caveats: grace periods, min-spend, etc."),
+  notes: z
+    .string()
+    .nullable()
+    .describe(
+      "one or two short sentences a DRIVER needs and the rate string cannot " +
+        "carry: opening hours, days with no public parking, grace period, " +
+        "minimum spend. Never explain which source you chose or why, and never " +
+        "list what different sources say — that is working, not a caveat. If " +
+        "sources disagree, say so in a few words and leave it there",
+    ),
 });
 
 export interface LookupResult {
@@ -210,6 +219,8 @@ export async function lookupCarparkRate(args: {
         `neighbouring address. If a source with the right address states a ` +
         `rate, that is enough. Reserve low confidence for a real conflict in ` +
         `the RATE, or for results that are all about a different place.\n` +
+        `The notes field is read by a driver on a card, not by you: put ` +
+        `opening hours and caveats there, never your reasoning about sources.\n` +
         `Rate strings must be concise and machine-parseable, like ` +
         `"$1.20 per half hour" or "$2 for 1st hr; $1 per 30 mins", or null if ` +
         `unknown.\n\n` +
