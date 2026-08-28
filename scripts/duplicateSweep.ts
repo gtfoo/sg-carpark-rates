@@ -3,7 +3,6 @@
  * and what they disagree about.
  *
  *   npx tsx scripts/duplicateSweep.ts
- *   npx tsx scripts/duplicateSweep.ts --metres 80
  *
  * `locationSweep.ts` asks the opposite question: which rows cite one source
  * while sitting far apart. This is the mirror, and it is the one that keeps
@@ -52,42 +51,66 @@ function fees(rate: string | null): string {
     .join(" / ");
 }
 
-function main() {
-  const arg = process.argv.indexOf("--metres");
-  const radius = arg > -1 ? Number(process.argv[arg + 1]) : 60;
+/** Names differing only in case, spacing or punctuation are the same name. */
+const nameKey = (s: string | null) =>
+  (s ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
+function main() {
+  // Two signals, both narrow on purpose.
+  //
+  // A radius does NOT work. The first run of this used 60 m and reported eight
+  // disagreeing clusters along Orchard Road — 313@Somerset against Pan Pacific
+  // Suites, Cathay Cineleisure against Mandarin Gallery, Liat Towers against
+  // Wheelock Place. Every one is a genuinely different car park that happens to
+  // be next door, and different rates are the correct answer. In a dense
+  // shopping belt, proximity says almost nothing.
+  //
+  // What does hold up: rows at the SAME point (Oxley's two share their
+  // coordinates to the last digit, because the second was written from the
+  // first's geocode), and rows under the same NAME. Midview's pair was 13 km
+  // apart and only the name caught it.
   const rows = getDb()
     .prepare(
       `SELECT id, match_type, match_value, display_name, source, verified_at, lat, lng, weekday_rate
          FROM rate_overrides
-        WHERE lat IS NOT NULL AND lng IS NOT NULL
         ORDER BY id`,
     )
     .all() as Row[];
 
-  console.log(`${rows.length} row(s) with coordinates; clustering within ${radius} m\n`);
+  const groups = new Map<string, Row[]>();
+  const add = (k: string, r: Row) => {
+    const g = groups.get(k);
+    if (g) { if (!g.some((x) => x.id === r.id)) g.push(r); }
+    else groups.set(k, [r]);
+  };
 
-  const seen = new Set<number>();
+  for (const r of rows) {
+    if (r.lat !== null && r.lng !== null) {
+      // ~1 m. Rounding rather than a radius: this asks "written from the same
+      // point", not "near each other".
+      add(`at:${r.lat.toFixed(5)},${r.lng.toFixed(5)}`, r);
+    }
+    const n = nameKey(r.display_name);
+    if (n) add(`name:${n}`, r);
+  }
+
   let clusters = 0;
   let disagreeing = 0;
+  const reported = new Set<string>();
 
-  for (const a of rows) {
-    if (seen.has(a.id)) continue;
-    const group = rows.filter(
-      (b) =>
-        !seen.has(b.id) &&
-        haversineMetres({ lat: a.lat!, lng: a.lng! }, { lat: b.lat!, lng: b.lng! }) <= radius,
-    );
+  for (const [key, group] of groups) {
     if (group.length < 2) continue;
-    for (const g of group) seen.add(g.id);
+    // A pair caught by both signals should be printed once.
+    const sig = group.map((g) => g.id).sort((a, b) => a - b).join(",");
+    if (reported.has(sig)) continue;
+    reported.add(sig);
     clusters++;
 
-    // Same prices at every probe means the duplicate is untidy, not harmful.
     const priced = new Set(group.map((g) => fees(g.weekday_rate)));
     const harmful = priced.size > 1;
     if (harmful) disagreeing++;
 
-    console.log(`  ${harmful ? "DISAGREE" : "same    "}  ${group.length} rows within ${radius} m`);
+    console.log(`  ${harmful ? "DISAGREE" : "same    "}  ${group.length} rows  (${key.startsWith("at:") ? "same point" : "same name"})`);
     for (const g of group) {
       console.log(
         `      #${String(g.id).padEnd(5)} [${g.source.padEnd(13)}] ${String(g.display_name).slice(0, 34).padEnd(36)} ${g.verified_at ?? "-"}`,
@@ -99,7 +122,7 @@ function main() {
     console.log("");
   }
 
-  console.log(`  clusters: ${clusters}   of which the prices DISAGREE: ${disagreeing}`);
+  console.log(`  ${rows.length} rows -> ${clusters} duplicate cluster(s), of which the prices DISAGREE: ${disagreeing}`);
   console.log(`\n  Nothing is changed by this script. Which row is right needs the`);
   console.log(`  operator's page — picking by rule would have chosen the nonsense`);
   console.log(`  row at Mackenzie Road, which was also the newest.`);
