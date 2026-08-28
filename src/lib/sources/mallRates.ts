@@ -283,21 +283,31 @@ function splitBands(raw: string): string[] {
     // bands into one.
     if (/(?:&|\band\b)\s*$/i.test(before)) continue;
 
-    // "…; Free 5am-8:30am" writes the word BEFORE the hours it applies to, so
-    // the cut lands between them: "Free" is stranded on the band above and the
-    // hours arrive with no rate at all. Jurong Lake Gardens read "not
-    // computable" at 8am and 1pm — exactly the hours parking there is free.
+    // Plenty of operators write the RATE BEFORE THE HOURS it applies to:
+    // "…; Free 5am-8:30am" (Jurong Lake Gardens), "…; $3.50 flat rate 6pm-7am"
+    // (Oxley Tower). The cut lands between the two, stranding the rate on the
+    // band above and handing the hours to nothing — the card then reads
+    // "Applied rate: 6pm-7am" and "not computable".
     //
-    // Only a word still TRAILING at the cut moves. The reverse order,
-    // "7.00am-10.00pm: Free; 10.00pm-7.00am: $2.70/hr", has a semicolon after
-    // it, so it stays where it belongs and keeps working.
-    const trailingFree = before.match(/\bfree\b[ \t]*$/i);
-    // And it only moves if the band above still stands up without it. "Free"
-    // counts as a price in closesBand, so handing it to the next band could
-    // otherwise leave the one above with hours and nothing to charge.
+    // So look at the fragment since the last separator. If it states a rate and
+    // names no hours of its own, it belongs to the range that follows it, and
+    // the cut moves back to take it along.
+    //
+    // Scoped to "Free" alone at first, which was too narrow: what matters is
+    // that a rate precedes its hours, not which rate it is.
+    let fragStart = 0;
+    // ";" or a full stop followed by space — NOT a bare ".", which would cut
+    // "$3.50" in half at its own decimal point.
+    for (const m of before.matchAll(/;|\.\s/g)) fragStart = (m.index ?? 0) + m[0].length;
+    const frag = before.slice(fragStart);
+    const fragStatesRate = /\$\s*\d/.test(frag) || /\bfree\b/i.test(frag);
+    // A fragment that already names its own hours is a complete band and stays.
+    const fragHasRange = timeRangeRe().test(frag);
+    // And it only moves if the band above still stands up without it —
+    // otherwise the one above is left with hours and nothing to charge.
     const cut =
-      trailingFree?.index !== undefined && closesBand(before.slice(0, trailingFree.index))
-        ? from + trailingFree.index
+      fragStatesRate && !fragHasRange && closesBand(before.slice(0, fragStart))
+        ? from + fragStart
         : at;
     if (cut <= from) continue;
     starts.push(cut);

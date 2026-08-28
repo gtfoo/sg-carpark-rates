@@ -81,7 +81,18 @@ import { loadCorpus, checkCorpus, IMPLAUSIBLE_2H } from "../scripts/rateHealth";
 // "No Entry (Staff Parking Only)", three "nearest car park is…" notes — so the
 // real backlog is ONE string: "$0.80 for sub. 1 per 2 hr or part thereof",
 // which is malformed at source.
-const MAX_UNPRICEABLE = 9;
+// 9 -> 11, and this rise is arrivals rather than a regression. The corpus grew
+// 730 -> 743 when the fixture was refreshed, and two of the thirteen new
+// strings do not price:
+//
+//   "No parking"      — prose, like the other seven. Nothing to fix.
+//   "$3.60 per block" — a real gap. "Block" names no duration, so the string
+//                       cannot be priced by anyone, us included; the source is
+//                       incomplete rather than the parser short.
+//
+// Nothing that priced before stopped: the whole-corpus diff for the same commit
+// moved 10 cells, all of them Oxley Tower GAINING a price, none lost.
+const MAX_UNPRICEABLE = 11;
 
 test("every stored rate still prices, or was already known not to", () => {
   const health = checkCorpus(loadCorpus());

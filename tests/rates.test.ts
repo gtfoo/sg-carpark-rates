@@ -850,3 +850,35 @@ test("an amount already before its period is not rewritten", () => {
   assert.equal(fee(gl, 60, 13 * 60), 2.35);
   assert.equal(fee(gl, 120, 13 * 60), 4.49);
 });
+
+test("a priced band written before its hours is not stranded", () => {
+  // Oxley Tower. Both clauses put the amount ahead of its hours, so the cut at
+  // "6pm-7am" left the evening band as nothing but a clock range and the card
+  // read "Applied rate: 6pm-7am … Total: not computable".
+  //
+  // This is the Jurong Lake Gardens shape with a price instead of the word
+  // "Free". Fixing only "Free" there was too narrow: what matters is that a
+  // rate is written before the hours it applies to, not which rate it is.
+  const oxley = "$2.10 per 30 mins 7am-6pm; $3.50 flat rate 6pm-7am";
+  assert.equal(fee(oxley, 120, 13 * 60), 8.4, "daytime is per-30-min");
+  assert.equal(fee(oxley, 120, 19 * 60), 3.5, "evening is the flat rate");
+  assert.equal(fee(oxley, 120, 3 * 60), 3.5, "and it wraps past midnight");
+
+  // No second case here on purpose. The one I first wrote — "$1.50 7am-5pm;
+  // $3.00 5pm-11pm" — was invented rather than taken from a source, and it is
+  // not even well formed: $1.50 per WHAT? The parser refuses an amount with no
+  // unit, which is correct, and an invented string had me briefly treating that
+  // as the bug. Every string in this file is real text for exactly that reason.
+});
+
+test("an amount written after its hours is still not moved", () => {
+  // The ordinary shape, pinned so the rule above cannot drag a price onto the
+  // wrong side of a boundary.
+  const normal = "7am-5pm: $1.50 per hour; 5pm-11pm: $3.00 per entry";
+  assert.equal(fee(normal, 60, 8 * 60), 1.5);
+  assert.equal(fee(normal, 60, 18 * 60), 3);
+  // And a band's own tiers, separated by a semicolon, must stay together.
+  const tiers = "7.00am-5.59pm: $3.90 for 1st hr; $1.95 per sub. ½ hr";
+  // $3.90 for the first hour, then two half-hours at $1.95.
+  assert.equal(fee(tiers, 120, 13 * 60), 7.8);
+});

@@ -396,13 +396,13 @@
  },
  {
   "name": "Bangkok Bank Building",
-  "rate": "7am-7pm: $2 for 1st ½ hr; $4 for sub. hr",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "rate": "First 30 mins $2.30; Subsequent hour $4.00",
+  "notes": "AI-retrieved — verify. Mon-Fri 07:00 AM - 07:00 PM; Sat 07:00 AM - 03:00 PM; Sun & PH: No parking available. Conflicting rates exist between sources: SGCarMart reports $2.50/30min Mon-Fri 7am-5pm and "
  },
  {
   "name": "Bangkok Bank Building",
-  "rate": "Charges same as wkdays but Closed at 3pm",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "rate": "No parking",
+  "notes": "AI-retrieved — verify. Mon-Fri 07:00 AM - 07:00 PM; Sat 07:00 AM - 03:00 PM; Sun & PH: No parking available. Conflicting rates exist between sources: SGCarMart reports $2.50/30min Mon-Fri 7am-5pm and "
  },
  {
   "name": "Beach Centre",
@@ -1110,6 +1110,16 @@
   "notes": "Weekday evening: 6.01pm-7.00am: $4.50 per entry. From LTA OneMotoring — verify before relying on it."
  },
  {
+  "name": "Frasers Tower",
+  "rate": "$3.30 per 30 mins (7am-5:59pm); $4.20 per entry (6pm-6:59am)",
+  "notes": "AI-retrieved — verify. 10 mins grace period may apply; rates shown are for cars"
+ },
+ {
+  "name": "Frasers Tower",
+  "rate": "$4.20 per entry",
+  "notes": "AI-retrieved — verify. 10 mins grace period may apply; rates shown are for cars"
+ },
+ {
   "name": "Fu Lu Shou Complex",
   "rate": "8am-5pm: $2.40 per hr; Aft 5pm: $2.20 per entry (Car park closed at 12.30am daily)",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
@@ -1158,6 +1168,11 @@
   "name": "Galaxis",
   "rate": "$1.08 per entry",
   "notes": "AI-retrieved — verify. 20 mins grace period applies Mon-Fri and Sat-Sun & PH"
+ },
+ {
+  "name": "Gardens By The Bay - Bay East Garden Carpark",
+  "rate": "$0.035 per minute; capped at $30 per day",
+  "notes": "AI-retrieved — verify. Rate applies Mon-Sun & PH, 5:00 AM - next day 12:00 AM"
  },
  {
   "name": "Gardens by the Bay (Bay South)",
@@ -1740,6 +1755,16 @@
   "notes": "Weekday evening: 6.00pm-2.00am: $2.40 per entry (Grace Period: 10 min). From LTA OneMotoring — verify before relying on it."
  },
  {
+  "name": "KK Women's and Children's Hospital Car Park",
+  "rate": "$0.06 per minute (6:01am-6:00pm); $3.60 per block (6:01pm-12:00am and 12:01am-6:00am)",
+  "notes": "AI-retrieved — verify. First 15-minute parking grace period. For weekdays from 5:00pm to 6:30pm, first 30-minute parking grace period. Full day parking capped at $21.60 per day (minute-charge) or $25."
+ },
+ {
+  "name": "KK Women's and Children's Hospital Car Park",
+  "rate": "$3.60 per block",
+  "notes": "AI-retrieved — verify. First 15-minute parking grace period. For weekdays from 5:00pm to 6:30pm, first 30-minute parking grace period. Full day parking capped at $21.60 per day (minute-charge) or $25."
+ },
+ {
   "name": "klapsons, The Boutique Hotel",
   "rate": "6.30am-6.30pm: $3.00 for 1st 3 hrs; $1.50 per sub. ½ hr; 6.30pm-6.30am: $4.00 per entry",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence), rephrased so the fee engine can read it. Verify before relying on it."
@@ -1933,6 +1958,16 @@
   "name": "Marsiling Industrial Estate",
   "rate": "7.00am-10.30pm: Free; 10.30pm-7.00am: Reserved Parking only",
   "notes": "From JTC's carpark details document (Jan 2025 edition), jtc.gov.sg. Operated by Wilson Parking. Motorcycle/heavy-vehicle and season rates are in the source."
+ },
+ {
+  "name": "Maxwell Chambers Suites",
+  "rate": "$3.00 per 30 mins (05:30-17:30); $4.00 per entry (17:30-05:30)",
+  "notes": "AI-retrieved — verify. Rates apply Mon-Sun. 78 spaces available. Bank Holiday rate is $3.60."
+ },
+ {
+  "name": "Maxwell Chambers Suites",
+  "rate": "$3.60 (Bank Holiday); $3.00 per 30 mins (05:30-17:30); $4.00 per entry (17:30-05:30)",
+  "notes": "AI-retrieved — verify. Rates apply Mon-Sun. 78 spaces available. Bank Holiday rate is $3.60."
  },
  {
   "name": "Mediapolis",
@@ -2325,6 +2360,21 @@
   "notes": "Weekday evening: 5.00pm-6.59am the following day: $2.70 per entry. From LTA OneMotoring — verify before relying on it."
  },
  {
+  "name": "Oxley Tower Basement Car Park",
+  "rate": "$2.10 per 30 mins 7am-6pm; $3.50 flat rate 6pm-7am",
+  "notes": "AI-retrieved — verify. Operating hours 24 hours daily. Sat-Sun rate of $3.50 applies all day (ends at 07:00 the next day)."
+ },
+ {
+  "name": "Oxley Tower Basement Car Park",
+  "rate": "$3.50 flat rate",
+  "notes": "AI-retrieved — verify. Operating hours 24 hours daily. Sat-Sun rate of $3.50 applies all day (ends at 07:00 the next day)."
+ },
+ {
+  "name": "Oxley Tower Basement Car Park",
+  "rate": "$3.75 per 30 mins",
+  "notes": "Mon-Fri 7am-6pm: $3.75 per 30 mins; Mon-Fri 6pm-7am and Sat-Sun all day: $3.50 per entry"
+ },
+ {
   "name": "Pacific Plaza",
   "rate": "8am-6pm: $1.50 per ½ hr; Aft 6pm: $3 for 1st 2hrs; $1 for sub. ½ hr",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
@@ -2413,6 +2463,11 @@
   "name": "Parliament House",
   "rate": "$2.06 per entry",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+ },
+ {
+  "name": "PAssion Wave @ Marina Bay",
+  "rate": "$0.48 per 15 minutes",
+  "notes": "AI-retrieved — verify. 10 mins grace period applies to all days"
  },
  {
   "name": "Paya Lebar Green",
@@ -2630,16 +2685,6 @@
   "notes": "Grace period: 10 mins. Weekend rate applies Friday to Sunday and on public holidays. Free parking with a minimum spend at some outlets."
  },
  {
-  "name": "Resorts World Sentosa (RWS)",
-  "rate": "Mon-Thu: 7am-7pm: $7 for 1st hr; $1 for sub. ½ hr or part thereof. (Max: $28 per 24 hrs); Aft 7pm: $6 per entry",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
- },
- {
-  "name": "Resorts World Sentosa (RWS)",
-  "rate": "Fri/Sat-Sun/PH: 7am-7pm: $8 for 1st hr; $2 for sub. ½ hr or part thereof.  Aft 7pm: $8 per entry (Max: $28 per 24 hrs)",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
- },
- {
   "name": "Riverside Point",
   "rate": "6.00am-5.59pm: $2.51 for 1st hr; $0.63 for sub. 15min.",
   "notes": "Weekday evening: 6.00pm-12.00am: $3.82 per entry.. From LTA OneMotoring — verify before relying on it."
@@ -2656,18 +2701,13 @@
  },
  {
   "name": "Robinson 77",
-  "rate": "7am-5pm: $2.4 per ½ hr; 5pm-11pm: $2.4 per entry",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "rate": "$2.50 per 30 mins (7am-5pm); $3.00 per entry (5pm-11pm)",
+  "notes": "AI-retrieved from the web — verify before relying on it."
  },
  {
   "name": "Robinson 77",
-  "rate": "Charges same as wkdays, but $2.4 per entry after 2pm",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
- },
- {
-  "name": "Robinson 77",
-  "rate": "$2.4 per entry",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "rate": "$2.50 per 30 mins (7am-2pm); $3.00 per entry (2pm-11pm)",
+  "notes": "AI-retrieved from the web — verify before relying on it."
  },
  {
   "name": "Rochester Mall",
@@ -2685,6 +2725,16 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
+  "name": "SAFRA Mount Faber",
+  "rate": "$2.37 for first hour; $0.60 per 15 mins thereafter (6am-5.59pm); $4.09 flat rate (6pm-5.59am)",
+  "notes": "AI-retrieved — verify. 15-minute grace period for all parking. No overnight parking allowed. All prices inclusive of GST. Rates are for public (non-member) cars."
+ },
+ {
+  "name": "SAFRA Mount Faber",
+  "rate": "$4.09 flat rate (all day)",
+  "notes": "AI-retrieved — verify. 15-minute grace period for all parking. No overnight parking allowed. All prices inclusive of GST. Rates are for public (non-member) cars."
+ },
+ {
   "name": "Samsung Hub",
   "rate": "$2.20 per 30 mins (7am-6pm); $3.20 per entry (6pm-12am)",
   "notes": "AI-retrieved from the web — verify before relying on it."
@@ -2693,6 +2743,16 @@
   "name": "Samsung Hub",
   "rate": "$3.20 per entry (7am-12am)",
   "notes": "AI-retrieved from the web — verify before relying on it."
+ },
+ {
+  "name": "Sbf Center",
+  "rate": "$3.50 per 30 mins",
+  "notes": "Mon-Fri daytime rate 07:00-18:00 is $3.50 per 30 mins; Mon-Fri 18:00-07:00 flat rate $4.00. Sat 07:00-13:00 is $2.50 per 30 mins; Sat 13:00-07:00 flat rate $4.00. Sun all day $4.00 flat rate."
+ },
+ {
+  "name": "Sbf Center",
+  "rate": "$2.50 per 30 mins",
+  "notes": "Mon-Fri daytime rate 07:00-18:00 is $3.50 per 30 mins; Mon-Fri 18:00-07:00 flat rate $4.00. Sat 07:00-13:00 is $2.50 per 30 mins; Sat 13:00-07:00 flat rate $4.00. Sun all day $4.00 flat rate."
  },
  {
   "name": "School of the Arts, Singapore (SOTA)",
@@ -2826,18 +2886,13 @@
  },
  {
   "name": "Singapore Chinese Cultural Centre",
-  "rate": "7.00am-5.00pm: $2.45 per 30 min block",
-  "notes": "Weekday evening: Aft 5.00pm: $3.82 per entry. From LTA OneMotoring — verify before relying on it."
+  "rate": "$2.45 per 30 mins (7am-5pm); $3.82 per entry (after 5pm)",
+  "notes": "AI-retrieved — verify. 10 mins grace period; 50% off parking rates at lunchtime (12pm-2pm); carpark entrances closed 3am-6am daily"
  },
  {
   "name": "Singapore Chinese Cultural Centre",
   "rate": "$3.82 per entry",
-  "notes": "Weekday evening: Aft 5.00pm: $3.82 per entry. From LTA OneMotoring — verify before relying on it."
- },
- {
-  "name": "Singapore Chinese Cultural Centre",
-  "rate": "Same s Saturday",
-  "notes": "Weekday evening: Aft 5.00pm: $3.82 per entry. From LTA OneMotoring — verify before relying on it."
+  "notes": "AI-retrieved — verify. 10 mins grace period; 50% off parking rates at lunchtime (12pm-2pm); carpark entrances closed 3am-6am daily"
  },
  {
   "name": "Singapore City Gallery (URA Centre)",
@@ -2850,9 +2905,9 @@
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
  },
  {
-  "name": "Singapore Expo",
-  "rate": "Daily: $3.20 for 1st 2hrs; $1.50 for sub. ½ hr (Maximum Daily Charge:$20)",
-  "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+  "name": "Singapore EXPO",
+  "rate": "$1.80 for 1st hr, $1.80 for 2nd hr, $1.50 per subsequent 30 mins",
+  "notes": "AI-retrieved — verify. Rates apply daily inclusive of public holidays. No cap on parking fee."
  },
  {
   "name": "Singapore Flyer",
@@ -3353,6 +3408,16 @@
   "name": "The Star Vista",
   "rate": "Sun:12am-11.59pm: $2.14 for 1st hr, $1.07 for sub. 30 mins or part thereof.",
   "notes": "From LTA's open carpark rates dataset on data.gov.sg (Singapore Open Data Licence). Verify before relying on it."
+ },
+ {
+  "name": "The URA Centre East Wing",
+  "rate": "$1.40 per 30 mins (6am-6pm); $0.70 per 30 mins capped at $3.00 (6pm-6am)",
+  "notes": "AI-retrieved — verify. Rates apply 24/7. Monday-Saturday daytime (6am-6pm): $1.40 per 30 mins. All other times (Mon-Sat 6pm-6am, Sun & PH all day): $0.70 per 30 mins with $3.00 daily cap."
+ },
+ {
+  "name": "The URA Centre East Wing",
+  "rate": "$0.70 per 30 mins; Capped at $3.00",
+  "notes": "AI-retrieved — verify. Rates apply 24/7. Monday-Saturday daytime (6am-6pm): $1.40 per 30 mins. All other times (Mon-Sat 6pm-6am, Sun & PH all day): $0.70 per 30 mins with $3.00 daily cap."
  },
  {
   "name": "Thomson Plaza",
