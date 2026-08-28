@@ -141,6 +141,14 @@ export function displayName(name: string, address: string): string {
  *   CONTENT and drops its filing, which is a tidy of the evidence rather than
  *   a guess about what HSO stands for — nothing in the data says.
  *
+ * - 1245 "URA_B0096" reaches a card as "114 UPPER BUKIT TIMAH ROAD", which is
+ *   not where it is and not a place that exists — OneMap returns nothing for
+ *   that address. Its EPS address is simply junk, and `displayName` substitutes
+ *   the address whenever the name is a code, so the junk propagated. The
+ *   COORDINATES are right: they sit on The URA Centre at 45 Maxwell Road, 101 m
+ *   from MND Complex, which is why it surfaces on an MND search. The owner
+ *   confirms URA and MND share the one car park, so it is named for both.
+ *
  * - 4383 "BTC_NUS" at 1 Cluny Road. Its postal (259659) answers with
  *   "19 CLUNY HILL" and no building name, and OneMap has no entry for NUS's
  *   Bukit Timah Campus at all, so the generator correctly refuses it — an
