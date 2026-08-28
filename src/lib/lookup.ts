@@ -221,6 +221,17 @@ export async function lookupCarparkRate(args: {
         `the RATE, or for results that are all about a different place.\n` +
         `The notes field is read by a driver on a card, not by you: put ` +
         `opening hours and caveats there, never your reasoning about sources.\n` +
+        // Sources disagree constantly, and the model was picking between them
+        // on "clear rate structure" — a reason to trust a PARSE, not a price.
+        // Provenance and recency are the real evidence; price is only the
+        // tie-break when neither settles it.
+        `When sources disagree, prefer the operator's own page, then the most ` +
+        `recently updated. Only if neither settles it, and they describe the ` +
+        `SAME kind of charge, take the HIGHER rate: operators raise prices far ` +
+        `more often than they cut them, so the cheaper figure is usually the ` +
+        `stale one. Do not apply this across different kinds of charge — a ` +
+        `higher number is sometimes a season, reserved or lorry rate rather ` +
+        `than a dearer hourly one.\n` +
         `Rate strings must be concise and machine-parseable, like ` +
         `"$1.20 per half hour" or "$2 for 1st hr; $1 per 30 mins", or null if ` +
         `unknown.\n\n` +
