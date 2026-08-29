@@ -120,6 +120,44 @@ letter and a one-line task strands the *why*.
       did, carrying prose instead of a flag.
       `from: carpark agent · b2dc849`
 
+- [ ] **Rates: a web lookup can still duplicate an official dataset**
+      Mackenzie Road had two `web-llm` rows sitting ~90 m from three URA rows
+      that already covered the street properly — with the free periods and the
+      $5 night cap the web versions both omitted. One of them carried
+      `"$5.00 per 510 mins"`, which is not a rate at all.
+
+      Today's write-time guard will NOT catch this. It fires at 25 m, and that
+      tightness is deliberate: a 60 m radius reported eight false conflicts
+      along Orchard Road, where 313@Somerset and Pan Pacific Suites are
+      genuinely different car parks. Distance alone cannot separate the two
+      cases.
+
+      The check that would: before saving a `web-llm` rate, look for an
+      `operator-site` row nearby and refuse — or at least flag — when official
+      data already covers the place. Precedence, not proximity. Worth doing
+      because the AI path spent a search and an extraction to produce a WORSE
+      copy of data already held.
+      `from: carpark agent · Mackenzie Road · 2026-08-28`
+
+- [ ] **Search: places OneMap will not find under the name people type**
+      `ABC BRICKWORKS MARKET & FOOD CENTRE` is fixed — OneMap could not find its
+      own indexed name because of the ampersand, and the retry handles that.
+      Two neighbours still fail for a different reason: OneMap calls Tekka
+      `TEKKA MARKET` / `ZHUJIAO CENTRE (TEKKA MARKET)`, and has no
+      `Waterfront Plaza` entry at all, though we store a rate under that name.
+
+      Progressive word-dropping ("FOOD CENTRE", "CENTRE") would fix Tekka and is
+      deliberately NOT the answer: that is the fuzzy truncation that matched
+      "THE MILL" to "THE RITZ-CARLTON, MILLENIA SINGAPORE" and let a row keyed
+      "MOE" answer for the whole island.
+
+      The safe version is a curated search-alias file — the same shape as
+      `eps-aliases-manual.json`, mapping what a person types to what OneMap
+      indexes, one entry at a time with a reason. Unknown how many places need
+      it; the two known are a start, and our own stored names are the place to
+      look for more.
+      `from: owner report · 2026-08-28`
+
 - [ ] **Rates: the re-verification queue has no consumer**
       Rows get marked for re-checking and nothing consumes the queue, so a stale
       rate stays stale until a user notices. The marking half already works,
