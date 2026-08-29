@@ -84,7 +84,9 @@ async function main() {
   const pauseMs = flag("--pause", 4000);
   const dryRun = argv.includes("--dry-run");
 
-  const { listOverrides } = await import("../src/lib/store/rates");
+  const { listOverrides, findOverrideForDestination } = await import(
+    "../src/lib/store/rates"
+  );
   const { fetchHdbCarparks } = await import("../src/lib/sources/hdb");
   const { lookupCarparkRate } = await import("../src/lib/lookup");
   const eps = (await import("../src/lib/sources/eps-carparks.json", { with: { type: "json" } }))
@@ -97,6 +99,8 @@ async function main() {
     lng: number;
     publicLots: number | null;
   }>;
+
+  const alreadyCovered: string[] = [];
 
   // Everything search can already price, with the names it would compare on.
   const rated: { loc: { lat: number; lng: number }; names: string[] }[] = [];
@@ -118,12 +122,38 @@ async function main() {
         return d < DEDUP_NAME_M && r.names.some((n) => looseNameMatch(c.name, n));
       });
     })
+    // Then ask the matcher that actually decides at request time. The filter
+    // above is this script's own approximation -- proximity plus a fuzzy name
+    // -- and it misses saves it should see: Changi General Hospital was stored
+    // the same day as "Changi General Hospital (CGH)", from a geocode a little
+    // off the EPS point, and still appeared here as a target. Re-buying a rate
+    // we already hold is the most avoidable spend there is, and the matcher is
+    // also the piece that was fixed on 08-23, so it now knows more than this
+    // filter does.
+    .filter((c) => {
+      const hit = findOverrideForDestination({
+        postal: c.postal || null,
+        name: c.name,
+        lat: c.lat,
+        lng: c.lng,
+      });
+      if (hit) {
+        alreadyCovered.push(`${c.name} -> #${hit.id} ${hit.displayName ?? hit.matchValue}`);
+        return false;
+      }
+      return true;
+    })
     .sort((a, b) => Number(b.publicLots) - Number(a.publicLots));
 
   console.log(
     `${eps.length} EPS entries → ${targets.length} unpriced, named, ≥${minLots} lots. ` +
       `Taking ${Math.min(limit, targets.length)}.`,
   );
+  if (alreadyCovered.length) {
+    console.log(`  ${alreadyCovered.length} skipped — the store already answers for them:`);
+    for (const a of alreadyCovered.slice(0, 10)) console.log(`    ${a}`);
+    if (alreadyCovered.length > 10) console.log(`    ... ${alreadyCovered.length - 10} more`);
+  }
 
   const batch = targets.slice(0, limit);
   if (dryRun) {
