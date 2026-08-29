@@ -1,0 +1,14 @@
+{
+  "CHANGI GENERAL HOSPITAL": {
+    "searchAs": "529889",
+    "why": "OneMap ranks CGH BUILDING, 131 Killiney Road — an unrelated building named after the hospital's acronym — above the hospital itself, 13 km away in Simei. Confirmed 2026-08-28: the name returns Killiney, the postal returns 2 Simei Street 3."
+  },
+  "THE MILL": {
+    "searchAs": "159405",
+    "why": "OneMap returns THE RITZ-CARLTON, MILLENIA SINGAPORE, because Millenia begins with Mill. The real building is 5 Jalan Kilang, 5.7 km away; a stored rate had already inherited the Ritz-Carlton's coordinates from this."
+  },
+  "TEKKA MARKET & FOOD CENTRE": {
+    "searchAs": "ZHUJIAO CENTRE",
+    "why": "OneMap finds nothing for this name even after the ampersand retry: it indexes the place as TEKKA MARKET (665 Buffalo Road, postal NIL) and ZHUJIAO CENTRE (TEKKA MARKET) at 662 Buffalo Road, 210662. Searched by name rather than postal because TEKKA MARKET itself carries no postal code."
+  }
+}

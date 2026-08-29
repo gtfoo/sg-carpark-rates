@@ -1,5 +1,6 @@
 import type { LatLng } from "./geo";
 import { getOneMapToken } from "./onemapAuth";
+import aliasJson from "./onemap-aliases.json";
 
 /**
  * OneMap search is the one endpoint that needs no authentication, and it
@@ -16,6 +17,40 @@ export interface GeocodeResult {
   /** Postal code, or null when OneMap returns "NIL". Used to match saved rates. */
   postal: string | null;
   location: LatLng;
+}
+
+/**
+ * Queries OneMap answers with the WRONG place, and what to ask instead.
+ *
+ * Three confirmed, all the same shape: the search is fuzzy, and a different
+ * building outranks the one you named.
+ *
+ *   "Changi General Hospital" -> CGH BUILDING, 131 Killiney Road. An unrelated
+ *                                building named after the hospital's acronym,
+ *                                13 km from the hospital.
+ *   "The Mill"                -> THE RITZ-CARLTON, MILLENIA SINGAPORE, because
+ *                                Millenia begins with Mill. 5.7 km off.
+ *   "Tekka Market & Food..."  -> nothing at all; it is indexed as TEKKA MARKET
+ *                                and ZHUJIAO CENTRE (TEKKA MARKET).
+ *
+ * Curated, one entry at a time with its reason, because the automatic version
+ * does not work. Requiring the returned name to resemble the query was measured
+ * against 140 rows and rejected 48 of them — "BEATTY RD" answering "BEATTY
+ * ROAD", "JLN KLAPA" answering "JALAN KLAPA" — all correct, all 0.0-0.3 km
+ * away. That veto would have stripped coordinates from a third of the store.
+ * And progressively dropping words is the same fuzzy truncation that caused
+ * two of the three failures above.
+ *
+ * A postal is the strongest thing to ask instead, since it is unambiguous. A
+ * name is used only where the place has no postal of its own.
+ */
+const ALIASES = aliasJson as Record<string, { searchAs: string; why: string }>;
+
+const aliasKey = (s: string) => s.trim().toUpperCase().replace(/\s+/g, " ");
+
+/** What to actually search for, given what the user typed. */
+export function searchTermFor(query: string): string {
+  return ALIASES[aliasKey(query)]?.searchAs ?? query;
 }
 
 /**
@@ -44,7 +79,10 @@ export function retrySpelling(query: string): string | null {
 }
 
 export async function geocode(query: string): Promise<GeocodeResult | null> {
-  const url = `${SEARCH}?searchVal=${encodeURIComponent(query)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
+  // Ask for the alias, not the name, when OneMap is known to answer the wrong
+  // building for it.
+  const term = searchTermFor(query);
+  const url = `${SEARCH}?searchVal=${encodeURIComponent(term)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
 
   // Search used to be fully open. As of Jul 2026 it returns an
   // "Authentication token missing" error alongside results, so send the token
@@ -105,7 +143,7 @@ export async function suggest(query: string, limit = 6): Promise<Suggestion[]> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return [];
 
-  const url = `${SEARCH}?searchVal=${encodeURIComponent(trimmed)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
+  const url = `${SEARCH}?searchVal=${encodeURIComponent(searchTermFor(trimmed))}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
   const token = await getOneMapToken();
 
   const res = await fetch(
