@@ -37,7 +37,11 @@ jobs:
   # nothing. The deploy waits on it: a rate-parser regression should never
   # reach production, and every case in tests/ is one that reached it once.
   test:
-    runs-on: ubuntu-latest
+    # Pinned, not `ubuntu-latest`, per INFRA.md's phase-2 condition. Harmless
+    # while this job only runs tests; load-bearing the moment it builds the
+    # artifact that ships, because then the runner's OS is part of what is
+    # shipped. Pinning now costs nothing and removes a silent variable later.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -53,7 +57,10 @@ jobs:
 
   deploy:
     needs: test
-    runs-on: ubuntu-latest
+    # This job is a pure SSH deployer -- no checkout, no node, nothing built
+    # here -- so the runner image is not part of what ships. Pinned anyway for
+    # consistency with the job above rather than out of need.
+    runs-on: ubuntu-24.04
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.2
