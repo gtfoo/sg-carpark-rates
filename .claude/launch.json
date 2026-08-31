@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "carpark",
+      "runtimeExecutable": "wsl.exe",
+      "runtimeArgs": [
+        "-d",
+        "Ubuntu-24.04",
+        "--",
+        "bash",
+        "-lc",
+        "cd /home/gtfoo/Git/carpark-sg && . \"$HOME/.nvm/nvm.sh\" && nvm use >/dev/null && exec npm run dev -- -H 0.0.0.0 -p 3001"
+      ],
+      "port": 3001
+    }
+  ]
+}
