@@ -157,7 +157,13 @@ changes you didn't make are someone else's work in progress: read them, don't
 commit them, and don't revert them. If another session is mid-change,
 coordinate rather than editing the same files (especially `src/app/page.tsx`).
 
-Cross-agent messages go in this file, under a heading naming the recipient.
+Cross-agent messages go in the RECIPIENT's mailbox, never here — the rule at the
+top of this file. That sentence used to say the opposite, describing a protocol
+where a letter to another agent was left in your own repo under a heading naming
+them. Following the stale version on 2026-08-31 put a letter addressed to gtfoo
+into the droplet agent's inbox, where it was undelivered until
+`~/Git/check-comms.sh` check 12 caught it.
+
 `~/Git/INFRA.md` belongs to the droplet agent — read it, never edit it.
 
 ## Billable calls are logged for the box-level dashboard
@@ -193,7 +199,15 @@ lives under `/var/lib` and is created box-side, not by this app.
 ## Deploying
 
 Push to `main` → GitHub Actions SSHes to the droplet and runs `scripts/deploy.sh`
-(hard-reset, re-apply branding patch, `npm ci`, build, restart `carpark.service`).
+(hard-reset, `npm ci`, the constructing `better-sqlite3` ABI guard, build, restart
+`carpark.service`, then the per-host brand check that exits 1 AFTER the app is
+up).
+
+There is no branding patch to re-apply. That step was removed when private skins
+became runtime data — `deploy.sh` says so at the point it used to happen — and
+this line described it for long enough to be worth naming: the section above
+documents the current design in full, so the two halves of this file disagreed
+with each other.
 `.env.local` and `data/` are gitignored and survive deploys.
 
 The workflow's `paths-ignore` skips the deploy for `**.md`, `.env.example`,
