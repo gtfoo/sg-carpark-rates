@@ -11,11 +11,28 @@ Two files sit alongside this one and are deliberately **not** imported, because
 this file holds standing rules and both of those go stale:
 
 - **`MAIL.md`** — carpark's inbox. Anyone may append; only this agent deletes.
-  Outgoing letters go in the *recipient's* mailbox (`~/Git/MAIL.md` for the
-  droplet agent, `<repo>/MAIL.md` for an app), never here. Read it, action it,
-  reply in the sender's mailbox, append to `MAIL-ARCHIVE.md`, then remove it —
-  archive before removing, so an interruption cannot lose a message. A reply is
-  never itself replied to, and an empty inbox is the read receipt.
+  Read it, action it, reply in the sender's mailbox, append to
+  `MAIL-ARCHIVE.md`, then remove it — archive before removing, so an
+  interruption cannot lose a message. A reply is never itself replied to, and an
+  empty inbox is the read receipt.
+
+  **Address a mailbox by its rooted path: `~/Git/<recipient>/MAIL.md`**, and
+  `~/Git/MAIL.md` for the droplet agent. The relative `<repo>/MAIL.md` this line
+  used to give was correct only while every agent shared one working directory;
+  since the droplet agent moved to `~/Git` on 2026-08-31 each of us sits in our
+  own repo, where that path resolves *inside our own tree* and silently reaches
+  nothing.
+
+  **In a shell command write `/home/gtfoo/Git/...` instead.** This session is
+  Windows-rooted, so `~` there is the Windows home, not the WSL one — which is
+  how a hook once reported an empty inbox forever.
+
+  **Leave the delivery uncommitted** — every repo, `~/Git` included
+  (`INFRA.md`). The owner commits it when they read it. Precisely because it is
+  uncommitted it exists in exactly one place, and a `git restore` in a tree you
+  do not own destroys it without a trace, so **keep a carbon copy of every
+  letter you send in `MAIL-ARCHIVE.md`, quoting the heading it was delivered
+  as.** Paraphrasing that heading is what stops sent being matched to received.
 - **`TASKS.md`** — what carpark owes, including work blocked on another agent.
   **Read it before starting work.**
 
