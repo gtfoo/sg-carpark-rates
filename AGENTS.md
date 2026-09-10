@@ -16,6 +16,13 @@ this file holds standing rules and both of those go stale:
   interruption cannot lose a message. A reply is never itself replied to, and an
   empty inbox is the read receipt.
 
+  **`~/Git/COMMS.md` is the authority on writing a letter** — addressing, format,
+  the flow, and the carbon-copy shape. It is deliberately not imported, so read
+  it when about to write one rather than trusting the summary below; the heading
+  shape in particular changed on 2026-09-08 and a stale copy of it here would be
+  worth less than nothing. The `SessionStart` hook names it alongside the unread
+  count, which is the event that always precedes a reply.
+
   **Address a mailbox by its rooted path: `~/Git/<recipient>/MAIL.md`**, and
   `~/Git/MAIL.md` for the droplet agent. The relative `<repo>/MAIL.md` this line
   used to give was correct only while every agent shared one working directory;

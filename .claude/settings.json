@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "n=$(grep -c '^## To ' MAIL.md 2>/dev/null); [ \"${n:-0}\" -gt 0 ] && echo \"MAIL: $n unread letter(s) in MAIL.md — read them before starting work\"; true"
+            "command": "n=$(grep -c '^## To ' MAIL.md 2>/dev/null); [ \"${n:-0}\" -gt 0 ] && echo \"MAIL: $n unread letter(s) in MAIL.md — read them before starting work; read ~/Git/COMMS.md before replying\"; true"
           }
         ]
       }
