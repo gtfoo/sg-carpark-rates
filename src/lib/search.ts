@@ -1,4 +1,5 @@
 import { fetchHdbCarparks, type HdbCarpark } from "./sources/hdb";
+import { isNotForCars } from "./notForCars";
 import { fetchAvailability, type Availability } from "./sources/availability";
 import { publicEpsCarparks, type EpsCarpark } from "./sources/eps";
 import {
@@ -231,9 +232,10 @@ export async function search(
 
   // Saved rates with coordinates become nearby options, ranked with the HDB
   // carparks — this is what surfaces Terminal 1's rate when searching Terminal 2.
-  // Lorry/heavy-vehicle parks are dropped: a car can't park there.
+  // Bays no car may park in are dropped — see notForCars.ts, which both this
+  // and the EPS inventory now share, because the two copies had drifted.
   const overrideHits = safe(() => listOverridesWithCoords(), [])
-    .filter((o) => !isHeavyVehicleOnly(o.displayName ?? o.matchValue))
+    .filter((o) => !isNotForCars(o.displayName ?? o.matchValue))
     .map((o) => ({ o, d: haversineMetres(place.location, { lat: o.lat!, lng: o.lng! }) }))
     .filter((x) => x.d <= OVERRIDE_RADIUS_M)
     .sort((a, b) => a.d - b.d);
@@ -905,16 +907,6 @@ function rawRateForDay(
         ? o.saturdayRate ?? o.weekdayRate ?? ""
         : o.weekdayRate ?? "";
   return bandForTime(raw, startMod);
-}
-
-/**
- * Lorry / heavy-vehicle parks, which have no standard car lots — URA lists a
- * handful as "… HVP" (e.g. BENDEMEER RD HVP) and other feeds spell it out.
- * Matched on the name because no source flags the vehicle type. "HV" alone is
- * deliberately not matched: too short to be safe inside ordinary names.
- */
-function isHeavyVehicleOnly(name: string): boolean {
-  return /\bHVP\b|HEAVY[\s-]?VEHICLE|\bLORRY\b/i.test(name);
 }
 
 function looseNameMatch(a: string, b: string): boolean {

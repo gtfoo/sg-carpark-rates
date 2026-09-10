@@ -4,6 +4,7 @@ import manualAliasJson from "./eps-aliases-manual.json";
 import suppressedJson from "./eps-suppressed.json";
 import locationFixJson from "./eps-locations-manual.json";
 import type { LatLng } from "../geo";
+import { isNotForCars } from "../notForCars";
 
 /**
  * LTA EPS car park inventory — the full national list of car parks in the EPS
@@ -215,33 +216,6 @@ export const allEpsCarparks: EpsCarpark[] = all;
  */
 function isHdbCode(name: string): boolean {
   return /^HDB[_ ]/i.test(name);
-}
-
-/**
- * A bay a car may not park in.
- *
- * EPS is an inventory of everything behind the barrier system, not of public
- * parking, so it also lists the operational bays inside a development: goods
- * vehicle loading bays and tour-coach stands. They reach a card looking like
- * any other option — "Golden Mile Tower Loading Bay" — and a driver sent to one
- * cannot park there.
- *
- * Matched on "loading" alone rather than on "loading bay", because the feed
- * spells the same thing three ways: "GOLDEN MILE TOWER LOADING BAY",
- * "ASCENT_LOADING BAY" (which tidySeparators turns into "ASCENT / LOADING
- * BAY"), and "THE STAR (LOADING AND UNLOADING BAY)". Nothing else in the 3,167
- * rows carries the word.
- *
- * These are excluded rather than suppressed one id at a time: unlike
- * eps-suppressed.json, which records a judgement about a specific row the data
- * cannot settle, the name here states the fact outright.
- */
-function isNotForCars(name: string): boolean {
-  return (
-    /\b(heavy vehicle|lorry|container)\b/i.test(name) ||
-    /\b(un)?loading\b/i.test(name) ||
-    /\bcoach stand\b/i.test(name)
-  );
 }
 
 /**
