@@ -2,6 +2,7 @@ import raw from "./eps-carparks.json";
 import aliasJson from "./eps-aliases.json";
 import manualAliasJson from "./eps-aliases-manual.json";
 import suppressedJson from "./eps-suppressed.json";
+import locationFixJson from "./eps-locations-manual.json";
 import type { LatLng } from "../geo";
 
 /**
@@ -163,14 +164,43 @@ const aliases: Record<string, string> = {
   ...(manualAliasJson as Record<string, string>),
 };
 
-const all: EpsCarpark[] = (raw as RawEps[]).map((c) => ({
-  id: c.id,
-  name: aliases[String(c.id)] ?? displayName(c.name, c.address),
-  address: c.address,
-  postal: c.postal,
-  location: { lat: c.lat, lng: c.lng },
-  publicLots: c.publicLots,
-}));
+/**
+ * Rows EPS files at the wrong POINT, corrected from the car park's own postal
+ * code via OneMap. Kept beside the aliases and for the same reason: a
+ * re-scrape must not silently reinstate the error.
+ *
+ * The bar is that the feed is wrong in a way the feed itself proves. 3369
+ * "HAVELOCK II" is filed at postal 058763 — Kreta Ayer Conservation Area, 214
+ * South Bridge Road — and its coordinates are byte-identical to OneMap's point
+ * for that address, so the row was geocoded from a typo of 059763 and landed
+ * 443 m away on a conservation area. That is evidence, not judgement.
+ *
+ * This matters more than a misplaced pin. A name alias makes the stored rate
+ * override match this row EXACTLY, and chooseNameMatch deliberately skips the
+ * 1 km location veto for an exact match ("an exact match is not a guess"). So
+ * the coordinates have to be right BEFORE the name is fixed, or the guard that
+ * exists to stop a rate landing on the wrong building is the very thing that
+ * stands aside while it happens — the MOE (Evans Road) failure, rebuilt.
+ */
+interface EpsLocationFix {
+  lat: number;
+  lng: number;
+  postal: string;
+  why: string;
+}
+const locationFixes = locationFixJson as Record<string, EpsLocationFix>;
+
+const all: EpsCarpark[] = (raw as RawEps[]).map((c) => {
+  const fix = locationFixes[String(c.id)];
+  return {
+    id: c.id,
+    name: aliases[String(c.id)] ?? displayName(c.name, c.address),
+    address: c.address,
+    postal: fix?.postal ?? c.postal,
+    location: fix ? { lat: fix.lat, lng: fix.lng } : { lat: c.lat, lng: c.lng },
+    publicLots: c.publicLots,
+  };
+});
 
 /** The complete inventory (all ~3,167 car parks, including season-only ones). */
 export const allEpsCarparks: EpsCarpark[] = all;
@@ -187,9 +217,31 @@ function isHdbCode(name: string): boolean {
   return /^HDB[_ ]/i.test(name);
 }
 
-/** "…HEAVY VEHICLE" / "LORRY PARK" — a car can't park there. */
-function isHeavyVehicleOnly(name: string): boolean {
-  return /\b(heavy vehicle|lorry|container)\b/i.test(name);
+/**
+ * A bay a car may not park in.
+ *
+ * EPS is an inventory of everything behind the barrier system, not of public
+ * parking, so it also lists the operational bays inside a development: goods
+ * vehicle loading bays and tour-coach stands. They reach a card looking like
+ * any other option — "Golden Mile Tower Loading Bay" — and a driver sent to one
+ * cannot park there.
+ *
+ * Matched on "loading" alone rather than on "loading bay", because the feed
+ * spells the same thing three ways: "GOLDEN MILE TOWER LOADING BAY",
+ * "ASCENT_LOADING BAY" (which tidySeparators turns into "ASCENT / LOADING
+ * BAY"), and "THE STAR (LOADING AND UNLOADING BAY)". Nothing else in the 3,167
+ * rows carries the word.
+ *
+ * These are excluded rather than suppressed one id at a time: unlike
+ * eps-suppressed.json, which records a judgement about a specific row the data
+ * cannot settle, the name here states the fact outright.
+ */
+function isNotForCars(name: string): boolean {
+  return (
+    /\b(heavy vehicle|lorry|container)\b/i.test(name) ||
+    /\b(un)?loading\b/i.test(name) ||
+    /\bcoach stand\b/i.test(name)
+  );
 }
 
 /**
@@ -206,7 +258,8 @@ function isHeavyVehicleOnly(name: string): boolean {
  * ones, and search fills its slots with car parks it can price before it falls
  * back to this inventory.
  *
- * Still excluded: the HDB-coded duplicates above, and heavy-vehicle parks.
+ * Still excluded: the HDB-coded duplicates above, and the bays no car may park
+ * in — heavy vehicle and lorry parks, loading bays, coach stands.
  */
 /**
  * EPS entries confirmed NOT to be public car parks, with the reason in the file
@@ -229,5 +282,5 @@ function isHeavyVehicleOnly(name: string): boolean {
 const suppressed = new Set(Object.keys(suppressedJson as Record<string, string>));
 
 export const publicEpsCarparks: EpsCarpark[] = all.filter(
-  (c) => !isHdbCode(c.name) && !isHeavyVehicleOnly(c.name) && !suppressed.has(String(c.id)),
+  (c) => !isHdbCode(c.name) && !isNotForCars(c.name) && !suppressed.has(String(c.id)),
 );

@@ -1,0 +1,8 @@
+{
+  "3369": {
+    "lat": 1.287150616166626,
+    "lng": 103.8451537368625,
+    "postal": "059763",
+    "why": "EPS files Havelock2 at postal 058763, which OneMap answers with KRETA AYER CONSERVATION AREA, 214 South Bridge Road. The row's coordinates (1.283197879313472, 103.845683318966) are that answer to the last decimal, so the point was geocoded from the wrong postal and sits 443 m south of the building. 059763 is 2 Havelock Road, and OneMap returns it under the name HAVELOCK2."
+  }
+}

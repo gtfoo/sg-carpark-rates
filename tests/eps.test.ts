@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { displayName } from "../src/lib/sources/eps";
+import { displayName, publicEpsCarparks, allEpsCarparks } from "../src/lib/sources/eps";
+import { haversineMetres } from "../src/lib/geo";
+import { chooseNameMatch } from "../src/lib/store/rates";
 
 test("any filing code is replaced by the car park's address", () => {
   // A sweep of the inventory found thirteen of these across eight prefixes
@@ -77,4 +79,61 @@ test("ordinary EPS names are left alone", () => {
   assert.equal(displayName("HDB_J4_J5", "BLK 201, JURONG EAST ST 21"), "HDB_J4_J5");
   // The CapitaLand " - C" tier suffix is still trimmed.
   assert.equal(displayName("Plaza Singapura - C", "68, ORCHARD ROAD"), "Plaza Singapura");
+});
+
+
+const HAVELOCK2 = { lat: 1.287150616166626, lng: 103.8451537368625 };
+const KRETA_AYER = { lat: 1.283197879313472, lng: 103.845683318966 };
+const norm = (v: string) => v.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+test("a bay no car may park in is kept out of search", () => {
+  // EPS inventories everything behind the barrier system, not just public
+  // parking, so it carries the operational bays inside a development.
+  // "Golden Mile Tower Loading Bay" reached a card as an ordinary option.
+  for (const c of publicEpsCarparks) {
+    const n = c.name.toUpperCase();
+    assert.ok(!/\b(UN)?LOADING\b/.test(n), `loading bay surfaced: ${c.name}`);
+    assert.ok(!/\bCOACH STAND\b/.test(n), `coach stand surfaced: ${c.name}`);
+    assert.ok(!/\b(HEAVY VEHICLE|LORRY|CONTAINER)\b/.test(n), `goods vehicle: ${c.name}`);
+  }
+
+  // The assertions above must not be passing because nothing matches: these
+  // rows are really in the feed, under all three of its spellings.
+  const raw = allEpsCarparks.map((c) => c.name.toUpperCase());
+  assert.ok(raw.includes("GOLDEN MILE TOWER LOADING BAY"));
+  assert.ok(raw.includes("ASCENT / LOADING BAY"));
+  assert.ok(raw.includes("THE STAR (LOADING AND UNLOADING BAY)"));
+  assert.ok(raw.some((n) => /\bCOACH STAND\b/.test(n)));
+
+  // And an ordinary car park beside one of them still surfaces, so the rule
+  // has not swept up the building the bay belongs to.
+  assert.ok(publicEpsCarparks.some((c) => /GOLDEN MILE/i.test(c.name)));
+});
+
+test("Havelock2 is named and placed as the building actually is", () => {
+  const h = allEpsCarparks.find((c) => c.id === "3369");
+  assert.ok(h, "EPS row 3369 is missing");
+
+  // EPS files this as "HAVELOCK II" at postal 058763. OneMap answers 058763
+  // with KRETA AYER CONSERVATION AREA, 214 South Bridge Road, and the row's
+  // stored coordinates are that answer to the last decimal — so the point was
+  // geocoded from a typo of 059763.
+  assert.equal(h.name, "Havelock2");
+  assert.equal(h.postal, "059763");
+  assert.ok(haversineMetres(h.location, HAVELOCK2) < 5);
+  assert.ok(haversineMetres(h.location, KRETA_AYER) > 400);
+});
+
+test("the stored Havelock2 rate reaches the car park", () => {
+  const h = allEpsCarparks.find((c) => c.id === "3369")!;
+  // The override is stored under the normalized name "HAVELOCK2". While EPS's
+  // "HAVELOCK II" stood, neither string contained the other — Roman numeral
+  // against digit — so chooseNameMatch found nothing, no rate bound, and the
+  // car park showed as a location-only card ranked below every priced one.
+  const rows = [{ match_value: "HAVELOCK2", lat: HAVELOCK2.lat, lng: HAVELOCK2.lng }];
+  assert.equal(norm(h.name), "HAVELOCK2");
+  assert.ok(chooseNameMatch(rows, norm(h.name), h.location));
+
+  // The exact shape of the bug, pinned so a future rename cannot bring it back.
+  assert.equal(chooseNameMatch(rows, norm("HAVELOCK II"), h.location), null);
 });
