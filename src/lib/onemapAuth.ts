@@ -1,3 +1,4 @@
+import { dataFetch } from "./dataFetch";
 /**
  * OneMap access tokens expire after ~3 days, so a manually pasted token is a
  * standing breakage: it works today and silently fails on the VPS by the
@@ -52,7 +53,7 @@ async function fetchToken(
   password: string,
 ): Promise<string | null> {
   try {
-    const res = await fetch(TOKEN_URL, {
+    const res = await dataFetch(TOKEN_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

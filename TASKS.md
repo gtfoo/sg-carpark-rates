@@ -260,7 +260,7 @@ letter and a one-line task strands the *why*.
       typo. The production row's display name was corrected on the droplet.
       `from: owner report · 2026-09-20 · adf1fd9`
 
-- [ ] **`/api/search` has an unbounded tail — only one upstream has a timeout**
+- [x] **`/api/search` had an unbounded tail — done 2026-09-20**
       The droplet agent reported a single 9.6s `/api/search`, correctly refusing
       to call one sample a pattern: it is the only such call in seven days, and
       p95 across 1,010 requests is 60ms. The 9.6s itself is explainable — that
@@ -282,9 +282,36 @@ letter and a one-line task strands the *why*.
       misbehaves. A timeout turns slowness into the graceful fallback failure
       already gets.
 
-      Not urgent at 60ms p95, and deliberately not bundled into anything else:
-      it touches every data source.
+      Fixed with `src/lib/dataFetch.ts` — a wrapper, not a constant each caller
+      passes. A timeout every caller must remember to attach is the same shape
+      as `notForCars.ts` was: the failure is silent, and it is invisible in
+      review because the missing thing is absent rather than wrong. 8 call sites
+      moved across `datagov`, `availability`, `ura`, `onemap` and `onemapAuth`,
+      at 15s — the number `datamall.ts` and `extract.ts` already used, rather
+      than a third number to reconcile. A caller passing its own `signal` keeps
+      it, so opting out is explicit rather than a quiet drop back to bare
+      `fetch`.
+
+      **`websearch.ts` is deliberately NOT covered** and still has four bare
+      `fetch` calls. Tavily, OpenAI and Anthropic legitimately take tens of
+      seconds, so a data-source budget there would convert working lookups into
+      failures. What the right number is for a provider chain is a separate
+      question, and guessing it inside this change would have been the more
+      expensive mistake.
       `from: droplet agent · ~/Git/carpark-sg/MAIL-ARCHIVE.md · 2026-09-20`
+
+- [ ] **The search/LLM provider calls still have no timeout**
+      Four bare `fetch` calls in `websearch.ts` — Tavily, Brave, OpenAI,
+      Anthropic. Node's fetch has no default timeout, so a provider that accepts
+      the connection and then says nothing hangs `/api/lookup` indefinitely.
+
+      Split out of the `/api/search` fix rather than bundled into it, because
+      the right number is genuinely unknown here: these calls take tens of
+      seconds when they are WORKING, so too short a budget turns a healthy
+      lookup into a failure, and the route's own `maxDuration = 60` is a
+      Next.js serverless notion that may not bound anything on a self-hosted
+      Node server — which is worth checking before picking a value.
+      `from: carpark agent · found while fixing the above · 2026-09-20`
 
 - [ ] **Commercial opening hours are not modelled**
       Proposal on the table: infer from rate text, treating "no band covers this

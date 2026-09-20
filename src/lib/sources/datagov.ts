@@ -1,3 +1,4 @@
+import { dataFetch } from "../dataFetch";
 /** Shared client for data.gov.sg. No API key needed for these endpoints. */
 
 const DATASTORE = "https://data.gov.sg/api/action/datastore_search";
@@ -19,7 +20,7 @@ async function fetchWithRetry(url: string, attempts = 4): Promise<Response> {
   for (let i = 0; i < attempts; i++) {
     let res: Response;
     try {
-      res = await fetch(url);
+      res = await dataFetch(url);
     } catch {
       // Network blip — back off and retry.
       await sleep(backoffMs(i));

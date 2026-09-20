@@ -1,4 +1,5 @@
 import { svy21ToLatLng, type LatLng } from "../geo";
+import { dataFetch } from "../dataFetch";
 
 /**
  * URA Data Service — car park details WITH rates.
@@ -34,7 +35,7 @@ export async function getUraToken(): Promise<string> {
   const today = new Date().toISOString().slice(0, 10);
   if (cachedToken && cachedToken.day === today) return cachedToken.token;
 
-  const res = await fetch(TOKEN_URL, {
+  const res = await dataFetch(TOKEN_URL, {
     headers: { AccessKey: key, "User-Agent": UA },
   });
   if (!res.ok) {
@@ -225,7 +226,7 @@ export async function fetchUraCarparks(): Promise<UraCarpark[]> {
   if (!key) throw new Error("URA_ACCESS_KEY is not set.");
   const token = await getUraToken();
 
-  const res = await fetch(`${DATA_URL}?service=Car_Park_Details`, {
+  const res = await dataFetch(`${DATA_URL}?service=Car_Park_Details`, {
     headers: { AccessKey: key, Token: token, "User-Agent": UA },
   });
   if (!res.ok) throw new Error(`URA car park request failed: HTTP ${res.status}`);

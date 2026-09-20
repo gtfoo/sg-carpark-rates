@@ -1,6 +1,7 @@
 import type { LatLng } from "./geo";
 import { getOneMapToken } from "./onemapAuth";
 import aliasJson from "./onemap-aliases.json";
+import { dataFetch } from "./dataFetch";
 
 /**
  * OneMap search is the one endpoint that needs no authentication, and it
@@ -88,7 +89,7 @@ export async function geocode(query: string): Promise<GeocodeResult | null> {
   // "Authentication token missing" error alongside results, so send the token
   // when we have one — unauthenticated access is clearly being wound down.
   const token = await getOneMapToken();
-  const res = await fetch(
+  const res = await dataFetch(
     url,
     token ? { headers: { Authorization: token } } : undefined,
   );
@@ -146,7 +147,7 @@ export async function suggest(query: string, limit = 6): Promise<Suggestion[]> {
   const url = `${SEARCH}?searchVal=${encodeURIComponent(searchTermFor(trimmed))}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
   const token = await getOneMapToken();
 
-  const res = await fetch(
+  const res = await dataFetch(
     url,
     token ? { headers: { Authorization: token } } : undefined,
   );
@@ -213,7 +214,7 @@ export async function walkingDistanceMetres(
     `https://www.onemap.gov.sg/api/public/routingsvc/route` +
     `?start=${from.lat},${from.lng}&end=${to.lat},${to.lng}&routeType=walk`;
 
-  const res = await fetch(url, { headers: { Authorization: token } });
+  const res = await dataFetch(url, { headers: { Authorization: token } });
   if (!res.ok) return null;
 
   const body = (await res.json()) as {

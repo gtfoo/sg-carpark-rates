@@ -1,3 +1,4 @@
+import { dataFetch } from "../dataFetch";
 const AVAILABILITY = "https://api.data.gov.sg/v1/transport/carpark-availability";
 
 interface RawAvailability {
@@ -37,7 +38,7 @@ export async function fetchAvailability(
     ? `${AVAILABILITY}?date_time=${encodeURIComponent(toSgtParam(at))}`
     : AVAILABILITY;
 
-  const res = await fetch(url);
+  const res = await dataFetch(url);
   if (!res.ok) throw new Error(`availability failed: HTTP ${res.status}`);
 
   const body = (await res.json()) as RawAvailability;
