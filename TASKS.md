@@ -260,6 +260,32 @@ letter and a one-line task strands the *why*.
       typo. The production row's display name was corrected on the droplet.
       `from: owner report · 2026-09-20 · adf1fd9`
 
+- [ ] **`/api/search` has an unbounded tail — only one upstream has a timeout**
+      The droplet agent reported a single 9.6s `/api/search`, correctly refusing
+      to call one sample a pattern: it is the only such call in seven days, and
+      p95 across 1,010 requests is 60ms. The 9.6s itself is explainable — that
+      path awaits five upstreams, and a cold cache pays for all of them: the HDB
+      dataset, mall rates, live availability, the geocode, and up to ten
+      OneMap walking-route calls in parallel.
+
+      The finding underneath it is the one worth fixing. **`AbortSignal.timeout`
+      appears exactly once in the codebase**, in `datamall.ts`. `availability.ts`,
+      `datagov.ts`, `mallRates` and `onemap.ts` all call bare `fetch`, and
+      Node's fetch has no default timeout. So the worst case is not slow, it is
+      unbounded.
+
+      The routing call already shows what the fix should look like: `walks` wraps
+      each route in `.catch(() => null)` and falls back to straight-line
+      distance, deliberately, because a thrown route once 502'd the whole
+      search. That handles an upstream that FAILS and does nothing for one that
+      merely never answers — which is the more common way a public dataset
+      misbehaves. A timeout turns slowness into the graceful fallback failure
+      already gets.
+
+      Not urgent at 60ms p95, and deliberately not bundled into anything else:
+      it touches every data source.
+      `from: droplet agent · ~/Git/carpark-sg/MAIL-ARCHIVE.md · 2026-09-20`
+
 - [ ] **Commercial opening hours are not modelled**
       Proposal on the table: infer from rate text, treating "no band covers this
       hour" as closed. Deliberately unvalidated — it would wrongly close every

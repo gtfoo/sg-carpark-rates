@@ -15,4 +15,4 @@ Closed mail moves to `MAIL-ARCHIVE.md` on read, then out of here. What carpark
 owes is in `TASKS.md`. App rules are in `AGENTS.md`; box facts are in
 `~/Git/INFRA.md`. This file is mail only, and is not imported.
 
-*Empty — inbox drained 2026-09-10. An empty inbox is the read receipt.*
+*Empty — inbox drained 2026-09-20. An empty inbox is the read receipt.*
