@@ -35,9 +35,16 @@ letter and a one-line task strands the *why*.
       reason the guard reads as it does.
       `from: carpark → droplet · ~/Git/MAIL.md#phase-2-carparks-answers · gated on phase 2`
 
-- [ ] **Rates: the EPS coverage gap — 86 queued at ≥200 lots**
+- [ ] **Rates: the EPS coverage gap — 69 queued at ≥200 lots**
       Run `npx tsx scripts/bulkEpsLookup.ts --limit N` on the droplet.
       `--dry-run` first: it costs nothing and prints the exact targets.
+
+      **69** on 2026-09-20, not the 86 this heading carried — the queue shrinks
+      as rates arrive, so the number in a heading is a snapshot and the dry run
+      is the truth. 6 of the next batch were skipped because the store already
+      answers for them. Top of the queue is MTOWER (749 lots), whose rate was
+      researched by hand in an earlier session and never applied for want of an
+      answer on whether to trust it.
 
       Measured 2026-08-16, so nobody re-derives it: 3,167 EPS entries, 1,401
       already suppressed because a rated carpark (usually HDB) sits within
@@ -120,7 +127,7 @@ letter and a one-line task strands the *why*.
       did, carrying prose instead of a flag.
       `from: carpark agent · b2dc849`
 
-- [ ] **Rates: a web lookup can still duplicate an official dataset**
+- [x] **Rates: a web lookup can still duplicate an official dataset — done 2026-09-20**
       Mackenzie Road had two `web-llm` rows sitting ~90 m from three URA rows
       that already covered the street properly — with the free periods and the
       $5 night cap the web versions both omitted. One of them carried
@@ -132,12 +139,28 @@ letter and a one-line task strands the *why*.
       genuinely different car parks. Distance alone cannot separate the two
       cases.
 
-      The check that would: before saving a `web-llm` rate, look for an
-      `operator-site` row nearby and refuse — or at least flag — when official
-      data already covers the place. Precedence, not proximity. Worth doing
-      because the AI path spent a search and an extraction to produce a WORSE
-      copy of data already held.
-      `from: carpark agent · Mackenzie Road · 2026-08-28`
+      **The check proposed here was wrong, and measuring it first is what
+      caught that.** `scripts/precedenceSweep.ts` (new, report-only) flags every
+      `web-llm` row within 150 m of an `operator-site` row: **47 of 100**. And 46
+      of those 47 are CORRECT — *SCAPE, Aperia Mall, Bangkok Bank Building,
+      Chinatown Point, Amara Hotel, Kallang Riverside Condominium. Nearly every
+      official neighbour is URA STREET parking named after a road, and a mall's
+      basement is not the road outside it. "Precedence, not proximity" still
+      loses, because the official row is evidence about a different car park.
+      Refusing on that rule would have suppressed 46 rows to catch 1.
+
+      The one real hit is `#3459 "N0012"`, 61 m from NORTH BRIDGE RD MARKET OFF
+      ST, quoting the same $0.60 per 30 mins WITHOUT the $5.00 cap the official
+      row carries — the Mackenzie signature exactly.
+
+      What separates it is the NAME, not the distance. A filing code names a
+      facility an official feed files, so a web row wearing one is a second copy
+      of an official record; a building name is not, however close the street
+      row sits. Shipped as that: `isCodeName` (already used to stop EPS codes
+      reaching a card) now also gates the save, with the radius demoted to
+      merely requiring that an official row is present. `tests/precedence.test.ts`
+      pins 31 of the real building names as MUST-NOT-REFUSE.
+      `from: carpark agent · Mackenzie Road · 2026-08-28 · measured 2026-09-20`
 
 - [ ] **Search: OneMap answers some names with the wrong building**
       Mechanism built and three cases fixed (`3c1afbd`,
@@ -181,11 +204,61 @@ letter and a one-line task strands the *why*.
       same as the question needing none.
       `from: carpark agent · 0dd0e85`
 
-- [ ] **JTC rows without coordinates never surface**
+- [ ] **109 rows without coordinates never surface — 29 of them JTC**
       They are in the store but cannot be ranked by distance, so they are
       invisible to search regardless of how good their rates are. Some PDF
       blocks were also skipped by the extractor.
-      `from: carpark agent · own backlog`
+
+      Measured on the droplet 2026-09-20 with `scripts/uncoordinatedRows.ts`:
+      **109 of 1187** rows, 107 `operator-site` and 2 `web-llm`. JTC is 29 of
+      them, so the heading this task carried named a quarter of the problem. They
+      are not gaps — the work of finding these prices was already done and paid
+      for; they are answers the app cannot reach.
+
+      **NONE of the 109 carries its own postal code**, which is what makes this
+      hard rather than a loop. OneMap answers a postal exactly and a name only
+      fuzzily, so all 109 need the judged kind of lookup — which means this task
+      is blocked behind the OneMap task below rather than independent of it.
+      Backfilling them by name with today's geocoder is precisely how Changi
+      General Hospital and The Mill acquired the wrong coordinates in the first
+      place.
+      `from: carpark agent · own backlog · measured 2026-09-20`
+
+- [x] **Bays no car may park in were listed as parking — done 2026-09-20**
+      "Golden Mile Tower Loading Bay" reached a card as an ordinary option.
+      Nine rows: five goods-vehicle loading bays and four Changi coach stands.
+      EPS inventories everything behind the barrier system, not just public
+      parking. 1586 surfaced rows became 1577, and Golden Mile Tower ITSELF
+      still surfaces — the bay went, not the building.
+
+      Found while fixing it that `search.ts` kept its OWN copy of the test and
+      the two had drifted in both directions: EPS knew loading bays, coach
+      stands and containers but not HVP; search knew HVP and neither of the
+      others. So the first fix covered EPS cards only, and a saved rate named
+      "… Loading Bay" would still have been listed. Both now import
+      `src/lib/notForCars.ts`; the test groups its cases by which copy used to
+      miss them. Third instance this month of two copies of one rule.
+      `from: owner report · 2026-09-20 · adf1fd9, 8176255`
+
+- [x] **Havelock2 was listed but unreachable — done 2026-09-20**
+      Reported as "not listed". It WAS listed, twice wrong. EPS files it as
+      "HAVELOCK II" while the stored LTA rate is filed under the name
+      HAVELOCK2, and the matcher compares HAVELOCKII against HAVELOCK2 —
+      Roman numeral against digit, neither containing the other — so no rate
+      bound and an unpriced card sorts below every priced one.
+
+      It was also pinned on the wrong building: EPS files postal 058763, which
+      OneMap answers with Kreta Ayer Conservation Area, and the row's
+      coordinates are that answer to the last decimal — geocoded from a typo of
+      059763, 443 m south.
+
+      The order mattered. An alias makes the override match EXACTLY, and
+      `chooseNameMatch` skips the 1 km location veto for an exact match, so
+      fixing the name first would have bound a rate to the wrong building with
+      the guard standing aside — MOE (Evans Road) rebuilt. Coordinates went
+      first, via `eps-locations-manual.json` so a re-scrape cannot reinstate the
+      typo. The production row's display name was corrected on the droplet.
+      `from: owner report · 2026-09-20 · adf1fd9`
 
 - [ ] **Commercial opening hours are not modelled**
       Proposal on the table: infer from rate text, treating "no band covers this

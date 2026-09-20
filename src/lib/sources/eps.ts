@@ -67,7 +67,7 @@ function cleanName(name: string): string {
  * carries a digit. Requiring the digit is what keeps real names out: "AMOY ST"
  * and "112 KATONG" both survive it.
  */
-function isCodeName(name: string): boolean {
+export function isCodeName(name: string): boolean {
   const tokens = name.toUpperCase().trim().split(/[_\s-]+/).filter(Boolean);
   if (!tokens.length) return false;
   const isRef = (t: string) =>

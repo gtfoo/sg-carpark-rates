@@ -157,6 +157,37 @@ export function overlappingOverride<
 }
 
 /** `overlappingOverride` against the store. */
+/**
+ * The nearest `operator-site` row to a point, within `radiusM`.
+ *
+ * Split from the DB call so the rule can be tested on rows rather than on a
+ * database — the same reason `overlappingOverride` is separate from
+ * `findOverlappingOverride`.
+ */
+export function nearestOfficial<
+  T extends { source: string; lat: number | null; lng: number | null },
+>(rows: T[], point: LatLng, radiusM: number): { row: T; metres: number } | null {
+  let best: { row: T; metres: number } | null = null;
+  for (const r of rows) {
+    if (r.source !== "operator-site" || r.lat == null || r.lng == null) continue;
+    const metres = haversineMetres(point, { lat: r.lat, lng: r.lng });
+    if (metres > radiusM) continue;
+    if (!best || metres < best.metres) best = { row: r, metres };
+  }
+  return best;
+}
+
+export function findNearestOfficial(
+  point: LatLng,
+  radiusM: number,
+): { override: RateOverride; metres: number } | null {
+  const rows = getDb()
+    .prepare("SELECT * FROM rate_overrides WHERE lat IS NOT NULL AND lng IS NOT NULL")
+    .all() as Row[];
+  const hit = nearestOfficial(rows, point, radiusM);
+  return hit ? { override: toOverride(hit.row), metres: hit.metres } : null;
+}
+
 export function findOverlappingOverride(
   point: LatLng,
   key: { matchType: string; matchValue: string },

@@ -5,6 +5,7 @@ import {
   upsertOverride,
   findOverrideForDestination,
   findOverlappingOverride,
+  findNearestOfficial,
   type RateOverride,
 } from "./store/rates";
 import { resolveGapsByName } from "./store/gaps";
@@ -13,6 +14,7 @@ import { citedUrl } from "./citation";
 import { checkLocation } from "./geo";
 import { rankCitations, allBlocked } from "./sourceQuality";
 import { geocode } from "./onemap";
+import { isCodeName } from "./sources/eps";
 
 /**
  * Can the fee engine actually turn this string into a number?
@@ -340,6 +342,45 @@ export async function lookupCarparkRate(args: {
           `A rate for this place is already saved as "${clash.displayName ?? clash.matchValue}" ` +
           `(#${clash.id}). Saving this would create a second row for one car park, ` +
           `so it was not saved — update that one instead.`,
+        sources,
+      };
+    }
+
+    // Wide on purpose: the code name below is what discriminates, so this only
+    // has to be big enough that an official row for the same facility is in
+    // range. N0012 sits 61 m from its official twin; Mackenzie was ~90 m.
+    const OFFICIAL_PRECEDENCE_M = 150;
+
+    // An OFFICIAL feed already answers for this place, and what we are about to
+    // save is a guess about the same facility.
+    //
+    // Measured before it was written, because the obvious version of this rule
+    // is wrong. "Refuse a web rate when an operator-site row is nearby" flags 47
+    // of 100 stored web rows at 150 m — and 46 of those are correct: a mall's
+    // basement and the URA street parking outside it are different car parks,
+    // which is the Orchard Road false-positive lesson arriving at a new radius.
+    // Source does not rescue proximity.
+    //
+    // What separates the one real case is the NAME. "N0012" and Mackenzie's
+    // rows are filing codes: a code names a facility an official feed files,
+    // so a web row wearing one is a second copy of an official record rather
+    // than a building beside it. "Aperia Mall" is not, however close CT Hub 2
+    // sits. So the code name does the discriminating and the radius is only
+    // there to require that an official row is actually present.
+    const codeName = isCodeName(args.destination);
+    const official =
+      codeName && args.lat != null && args.lng != null
+        ? findNearestOfficial({ lat: args.lat, lng: args.lng }, OFFICIAL_PRECEDENCE_M)
+        : null;
+    if (official) {
+      return {
+        found: false,
+        status: "not-found",
+        reason:
+          `"${args.destination}" is a filing code, and official data for this place is ` +
+          `already saved as "${official.override.displayName ?? official.override.matchValue}" ` +
+          `(#${official.override.id}, ${Math.round(official.metres)} m away). An operator's ` +
+          `own figures outrank a web lookup, so this was not saved.`,
         sources,
       };
     }
