@@ -17,8 +17,19 @@ export async function POST(request: Request) {
   // through several providers, so one vendor's cap no longer ends the day, and
   // 40 was stopping the owner testing their own app long before it was
   // protecting anything. Raised to 100 on request.
+  //
+  // The per-address limit was 5/hour and is now 10, raised on request for the
+  // same reason: every 429 this endpoint has ever served was the owner using
+  // their own app. Fourteen in the retained logs, all on /api/lookup, across
+  // three sessions on 08-22, 08-28 and 09-06 — none from anyone else.
+  //
+  // Note what this trades: 10/hour against a 100/day ceiling means ONE address
+  // can now drain the global budget in ten hours rather than twenty. That is
+  // the intended direction — the daily ceiling is the real protection and the
+  // hourly one exists for fairness between addresses, of which there is
+  // currently one.
   if (
-    !allow(`lookup:${clientIp(request)}`, 5, 60 * 60 * 1000) ||
+    !allow(`lookup:${clientIp(request)}`, 10, 60 * 60 * 1000) ||
     !allow("lookup:all", 100, 24 * 60 * 60 * 1000)
   ) {
     return Response.json(
