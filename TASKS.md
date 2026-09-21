@@ -35,7 +35,7 @@ letter and a one-line task strands the *why*.
       reason the guard reads as it does.
       `from: carpark → droplet · ~/Git/MAIL.md#phase-2-carparks-answers · gated on phase 2`
 
-- [ ] **Rates: the EPS coverage gap — 69 queued at ≥200 lots**
+- [ ] **Rates: the EPS coverage gap — 59 queued at ≥200 lots**
       Run `npx tsx scripts/bulkEpsLookup.ts --limit N` on the droplet.
       `--dry-run` first: it costs nothing and prints the exact targets.
 
@@ -52,6 +52,22 @@ letter and a one-line task strands the *why*.
       known lots. 235 is the size of this job — not the 3,160 a naive query
       reports, which is an artifact of comparing raw names against the
       normalised `match_value` keys the store actually uses.
+
+      Batch of 10 run 2026-09-21: **8 saved, 2 refused** (MND and
+      STELLAR@TAMPINES, both "no reliable current rate found online"). Measured
+      cost for the ten: **$0.0325** in Anthropic tokens and 20 Tavily credits —
+      about a third of a cent each, so the remaining 59 are roughly $0.19. Four
+      of the eight cite the operator's own site (jurongpoint.com,
+      metroparking.com.sg twice); two cite parkopedia, two motorist.sg, and one
+      — Pasir Panjang Ferry Terminal — a `vercel.app` host that `sourceQuality`
+      already classifies WEAK. That is the design working as intended (evidence
+      outranks reputation, and weak is not blocked), but it puts a hobby site as
+      the sole source for a saved rate, so it belongs near the top of the human
+      verification queue rather than buried in it.
+
+      **The Gemini free tier is now exhausted** — 20 requests/day, and all ten
+      lookups fell through to Claude Haiku 4.5. Every future batch is fully
+      paid, which is what the $0.0325 measures.
 
       First batch: 5 found of 6. The refusal was correct — the search returned
       only partial hours and `lookupCarparkRate` declines below full
@@ -312,6 +328,28 @@ letter and a one-line task strands the *why*.
       Next.js serverless notion that may not bound anything on a self-hosted
       Node server — which is worth checking before picking a value.
       `from: carpark agent · found while fixing the above · 2026-09-20`
+
+- [ ] **Paid calls are logged as `usd: null`, so the dashboard reads them as free**
+      `AGENTS.md` states the rule this breaks: *"`usd: null`, never `0`, when a
+      call has no dollar cost. Free-tier Gemini costs nothing; '$0.00' implies a
+      measurement nobody took."* The intent is that null means genuinely free.
+
+      The 2026-09-21 EPS batch made **8 paid Claude Haiku 4.5 calls and logged
+      every one as `usd: null`** — so the honesty rule is now being broken in the
+      opposite direction from the one it was written to prevent, and gtfoo's
+      `/admin/usage` renders carpark as free-tier while it is spending.
+
+      The data is already there: each line carries `in_tokens` and `out_tokens`
+      (23,915 and 1,709 across that batch). What is missing is any pricing at
+      all — `src/lib/usage.ts` has no table and no caller supplies `usd` for
+      Anthropic. At $1.00/1M input and $5.00/1M output the batch cost $0.0325.
+
+      Two things to get right when fixing it. Prices must come from the
+      `claude-api` skill rather than memory, and they change. And this must stay
+      honest about estimation: a computed figure is an ESTIMATE, so if the
+      distinction matters the field to reach for is a new one, not a silent
+      redefinition of `usd` — the field names are gtfoo's contract, not ours.
+      `from: carpark agent · measured during the EPS batch · 2026-09-21`
 
 - [ ] **Commercial opening hours are not modelled**
       Proposal on the table: infer from rate text, treating "no band covers this
