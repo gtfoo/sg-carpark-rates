@@ -303,18 +303,48 @@ async function main(): Promise<void> {
       continue;
     }
 
+    // OneMap does not know every postal — 397726 (Kallang Car Park 1) and
+    // 088268 (Yan Kit Playfield) both return nothing. That is not fatal when a
+    // row for this car park already exists, because it already has a point.
     const point = await geocode(postal);
-    if (!point) {
-      refused.push(`${loc.title}: OneMap has no ${postal}`);
-      console.log(`   REFUSED — OneMap returned nothing for ${postal}\n`);
+
+    // Match on PROXIMITY OR NAME, not proximity alone. Proximity alone is what
+    // created a second Choa Chu Kang Sports Centre on the first run: the
+    // existing row sat further than SAME_PLACE_M from the geocoded postal, so
+    // the 25 m test saw nothing and a duplicate was written. `duplicateSweep`
+    // has always clustered on both keys for exactly this reason.
+    //
+    // Name equality is EXACT after normalising, never substring: a substring
+    // test is how a row stored as "MOE" captured every MOE-prefixed place.
+    const key = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const titleKey = key(loc.title);
+    const all = listOverridesWithCoords();
+    const byName = all.filter((o) => key(o.displayName ?? o.matchValue) === titleKey);
+    const byPoint = point
+      ? all
+          .map((o) => ({ o, d: haversineMetres({ lat: o.lat!, lng: o.lng! }, point) }))
+          .filter((x) => x.d <= SAME_PLACE_M)
+          .sort((a, b) => a.d - b.d)
+      : [];
+
+    const candidates = new Map<number, { o: (typeof all)[number]; d: number }>();
+    for (const x of byPoint) candidates.set(x.o.id, x);
+    for (const o of byName) if (!candidates.has(o.id)) candidates.set(o.id, { o, d: -1 });
+
+    if (candidates.size > 1) {
+      const ids = [...candidates.values()].map((c) => `#${c.o.id}`).join(", ");
+      refused.push(`${loc.title}: ${candidates.size} existing rows match (${ids})`);
+      console.log(`   REFUSED — ${candidates.size} rows already match (${ids}); not guessing\n`);
       continue;
     }
 
-    // Update whatever already stands here rather than adding a second row.
-    const near = listOverridesWithCoords()
-      .map((o) => ({ o, d: haversineMetres({ lat: o.lat!, lng: o.lng! }, point) }))
-      .filter((x) => x.d <= SAME_PLACE_M)
-      .sort((a, b) => a.d - b.d)[0];
+    const near = [...candidates.values()][0];
+
+    if (!near && !point) {
+      refused.push(`${loc.title}: OneMap has no ${postal} and no existing row to update`);
+      console.log(`   REFUSED — OneMap has no ${postal}, and nothing here to update\n`);
+      continue;
+    }
 
     if (near) {
       getDb()
@@ -337,8 +367,9 @@ async function main(): Promise<void> {
           near.o.id,
         );
       updated++;
-      console.log(`   UPDATED #${near.o.id} (was ${near.o.source}, ${Math.round(near.d)} m)\n`);
-    } else {
+      const how = near.d < 0 ? "matched by name" : `${Math.round(near.d)} m away`;
+      console.log(`   UPDATED #${near.o.id} (was ${near.o.source}, ${how})\n`);
+    } else if (point) {
       const row = upsertOverride({
         matchType: "postal",
         matchValue: postal,
