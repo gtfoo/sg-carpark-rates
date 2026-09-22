@@ -351,6 +351,54 @@ letter and a one-line task strands the *why*.
       redefinition of `usd` — the field names are gtfoo's contract, not ours.
       `from: carpark agent · measured during the EPS batch · 2026-09-21`
 
+- [x] **Metro Parking read from the operator's own tables — done 2026-09-22**
+      Their site lists 36 car parks; 23 produce a rate that prices. 21 rows are
+      now `operator-site` citing metroparking.com.sg, against 2 that yesterday's
+      EPS batch reached by spending a web search and an LLM call each to
+      paraphrase the same page. `scripts/metroParkingHarvest.ts`, free and
+      deterministic.
+
+      **A live overcharge is fixed.** `#3467 Kallang Car Park 1` carried its cap
+      inside the RATE string, where `withoutCaps` strips it before the rate
+      patterns run — correctly, since a ceiling that reads as a rate once priced
+      Changi South at $35 for two hours — so the cap applied NOWHERE. Measured
+      through the real parser it charged **$9.60 for an 11pm eight-hour stay the
+      operator caps at $5.00**. Note the direction: overcharging, not the
+      undercharging it looks like at a glance. A cap now goes in NOTES as its
+      own clause naming its own hours, which is what `notesForTime` scopes.
+
+      Three defects were made and fixed during the work, each worth keeping:
+      proximity-only matching wrote a second Choa Chu Kang row (fixed by
+      matching name OR proximity, as `duplicateSweep` always has); cutting the
+      trailing prose outright dropped the real cap from every page that states
+      it only there, reintroducing the overcharge the script existed to fix; and
+      exact-name matching could not see `Kallang Car Park 1 (Kallang H)`, fixed
+      with an anchored prefix test that a short stored value cannot exploit.
+      `from: owner · 2026-09-21 · a5dfa7b, and the four commits after it`
+
+- [x] **Singapore Discovery Centre conflation — reviewed 2026-09-22**
+      Asked for a review, so this is the finding rather than a change.
+
+      `#856` is not a two-way conflation but a **three-way** one: "Singapore
+      Science Centre/ Singapore Discovery Centre/ Snow City", one row, one rate
+      (`Daily: $0.50 per ½ hour`), from LTA open data. The Discovery Centre
+      (638365) and the Science Centre (609081) are **6,322 m apart**.
+
+      It also has **no coordinates**, so it is one of the 109 rows search can
+      never rank — it has never surfaced and cannot.
+
+      Both real places are now covered by located rows: `#3483` Singapore
+      Discovery Centre, operator-site from Metro Parking's own table, and
+      `#3411` Science Centre Singapore. So `#856` is redundant as well as
+      conflated, and `scripts/deleteRow.ts` exists to retire it with the reason
+      recorded. **Not deleted — that is the owner's call**, and the rate it
+      carries may still be the only figure held for Snow City.
+
+      Worth carrying back to the 109-uncoordinated task: some of those rows
+      should not be geocoded at all, because they are aggregates that name
+      several places. Geocoding one would pick a winner silently.
+      `from: owner · reviewed 2026-09-22`
+
 - [ ] **Commercial opening hours are not modelled**
       Proposal on the table: infer from rate text, treating "no band covers this
       hour" as closed. Deliberately unvalidated — it would wrongly close every
