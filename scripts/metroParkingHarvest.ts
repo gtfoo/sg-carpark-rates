@@ -357,7 +357,18 @@ async function main(): Promise<void> {
     const key = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]/g, "");
     const titleKey = key(loc.title);
     const all = listOverridesWithCoords();
-    const byName = all.filter((o) => key(o.displayName ?? o.matchValue) === titleKey);
+    // Exact, or the stored name EXTENDS the title with a qualifier: production
+    // holds "Kallang Car Park 1 (Kallang H)" for the page titled "Kallang Car
+    // Park 1". Anchored at the start and one-directional, which is what makes
+    // it safe: the MOE failure was a SHORT stored value swallowing a long
+    // query, and a prefix test cannot do that. "KALLANGCARPARK1" is not a
+    // prefix of "KALLANGCARPARK2", so the numbered siblings stay apart.
+    const MIN_PREFIX = 12;
+    const byName = all.filter((o) => {
+      const k = key(o.displayName ?? o.matchValue);
+      if (k === titleKey) return true;
+      return titleKey.length >= MIN_PREFIX && k.startsWith(titleKey);
+    });
     const byPoint = point
       ? all
           .map((o) => ({ o, d: haversineMetres({ lat: o.lat!, lng: o.lng! }, point) }))
