@@ -140,22 +140,52 @@ function parseIndex(html: string): Loc[] {
   return [...out.values()];
 }
 
-/** The CAR table only — see the warning at the top of this file. */
-function carSection(pageText: string): string | null {
+/**
+ * The CAR table only — see the warning at the top of this file — split into the
+ * band rows and the prose that follows them.
+ *
+ * The split is not tidiness, it is the difference between two defects. The
+ * prose restates the ceiling as a sentence — "For any parking session (daily)
+ * between 10.30 pm - 7.00 am (next day) ... subject to a maximum parking charge
+ * of $5.00" — carrying both a clock range and a dollar figure, so the band
+ * scanner reads it as a third rate band and invents an overnight price of $5.00
+ * that does not exist.
+ *
+ * But it is also the ONLY place some pages state the cap at all. Choa Chu Kang
+ * and every page using the "10.30 pm - 7.00 am" wording put it here, while
+ * Bedok and Kallang put it inline in the band. Cutting the prose outright — the
+ * first version of this — silently dropped the real cap from those rows, which
+ * is the same overcharging this script exists to fix, reintroduced by the fix.
+ *
+ * So: `bands` for the rate scan, `prose` for the cap scan, never the reverse.
+ */
+function carSection(pageText: string): { bands: string; prose: string } | null {
   const start = pageText.search(/Parking Rates\s*\(\s*Car\s*\)/i);
   if (start < 0) return null;
   let rest = pageText.slice(start + 1);
   const next = rest.search(/Parking Rates\s*\(/i);
   if (next >= 0) rest = rest.slice(0, next);
 
-  // Stop at the prose that follows the table. It restates the cap as a
-  // sentence — "For any parking session (daily) between 10.30 pm - 7.00 am
-  // ... maximum parking charge of $5.00" — which carries a clock range and a
-  // dollar figure and so reads to the band scanner as a third rate band. Left
-  // in, Bedok Stadium reports an overnight band of "$5.00" that does not
-  // exist: the $5.00 is a ceiling on the $0.60 band above it, not a price.
   const tail = rest.search(/\*\s*\d+\s*minutes?\s*Grace Period|For any parking session/i);
-  return tail >= 0 ? rest.slice(0, tail) : rest;
+  return tail >= 0
+    ? { bands: rest.slice(0, tail), prose: rest.slice(tail) }
+    : { bands: rest, prose: "" };
+}
+
+/**
+ * A ceiling stated in prose, with the hours it applies to.
+ *
+ * Returned as its own clause naming its own hours so `notesForTime` scopes it —
+ * a cap naming no hours is global, which would cap the daytime band too.
+ */
+function proseCap(prose: string): string | null {
+  const m = prose.match(
+    /between\s*(\d{1,2}[.:]\d{2}\s*[ap]\.?m\.?)\s*[-–—]\s*(\d{1,2}[.:]\d{2}\s*[ap]\.?m\.?)[^$]{0,120}\$\s?(\d+(?:\.\d{2})?)/i,
+  );
+  if (!m) return null;
+  const from = m[1]!.replace(/\s+/g, "").toLowerCase();
+  const to = m[2]!.replace(/\s+/g, "").toLowerCase();
+  return `${from}-${to}: capped at max $${m[3]}.`;
 }
 
 const POSTAL = /\b(\d{6})\b/;
@@ -188,11 +218,19 @@ function buildRate(bands: Band[]): string {
   return bands.map((b) => `${b.from}-${b.to}: ${b.rate}`).join("; ");
 }
 
-function buildNotes(bands: Band[], pageText: string, url: string): string {
+function buildNotes(bands: Band[], prose: string, pageText: string, url: string): string {
   const parts: string[] = [];
   for (const b of bands) {
     // Its own clause, naming its own hours — that is what notesForTime reads.
     if (b.cap) parts.push(`${b.from}-${b.to}: capped at max $${b.cap}.`);
+  }
+  // Pages split into two families: Bedok and Kallang state the ceiling inline
+  // in the band, Choa Chu Kang and the "10.30pm-7.00am" pages state it only in
+  // the prose. Take the prose one only when no band already carried it, so a
+  // page in the first family does not emit the cap twice.
+  if (!bands.some((b) => b.cap)) {
+    const cap = proseCap(prose);
+    if (cap) parts.push(cap);
   }
   const grace = pageText.match(/(\d{1,3})\s*minutes?\s*Grace Period/i);
   if (grace) parts.push(`${grace[1]} minutes grace period.`);
@@ -271,7 +309,7 @@ async function main(): Promise<void> {
       continue;
     }
 
-    const bands = parseBands(car);
+    const bands = parseBands(car.bands);
     if (!bands.length) {
       refused.push(`${loc.title}: car table found, no band parsed`);
       console.log("   car table found but no band parsed — refused\n");
@@ -279,7 +317,7 @@ async function main(): Promise<void> {
     }
 
     const rate = buildRate(bands);
-    const notes = buildNotes(bands, text, loc.url);
+    const notes = buildNotes(bands, car.prose, text, loc.url);
     const check = priceCheck(rate, notes);
     console.log(`   rate : ${rate}`);
     console.log(`   notes: ${notes.slice(0, 120)}${notes.length > 120 ? "…" : ""}`);
