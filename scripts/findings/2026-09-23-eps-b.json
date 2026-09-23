@@ -1,0 +1,41 @@
+[
+  {
+    "postal": "659003",
+    "name": "HomeTeamNS Bukit Batok",
+    "weekday": "6.01am-5.00pm: $1.70 per hour; 5.01pm-3.00am: $4.16 per entry; 3.01am-6.00am: $3.90 per entry",
+    "saturday": "6.01am-5.00pm: $1.70 per hour; 5.01pm-3.00am: $4.16 per entry; 3.01am-6.00am: $3.90 per entry",
+    "sundayPh": "6.01am-3.00am: $4.16 per entry; 3.01am-6.00am: $3.90 per entry",
+    "notes": "HomeTeamNS and SAFRA members get a discounted rate by registering their IU in the HomeTeamNS app; the figures here are the undiscounted ones. From an aggregator rather than the club's own page — verify before relying on it.",
+    "sourceUrl": "https://www.motorist.sg/parking/hometeamns-bukit-batok-parking-rates",
+    "source": "web-llm"
+  },
+  {
+    "postal": "828694",
+    "name": "The Punggol Settlement",
+    "weekday": "7.01am-5.00pm: $1.00 for 1st hr; $0.50 per 30 mins; 5.01pm-12.00am: $1.50 for 1st hr; $0.75 per 30 mins; 12.01am-7.00am: $3.00 per entry",
+    "friday": "7.01am-5.00pm: $1.50 for 1st hr; $0.75 per 30 mins; 5.01pm-12.00am: $2.00 for 1st hr; $1.00 per 30 mins; 12.01am-7.00am: $3.00 per entry",
+    "saturday": "7.01am-5.00pm: $1.50 for 1st hr; $0.75 per 30 mins; 5.01pm-12.00am: $2.00 for 1st hr; $1.00 per 30 mins; 12.01am-7.00am: $3.00 per entry",
+    "sundayPh": "7.01am-5.00pm: $1.50 for 1st hr; $0.75 per 30 mins; 5.01pm-12.00am: $2.00 for 1st hr; $1.00 per 30 mins; 12.01am-7.00am: $3.00 per entry",
+    "notes": "Friday is billed with the weekend, which is what the friday rate column is for. Rates are subject to prevailing GST. Punggol Point Road is permanently closed; New Punggol Road now serves this car park. From an aggregator rather than the operator's own page — verify before relying on it.",
+    "sourceUrl": "https://www.motorist.sg/parking/the-punggol-settlement-parking-rates",
+    "source": "web-llm"
+  },
+  {
+    "postal": "408734",
+    "name": "Oxley BizHub 2",
+    "weekday": "7.00am-6.00pm: $0.83 per 30 mins; 6.01pm-6.59am: $2.50 per entry",
+    "saturday": "7.00am-6.00pm: $0.83 per 30 mins; 6.01pm-6.59am: $2.50 per entry",
+    "sundayPh": "Free",
+    "notes": "Managed by Metro Parking, whose own page for this site carries no car rate table — these figures are from an aggregator. Sunday and public holiday parking is free all day. Verify before relying on it.",
+    "sourceUrl": "https://www.motorist.sg/parking/oxley-bizhub-2-parking-rates",
+    "source": "web-llm"
+  },
+  {
+    "postal": "599491",
+    "name": "Singapore Institute of Management",
+    "weekday": "$0.65 per 30 mins",
+    "notes": "6.00am-11.59pm. 15 minutes grace period. The source ALSO states no parking on Saturdays, Sundays and public holidays, which contradicts its own Monday-to-Sunday band — so the weekend is left unset rather than guessed, and a weekend quote here should not be trusted. From an aggregator rather than SIM's own page — verify before relying on it.",
+    "sourceUrl": "https://www.motorist.sg/parking/singapore-institute-of-management-sim-parking-rates",
+    "source": "web-llm"
+  }
+]
