@@ -449,6 +449,32 @@ letter and a one-line task strands the *why*.
       several places. Geocoding one would pick a winner silently.
       `from: owner · reviewed 2026-09-22`
 
+- [ ] **Nothing expires a rate when the car park itself closes**
+      Three found in one day, all by accident: **AXA Tower** (demolished 2023),
+      **Golden Mile Complex** (closed 2023) and **HarbourFront Centre** (closed
+      27 July 2026 — spotted by the owner, not by anything here). The last was
+      the worst: `#637` was `operator-site`, located, and still quoting
+      "7am-6pm: $1.20 for 1st hr" two months after the building shut.
+
+      Every property that should have caught it instead kept it alive. Lot count
+      ranks it highly — HarbourFront Centre carried **1,097 lots**, the largest
+      in its area, so it outranked every real car park nearby. `operator-site`
+      provenance makes it look trustworthy. And `verified_at` was **2024-06-06**,
+      two years stale, which raises a flag precisely nowhere.
+
+      A closure is also the one kind of wrongness the existing guards cannot
+      see. The location guard checks a rate is in the right PLACE; the citation
+      guard checks the URL was really returned; the parser checks the string
+      prices. A rate for a demolished building passes all three.
+
+      What might work, in rough order of cost: flag `operator-site` rows whose
+      `verified_at` is older than some threshold AND whose lot count puts them
+      near the top of results, since that is exactly the blast radius; or
+      re-check the oldest rows on a cadence. What will NOT work is waiting to
+      notice — three in one day is the measured rate of noticing by accident,
+      and only because the owner happened to know.
+      `from: owner spotted HarbourFront Centre · 2026-09-23`
+
 - [ ] **Commercial opening hours are not modelled**
       Proposal on the table: infer from rate text, treating "no band covers this
       hour" as closed. Deliberately unvalidated — it would wrongly close every
