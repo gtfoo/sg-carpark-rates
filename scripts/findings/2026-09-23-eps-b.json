@@ -10,13 +10,13 @@
     "source": "web-llm"
   },
   {
-    "postal": "828694",
+    "postal": "828617",
     "name": "The Punggol Settlement",
     "weekday": "7.01am-5.00pm: $1.00 for 1st hr; $0.50 per 30 mins; 5.01pm-12.00am: $1.50 for 1st hr; $0.75 per 30 mins; 12.01am-7.00am: $3.00 per entry",
     "friday": "7.01am-5.00pm: $1.50 for 1st hr; $0.75 per 30 mins; 5.01pm-12.00am: $2.00 for 1st hr; $1.00 per 30 mins; 12.01am-7.00am: $3.00 per entry",
     "saturday": "7.01am-5.00pm: $1.50 for 1st hr; $0.75 per 30 mins; 5.01pm-12.00am: $2.00 for 1st hr; $1.00 per 30 mins; 12.01am-7.00am: $3.00 per entry",
     "sundayPh": "7.01am-5.00pm: $1.50 for 1st hr; $0.75 per 30 mins; 5.01pm-12.00am: $2.00 for 1st hr; $1.00 per 30 mins; 12.01am-7.00am: $3.00 per entry",
-    "notes": "Friday is billed with the weekend, which is what the friday rate column is for. Rates are subject to prevailing GST. Punggol Point Road is permanently closed; New Punggol Road now serves this car park. From an aggregator rather than the operator's own page — verify before relying on it.",
+    "notes": "Friday is billed with the weekend, which is what the friday rate column is for. Rates are subject to prevailing GST. Punggol Point Road is permanently closed and New Punggol Road now serves this car park — EPS still files it under the old postal 828694, which OneMap no longer knows, so this row is placed by the current address 500 New Punggol Road, 828617. From an aggregator rather than the operator's own page — verify before relying on it.",
     "sourceUrl": "https://www.motorist.sg/parking/the-punggol-settlement-parking-rates",
     "source": "web-llm"
   },
