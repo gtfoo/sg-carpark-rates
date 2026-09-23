@@ -1,0 +1,83 @@
+[
+  {
+    "postal": "769027",
+    "name": "SAFRA Yishun",
+    "weekday": "6.00am-5.59pm: $2.12 for 1st hr; $0.52 per 15 mins; 6.00pm-5.59am: $4.09 per entry",
+    "saturday": "6.00am-5.59pm: $2.12 for 1st hr; $0.52 per 15 mins; 6.00pm-5.59am: $4.09 per entry",
+    "sundayPh": "$4.09 per entry",
+    "notes": "Public rate. SAFRA members pay $1.01 for the 1st hr then $0.24 per 15 mins, and $1.97 per entry in the evening. 15 minutes grace period. No overnight parking. Revised w.e.f. 1 Jan 2024.",
+    "sourceUrl": "https://www.safra.sg/whats-on/carpark",
+    "source": "operator-site"
+  },
+  {
+    "postal": "528882",
+    "name": "SAFRA Tampines",
+    "weekday": "6.00am-5.59pm: $2.50 for 1st hr; $0.63 per 15 mins; 6.00pm-5.59am: $4.50 per entry",
+    "saturday": "4.00am-5.59pm: $2.50 for 1st hr; $0.63 per 15 mins; 6.00pm-5.59am: $4.50 per entry",
+    "sundayPh": "$4.50 per entry",
+    "notes": "Public rate, on the schedule SAFRA labels w.e.f. 1 June 2026 — that date has passed, so it supersedes the column the page still calls current. SAFRA members pay $1.20 for the 1st hr then $0.30 per 15 mins. 15 minutes grace period. No overnight parking.",
+    "sourceUrl": "https://www.safra.sg/whats-on/carpark",
+    "source": "operator-site"
+  },
+  {
+    "postal": "319387",
+    "name": "SAFRA Toa Payoh",
+    "weekday": "6.00am-5.59pm: $3.56 for 1st hr; $0.90 per 15 mins; 6.00pm-5.59am: $6.54 per entry",
+    "saturday": "6.00am-5.59pm: $3.56 for 1st hr; $0.90 per 15 mins; 6.00pm-5.59am: $6.54 per entry",
+    "sundayPh": "$6.54 per entry",
+    "notes": "Public rate, w.e.f. 1 June 2026. SAFRA members pay $1.31 for the 1st hr then $0.33 per 15 mins, and $2.47 per entry in the evening. 15 minutes grace period. No overnight parking.",
+    "sourceUrl": "https://www.safra.sg/whats-on/carpark",
+    "source": "operator-site"
+  },
+  {
+    "postal": "649848",
+    "name": "SAFRA Jurong",
+    "weekday": "6.00am-5.59pm: $2.12 for 1st hr; $0.53 per 15 mins; 6.00pm-5.59am: $4.09 per entry",
+    "saturday": "6.00am-5.59pm: $2.12 for 1st hr; $0.53 per 15 mins; 6.00pm-5.59am: $4.09 per entry",
+    "sundayPh": "$4.09 per entry",
+    "notes": "Public rate. SAFRA members pay $1.01 for the 1st hr then $0.25 per 15 mins, and $1.97 per entry in the evening. 15 minutes grace period. No overnight parking.",
+    "sourceUrl": "https://www.safra.sg/whats-on/carpark",
+    "source": "operator-site"
+  },
+  {
+    "postal": "574623",
+    "name": "Mount Alvernia Hospital",
+    "weekday": "7.00am-10.00pm: $2.70 for 1st hr; $1.70 per 30 mins; 10.00pm-7.00am: $5.00 per entry",
+    "saturday": "7.00am-10.00pm: $2.70 for 1st hr; $1.70 per 30 mins; 10.00pm-7.00am: $5.00 per entry",
+    "sundayPh": "7.00am-10.00pm: $2.70 for 1st hr; $1.70 per 30 mins; 10.00pm-7.00am: $5.00 per entry",
+    "notes": "Inpatient concessionary parking is $10.00 for the whole day with multiple entries, one vehicle per registration card. From the hospital's own directions page — verify before relying on it.",
+    "sourceUrl": "https://mtalvernia.sg/driving-and-public-transport/",
+    "source": "operator-site"
+  },
+  {
+    "postal": "098374",
+    "name": "Quayside Isle @ Sentosa Cove",
+    "weekday": "7.00am-12.59am: $3.82 per entry; 1.00am-6.59am: $1.64 per hour",
+    "friday": "7.00am-4.59pm: $4.36 for 1st 4 hrs; $1.09 per hour; 5.00pm-12.59am: $4.36 per entry; 1.00am-6.59am: $1.64 per hour",
+    "saturday": "7.00am-4.59pm: $4.36 for 1st 4 hrs; $1.09 per hour; 5.00pm-12.59am: $4.36 per entry; 1.00am-6.59am: $1.64 per hour",
+    "sundayPh": "7.00am-4.59pm: $4.36 for 1st 4 hrs; $1.09 per hour; 5.00pm-12.59am: $4.36 per entry; 1.00am-6.59am: $1.64 per hour",
+    "notes": "Quayside Isle bills Friday with the weekend, which is what the friday rate column is for. Prices include GST. A separate Sentosa gantry admission charge applies on entry to the island and is not included here.",
+    "sourceUrl": "https://www.quaysideisle.com/locate-us/getting-here-by-car/",
+    "source": "operator-site"
+  },
+  {
+    "postal": "098633",
+    "name": "HarbourFront Tower One",
+    "weekday": "7.00am-6.00pm: $1.60 for 1st hr; $0.80 per 30 mins; 6.00pm-4.00am: $3.20 per entry; 4.00am-7.00am: $2.50 per hour",
+    "saturday": "7.00am-6.00pm: $1.80 for 1st hr; $0.90 per 30 mins; 6.00pm-4.00am: $3.50 per entry; 4.00am-7.00am: $2.50 per hour",
+    "sundayPh": "7.00am-6.00pm: $1.80 for 1st hr; $0.90 per 30 mins; 6.00pm-4.00am: $3.50 per entry; 4.00am-7.00am: $2.50 per hour",
+    "notes": "From an aggregator rather than the building's own page — verify before relying on it.",
+    "sourceUrl": "https://www.motorist.sg/parking/harbourfront-tower-1-parking-rates",
+    "source": "web-llm"
+  },
+  {
+    "postal": "049315",
+    "name": "Ocean Financial Centre",
+    "weekday": "6.00am-6.29pm: $1.20 per 10 mins; 6.30pm-5.59am: $5.90 per entry",
+    "saturday": "6.00am-12.59pm: $1.20 per 10 mins; 1.00pm-5.59am: $5.90 per entry",
+    "sundayPh": "$5.90 per entry",
+    "notes": "From an aggregator rather than the building's own page — verify before relying on it.",
+    "sourceUrl": "https://www.motorist.sg/parking/ocean-financial-centre-parking-rates",
+    "source": "web-llm"
+  }
+]
