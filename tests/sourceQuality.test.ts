@@ -92,6 +92,14 @@ test("a peer parking app is a derivative source, not a citation", () => {
   const peer = "https://parkaholic.sg/M0001";
   assert.equal(sourceTier(peer), "weak");
 
+  // The same site on two hosts must rank the same. parking-go-where served six
+  // stored rows under BOTH of these, with identical /carpark/<slug> paths —
+  // and for a while only the free-hosting half was ranked weak, because every
+  // other entry in the list names a hosting platform rather than a site. A
+  // custom domain silently promoted a hobby aggregator to an ordinary source.
+  assert.equal(sourceTier("https://parking-go-where.vercel.app/carpark/x"), "weak");
+  assert.equal(sourceTier("https://www.parking-go-where.com/carpark/x"), "weak");
+
   // An operator or established directory that states the rate still wins.
   assert.equal(
     rankCitations([

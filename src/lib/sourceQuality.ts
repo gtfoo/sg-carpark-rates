@@ -71,6 +71,17 @@ const BLOCKED_HOSTS = [
  */
 const WEAK_HOSTS = [
   "parkaholic.sg",
+  // Same app as the `vercel.app` entry below, on a custom domain. Six stored
+  // rows cite it, three under each host, with identical `/carpark/<slug>`
+  // paths — so three were correctly ranked weak and three were treated as an
+  // ordinary source, purely because the site had outgrown its free hosting.
+  //
+  // That is the shape of the gap, not a one-off: every other entry here names
+  // a HOSTING PLATFORM, which classifies a hobby site only for as long as it
+  // sits on a platform subdomain. A custom domain silently promotes it. The
+  // `parkaholic.sg` entry above is the exception because it names the site
+  // itself, and that is what these two entries now do together.
+  "parking-go-where.com",
   "vercel.app",
   "netlify.app",
   "pages.dev",
