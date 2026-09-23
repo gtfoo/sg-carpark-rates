@@ -146,7 +146,25 @@ async function main(): Promise<void> {
       continue;
     }
 
-    const point = await geocode(f.postal);
+    // OneMap throttles, and it throttled this batch at the third postal. The
+    // failure was surfaced rather than swallowed, which was right — but it
+    // propagated out of main() and killed the run after two writes, so six
+    // findings that had already passed every check were lost to one 429.
+    //
+    // A failure here is about THIS finding, so it is caught here: refuse this
+    // one, name the reason, and carry on. Aborting the batch is a third
+    // behaviour, and it is never the one wanted.
+    let point: { lat: number; lng: number } | null = null;
+    try {
+      point = await geocode(f.postal);
+    } catch (err) {
+      refused.push(`${f.name}: ${err instanceof Error ? err.message : err}`);
+      console.log(`   REFUSED — ${err instanceof Error ? err.message : err}\n`);
+      continue;
+    }
+    // Paced for the same reason. Cheaper than being throttled into a retry.
+    await new Promise((r) => setTimeout(r, 1200));
+
     const all = listOverridesWithCoords();
     const titleKey = key(f.name);
     const byName = all.filter((o) => {
