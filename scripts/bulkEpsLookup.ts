@@ -23,8 +23,8 @@
  * hand-entered rate, so the worst case of a bad batch is money spent and
  * nothing saved — not a corrupted store.
  */
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { join, dirname } from "node:path";
 
 function loadEnv() {
   for (const file of [".env.local", ".env"]) {
@@ -100,7 +100,46 @@ async function main() {
     publicLots: number | null;
   }>;
 
+  // A refusal is not an answer, but it IS evidence about the next batch.
+  //
+  // Targets are ordered by lot count and a refusal leaves the store unchanged,
+  // so a car park the web cannot price stays at the HEAD of the queue and is
+  // re-attempted, at full cost, in every batch for ever. Measured: MND (609
+  // lots) and STELLAR@TAMPINES (549) were refused on 09-21 and again on 09-23,
+  // both times as the first two targets. At the ~47% refusal rate these two
+  // batches ran at, the head of the queue silently becomes a list of questions
+  // already asked.
+  //
+  // So refusals are remembered, and skipped for a while. NOT for ever: a rate
+  // that is not online today may be online next quarter, and `bulkGapLookup`
+  // already records the principle that failing to find an answer is not the
+  // same as the question needing none. The cooloff is what turns "ask again"
+  // from every batch into every season.
+  //
+  // Kept in `data/`, which is gitignored and survives deploys, because this is
+  // runtime evidence rather than a committed judgement like
+  // `eps-suppressed.json` — nobody should review a diff of it.
+  const REFUSAL_LOG = join(process.cwd(), "data", "eps-refusals.json");
+  const COOLOFF_DAYS = 30;
+
+  type Refusal = { name: string; at: string; reason: string };
+  let refusals: Record<string, Refusal> = {};
+  try {
+    refusals = JSON.parse(readFileSync(REFUSAL_LOG, "utf8")) as Record<string, Refusal>;
+  } catch {
+    // No log yet, or it is unreadable. Either way the batch proceeds — a
+    // missing memory must never stop the work, only stop the saving.
+  }
+  const freshRefusal = (id: string): Refusal | null => {
+    const r = refusals[id];
+    if (!r) return null;
+    const age = (Date.now() - Date.parse(r.at)) / 86_400_000;
+    return Number.isFinite(age) && age < COOLOFF_DAYS ? r : null;
+  };
+  const retryRefused = process.argv.includes("--retry-refused");
+
   const alreadyCovered: string[] = [];
+  const recentlyRefused: string[] = [];
 
   // Everything search can already price, with the names it would compare on.
   const rated: { loc: { lat: number; lng: number }; names: string[] }[] = [];
@@ -114,6 +153,13 @@ async function main() {
   const targets = eps
     .filter((c) => Number(c.publicLots) >= minLots)
     .filter((c) => !isMachineName(c.name))
+    .filter((c) => {
+      if (retryRefused) return true;
+      const r = freshRefusal(String(c.id));
+      if (!r) return true;
+      recentlyRefused.push(`${c.name} — ${r.at.slice(0, 10)}: ${r.reason.slice(0, 80)}`);
+      return false;
+    })
     .filter((c) => {
       const loc = { lat: c.lat, lng: c.lng };
       return !rated.some((r) => {
@@ -149,6 +195,17 @@ async function main() {
     `${eps.length} EPS entries → ${targets.length} unpriced, named, ≥${minLots} lots. ` +
       `Taking ${Math.min(limit, targets.length)}.`,
   );
+  if (recentlyRefused.length) {
+    console.log(
+      `  ${recentlyRefused.length} skipped — the web had no rate within the last ` +
+        `${COOLOFF_DAYS} days (--retry-refused to ask again):`,
+    );
+    for (const r of recentlyRefused.slice(0, 10)) console.log(`    ${r}`);
+    if (recentlyRefused.length > 10) {
+      console.log(`    ... ${recentlyRefused.length - 10} more`);
+    }
+  }
+
   if (alreadyCovered.length) {
     console.log(`  ${alreadyCovered.length} skipped — the store already answers for them:`);
     for (const a of alreadyCovered.slice(0, 10)) console.log(`    ${a}`);
@@ -186,14 +243,30 @@ async function main() {
       } else {
         missed++;
         console.log(`none   (${res.status}: ${res.reason ?? ""})`);
+        refusals[String(c.id)] = {
+          name: c.name,
+          at: new Date().toISOString(),
+          reason: res.reason ?? res.status,
+        };
       }
     } catch (err) {
       missed++;
       console.log(`ERROR  ${err instanceof Error ? err.message : String(err)}`);
+      // Deliberately NOT recorded. An exception is a fault on our side — a
+      // timeout, a missing key, a provider outage — and holding it against the
+      // car park for a month would silently drop a target for a reason that
+      // has nothing to do with whether its rate is published.
     }
     // The free tier rate-limits, and a 429 costs a long retry inside the
     // fallback chain — pacing here is cheaper than being throttled there.
     if (i < batch.length - 1) await new Promise((r) => setTimeout(r, pauseMs));
+  }
+
+  try {
+    mkdirSync(dirname(REFUSAL_LOG), { recursive: true });
+    writeFileSync(REFUSAL_LOG, JSON.stringify(refusals, null, 1));
+  } catch (err) {
+    console.log(`  (could not write ${REFUSAL_LOG}: ${err instanceof Error ? err.message : err})`);
   }
 
   console.log(`\n${found} saved, ${missed} not found, ${targets.length - batch.length} still queued.`);
