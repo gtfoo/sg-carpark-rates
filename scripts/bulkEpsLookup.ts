@@ -89,16 +89,30 @@ async function main() {
   );
   const { fetchHdbCarparks } = await import("../src/lib/sources/hdb");
   const { lookupCarparkRate } = await import("../src/lib/lookup");
-  const eps = (await import("../src/lib/sources/eps-carparks.json", { with: { type: "json" } }))
-    .default as Array<{
-    id: string;
-    name: string;
-    address: string;
-    postal: string;
-    lat: number;
-    lng: number;
-    publicLots: number | null;
-  }>;
+  // `publicEpsCarparks`, not the raw JSON this used to read.
+  //
+  // Reading the file directly bypassed everything `eps.ts` decides, and the
+  // suppression list was the expensive half: AXA TOWER and GOLDEN MILE COMPLEX
+  // were suppressed on 2026-09-23 because both buildings were demolished or
+  // closed in 2023, and both still appeared at the head of this queue
+  // afterwards, ready to be bought. A suppression that stops a card rendering
+  // but not a lookup firing saves nothing.
+  //
+  // It also picks up the other two things eps.ts knows. The loading bays and
+  // coach stands no car may park in are excluded, so none is ever looked up.
+  // And the names are the CURATED ones — the alias file exists precisely
+  // because "TLF" and "BTC_NUS" are unsearchable, and this path was querying
+  // the raw codes while the rest of the app used the readable names.
+  const { publicEpsCarparks } = await import("../src/lib/sources/eps");
+  const eps = publicEpsCarparks.map((c) => ({
+    id: c.id,
+    name: c.name,
+    address: c.address,
+    postal: c.postal ?? "",
+    lat: c.location.lat,
+    lng: c.location.lng,
+    publicLots: c.publicLots,
+  }));
 
   // A refusal is not an answer, but it IS evidence about the next batch.
   //
