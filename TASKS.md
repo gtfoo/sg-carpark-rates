@@ -35,7 +35,7 @@ letter and a one-line task strands the *why*.
       reason the guard reads as it does.
       `from: carpark → droplet · ~/Git/MAIL.md#phase-2-carparks-answers · gated on phase 2`
 
-- [ ] **Rates: the EPS coverage gap — 59 queued at ≥200 lots**
+- [ ] **Rates: the EPS coverage gap — 28 queued at ≥200 lots**
       Run `npx tsx scripts/bulkEpsLookup.ts --limit N` on the droplet.
       `--dry-run` first: it costs nothing and prints the exact targets.
 
@@ -52,6 +52,29 @@ letter and a one-line task strands the *why*.
       known lots. 235 is the size of this job — not the 3,160 a naive query
       reports, which is an artifact of comparing raw names against the
       normalised `match_value` keys the store actually uses.
+
+      Two batches of 15 run 2026-09-23: **14 saved, 16 refused**, $0.1338 for
+      the thirty (~$0.0045 each), 60 Tavily credits. The 28 still queued are
+      about $0.12. The Metro Parking harvest absorbed 7 of the queue on its own,
+      which is the cheaper route wherever an operator publishes a table.
+
+      **Refusals are now remembered** (`data/eps-refusals.json`, 30-day
+      cooloff). Targets are ordered by lot count and a refusal leaves the store
+      unchanged, so a car park the web cannot price stayed at the HEAD of the
+      queue and was re-attempted at full cost in every batch: MND (609 lots) and
+      STELLAR@TAMPINES (549) were refused on 09-21 and again on 09-23, both
+      times as the first two targets. At a ~50% refusal rate the head of the
+      queue quietly becomes a list of questions already asked. Verified after:
+      the next dry run skips 9 and offers genuinely unattempted targets.
+
+      A pattern in what gets refused, worth reading before spending more: the
+      failures are overwhelmingly **industrial estates, air-cargo buildings and
+      B2 developments** — Loyang 1 and 2, Richfield Industrial Centre, three
+      separate Changi cargo facilities, Stellar@Tampines ("a B2 industrial
+      development, not a public carpark"). These are plausibly not public car
+      parks at all, in which case the right outcome is suppression rather than a
+      rate, and the ≥200-lot ordering is steering spend toward exactly the
+      entries least likely to have a published public rate.
 
       Batch of 10 run 2026-09-21: **8 saved, 2 refused** (MND and
       STELLAR@TAMPINES, both "no reliable current rate found online"). Measured
