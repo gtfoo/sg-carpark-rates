@@ -35,7 +35,7 @@ letter and a one-line task strands the *why*.
       reason the guard reads as it does.
       `from: carpark → droplet · ~/Git/MAIL.md#phase-2-carparks-answers · gated on phase 2`
 
-- [ ] **Rates: the EPS coverage gap — 28 queued at ≥200 lots**
+- [ ] **Rates: the EPS coverage gap — 16 queued at ≥200 lots**
       Run `npx tsx scripts/bulkEpsLookup.ts --limit N` on the droplet.
       `--dry-run` first: it costs nothing and prints the exact targets.
 
@@ -52,6 +52,33 @@ letter and a one-line task strands the *why*.
       known lots. 235 is the size of this job — not the 3,160 a naive query
       reports, which is an artifact of comparing raw names against the
       normalised `match_value` keys the store actually uses.
+
+      **The queue is now worked by hand, not bought.** `scripts/applyFindings.ts`
+      takes a JSON file of researched rates and writes them under the same
+      guards the automated path uses — priced through the real parser at four
+      arrival hours, matched on name or proximity, placed by postal never by
+      name. The research happens with ordinary web search and page reads, so it
+      costs the app nothing, and the findings file is committed as the evidence
+      behind each row.
+
+      12 rows written that way on 2026-09-23 for **$0.00**, against roughly
+      $0.05 the batch path would have charged. Six came off the operator's own
+      page — one SAFRA page carried all four clubs, plus Mount Alvernia and
+      Quayside Isle — which also makes them `operator-site` rather than
+      `web-llm`.
+
+      **Two entries were removed rather than priced.** AXA TOWER was demolished
+      in 2023 and GOLDEN MILE COMPLEX closed in 2023; both still list 200+ lots,
+      so a queue ordered by lot count was steering spend at car parks that do
+      not exist, and rates for both are still circulating online. Suppressed
+      with the reason recorded.
+
+      Of the 20 worked: 12 priced, 2 suppressed, 6 genuinely not found —
+      Chui Huay Lim Club, Centro Residences, Unity Centre, The Index, Lion
+      Industrial Building, Kallang Warehousing and the rest of that shape. St
+      Regis was left alone because the only figures available were hotel
+      booking-site summaries that disagreed with each other, and a wrong
+      confident number is worse than a gap.
 
       Two batches of 15 run 2026-09-23: **14 saved, 16 refused**, $0.1338 for
       the thirty (~$0.0045 each), 60 Tavily credits. The 28 still queued are
