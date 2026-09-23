@@ -38,7 +38,12 @@
  */
 import { readFileSync } from "node:fs";
 import { haversineMetres } from "../src/lib/geo";
-import { listOverridesWithCoords, upsertOverride, SAME_PLACE_M } from "../src/lib/store/rates";
+import {
+  listOverrides,
+  listOverridesWithCoords,
+  upsertOverride,
+  SAME_PLACE_M,
+} from "../src/lib/store/rates";
 import { getDb } from "../src/lib/db";
 import {
   parseRate,
@@ -167,10 +172,26 @@ async function main(): Promise<void> {
 
     const all = listOverridesWithCoords();
     const titleKey = key(f.name);
-    const byName = all.filter((o) => {
+
+    // The NAME test runs over EVERY row, not only the located ones. A row with
+    // no coordinates is invisible to `listOverridesWithCoords`, so the guard
+    // could not see it at all — and 109 rows are in that state. It cost a
+    // duplicate immediately: #650 "Keppel Bay Tower / Harbourfront Tower One",
+    // LTA open data from 2024 and unlocated, sat beside a new HarbourFront
+    // Tower One row without either test firing. Proximity could not see it for
+    // want of a point, and the prefix could not see it because the stored name
+    // leads with the OTHER building it conflates.
+    //
+    // Matching a slash-joined name is deliberately not attempted here. Splitting
+    // on "/" would make "Keppel Bay Tower" and "Harbourfront Tower One" two
+    // candidates from one row, and #856 shows where that ends — three
+    // attractions 6 km apart under one heading. Report the collision; let a
+    // person decide what the row is.
+    const named = listOverrides().filter((o) => {
       const k = key(o.displayName ?? o.matchValue);
       return k === titleKey || (titleKey.length >= 12 && k.startsWith(titleKey));
     });
+    const byName = named;
     const byPoint = point
       ? all
           .map((o) => ({ o, d: haversineMetres({ lat: o.lat!, lng: o.lng! }, point) }))
@@ -178,7 +199,7 @@ async function main(): Promise<void> {
           .sort((a, b) => a.d - b.d)
       : [];
 
-    const candidates = new Map<number, { o: (typeof all)[number]; d: number }>();
+    const candidates = new Map<number, { o: (typeof named)[number]; d: number }>();
     for (const x of byPoint) candidates.set(x.o.id, x);
     for (const o of byName) if (!candidates.has(o.id)) candidates.set(o.id, { o, d: -1 });
 
